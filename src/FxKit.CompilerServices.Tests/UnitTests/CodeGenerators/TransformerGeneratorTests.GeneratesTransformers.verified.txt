@@ -1,0 +1,122 @@
+﻿using Core.EnumerableExtensions;
+using Core.TaskExtensions;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace Monads
+{
+    public static class ResultT
+    {
+        /// <summary>
+        ///     <c>Validation</c> of <c>Result</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Validation<Result<TNewOk, TErr>, TInvalid> MapT<TOk, TErr, TNewOk, TInvalid>(this Validation<Result<TOk, TErr>, TInvalid> source, Func<TOk, TNewOk> selector)
+            where TNewOk : notnull where TErr : notnull where TOk : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Task<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this Task<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
+            where TNewOk : notnull where TErr : notnull where TOk : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IEnumerable</c> of <c>Result</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IEnumerable<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this IEnumerable<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
+            where TNewOk : notnull where TErr : notnull where TOk : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IReadOnlyList</c> of <c>Result</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IReadOnlyList<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this IReadOnlyList<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
+            where TNewOk : notnull where TErr : notnull where TOk : notnull => source.Map(inner => inner.Map(selector));
+    }
+}
+
+-------------
+
+using Core.EnumerableExtensions;
+using Core.TaskExtensions;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace Monads
+{
+    public static class ValidationT
+    {
+        /// <summary>
+        ///     <c>Result</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Result<Validation<TNewValid, TInvalid>, TErr> MapT<TValid, TInvalid, TNewValid, TErr>(this Result<Validation<TValid, TInvalid>, TErr> source, Func<TValid, TNewValid> selector)
+            where TValid : notnull where TNewValid : notnull where TInvalid : notnull where TErr : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Task</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Task<Validation<TNewValid, TInvalid>> MapT<TValid, TInvalid, TNewValid>(this Task<Validation<TValid, TInvalid>> source, Func<TValid, TNewValid> selector)
+            where TValid : notnull where TNewValid : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IEnumerable</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IEnumerable<Validation<TNewValid, TInvalid>> MapT<TValid, TInvalid, TNewValid>(this IEnumerable<Validation<TValid, TInvalid>> source, Func<TValid, TNewValid> selector)
+            where TValid : notnull where TNewValid : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IReadOnlyList</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IReadOnlyList<Validation<TNewValid, TInvalid>> MapT<TValid, TInvalid, TNewValid>(this IReadOnlyList<Validation<TValid, TInvalid>> source, Func<TValid, TNewValid> selector)
+            where TValid : notnull where TNewValid : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+    }
+}
+
+-------------
+
+using Core.EnumerableExtensions;
+using Core.TaskExtensions;
+using Monads;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace System.Collections.Generic
+{
+    public static class IEnumerableT
+    {
+        /// <summary>
+        ///     <c>Result</c> of <c>IReadOnlyList</c> Transformer Method for <c>Traverse</c>.
+        /// </summary>
+        public static Result<Task<IEnumerable<R>>, TErr> TraverseT<T, R, TErr>(this Result<IReadOnlyList<T>, TErr> source, Func<T, Task<R>> selector)
+            where TErr : notnull => source.Map(inner => inner.Traverse(selector));
+        /// <summary>
+        ///     <c>Result</c> of <c>IEnumerable</c> Transformer Method for <c>Traverse</c>.
+        /// </summary>
+        public static Result<Task<IEnumerable<R>>, TErr> TraverseT<T, R, TErr>(this Result<IEnumerable<T>, TErr> source, Func<T, Task<R>> selector)
+            where TErr : notnull => source.Map(inner => inner.Traverse(selector));
+        /// <summary>
+        ///     <c>Result</c> of <c>IReadOnlyList</c> Transformer Method for <c>Sequence</c>.
+        /// </summary>
+        public static Result<Task<IEnumerable<T>>, TErr> SequenceT<T, TErr>(this Result<IReadOnlyList<Task<T>>, TErr> source)
+            where TErr : notnull => source.Map(inner => inner.Sequence());
+        /// <summary>
+        ///     <c>Result</c> of <c>IEnumerable</c> Transformer Method for <c>Sequence</c>.
+        /// </summary>
+        public static Result<Task<IEnumerable<T>>, TErr> SequenceT<T, TErr>(this Result<IEnumerable<Task<T>>, TErr> source)
+            where TErr : notnull => source.Map(inner => inner.Sequence());
+        /// <summary>
+        ///     <c>Validation</c> of <c>IReadOnlyList</c> Transformer Method for <c>Traverse</c>.
+        /// </summary>
+        public static Validation<Task<IEnumerable<R>>, TInvalid> TraverseT<T, R, TInvalid>(this Validation<IReadOnlyList<T>, TInvalid> source, Func<T, Task<R>> selector)
+            where TInvalid : notnull => source.Map(inner => inner.Traverse(selector));
+        /// <summary>
+        ///     <c>Validation</c> of <c>IEnumerable</c> Transformer Method for <c>Traverse</c>.
+        /// </summary>
+        public static Validation<Task<IEnumerable<R>>, TInvalid> TraverseT<T, R, TInvalid>(this Validation<IEnumerable<T>, TInvalid> source, Func<T, Task<R>> selector)
+            where TInvalid : notnull => source.Map(inner => inner.Traverse(selector));
+        /// <summary>
+        ///     <c>Validation</c> of <c>IReadOnlyList</c> Transformer Method for <c>Sequence</c>.
+        /// </summary>
+        public static Validation<Task<IEnumerable<T>>, TInvalid> SequenceT<T, TInvalid>(this Validation<IReadOnlyList<Task<T>>, TInvalid> source)
+            where TInvalid : notnull => source.Map(inner => inner.Sequence());
+        /// <summary>
+        ///     <c>Validation</c> of <c>IEnumerable</c> Transformer Method for <c>Sequence</c>.
+        /// </summary>
+        public static Validation<Task<IEnumerable<T>>, TInvalid> SequenceT<T, TInvalid>(this Validation<IEnumerable<Task<T>>, TInvalid> source)
+            where TInvalid : notnull => source.Map(inner => inner.Sequence());
+    }
+}

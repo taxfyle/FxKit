@@ -1,0 +1,95 @@
+name: Build, Test and Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ released ]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  # Lint the code using ReSharper
+  lint:
+    name: "ReSharper Inspections"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      # Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup dotnet
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: src/global.json
+
+      # Cache NuGet packages.  
+      - name: "Cache NuGet"
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.[cf]sproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Cache ReSharper
+      - name: "Cache ReSharper"
+        uses: actions/cache@v4
+        with:
+          path: /tmp/fxkit_resharper_cache
+          key: fxkit-resharper-cache-${{ github.run_id }}
+          # If no cache is present for this particular branch,
+          # then retrieve the most recent cache from the base branch.
+          restore-keys: |
+            fxkit-resharper-cache-
+
+      # Lint
+      - name: "Run ReSharper"
+        run: |
+          cd src && dotnet tool restore && dotnet restore &&
+          cd .. && ./scripts/inspect-code.sh
+        env:
+          CACHE_DIR: /tmp/fxkit_resharper_cache
+  
+  build:
+    name: "Build & Test"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 100
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: src/global.json
+
+    - name: Install dependencies
+      working-directory: ./src
+      run: dotnet restore
+      
+    - name: Build
+      working-directory: ./src
+      run: | 
+        dotnet build --configuration Release --no-restore
+        dotnet pack --no-build --no-restore --output nupkg
+
+    - name: Test
+      working-directory: ./src
+      run: dotnet test --no-restore --verbosity normal
+
+    # Only run on main branch
+    - name: Publish to NuGet
+      if: github.ref == 'refs/heads/main'
+      working-directory: ./src
+      run: |
+        dotnet nuget push nupkg/**/*.nupkg --api-key ${{ secrets.NUGET_OSS_API_KEY }} --source https://api.nuget.org/v3/index.json

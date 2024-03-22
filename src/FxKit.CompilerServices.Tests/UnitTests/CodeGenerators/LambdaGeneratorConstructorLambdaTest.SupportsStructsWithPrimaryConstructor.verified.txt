@@ -1,0 +1,11 @@
+﻿using System;
+
+namespace Woah.SoCool.HellaNamespace;
+
+public readonly partial struct MyStruct<T>
+{
+    /// <summary>
+    ///     The MyStruct constructor as a Func.
+    /// </summary>
+    public static readonly Func<T, MyStruct<T>> λ = (param1) => new(param1);
+}

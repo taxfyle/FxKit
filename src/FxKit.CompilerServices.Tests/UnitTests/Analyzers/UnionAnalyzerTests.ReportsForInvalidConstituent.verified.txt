@@ -1,0 +1,3 @@
+﻿[
+  (9,12): error FXKIT0003: Use 'partial record Woah' to declare a constituent of union type 'ForgotToAddPartial'
+]

@@ -1,0 +1,3 @@
+﻿[
+  (12,32): error FXKIT0004: 'NonClosedUsage' inherits union type 'NonClosed' which is not allowed. Only declare constituents by nesting them inside of the union using 'partial record'.
+]

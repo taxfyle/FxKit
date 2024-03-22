@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Title>FxKit</Title>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnablePackageValidation>true</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FxKit.CompilerServices.Annotations\FxKit.CompilerServices.Annotations.csproj"/>
+    <ProjectReference Include="..\FxKit.CompilerServices\FxKit.CompilerServices.csproj" OutputItemType="Analyzer" PrivateAssets="All"/>
+  </ItemGroup>
+
+</Project>

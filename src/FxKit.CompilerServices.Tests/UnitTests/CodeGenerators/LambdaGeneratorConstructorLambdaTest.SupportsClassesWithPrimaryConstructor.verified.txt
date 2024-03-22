@@ -1,0 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Woah.SoCool.HellaNamespace;
+
+public partial class MyClass<T>
+{
+    /// <summary>
+    ///     The MyClass constructor as a Func.
+    /// </summary>
+    public static readonly Func<T, global::System.Collections.Generic.List<T>, MyClass<T>> λ = (param1, param2) => new(param1, param2);
+}

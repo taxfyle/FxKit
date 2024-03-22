@@ -1,0 +1,3 @@
+﻿[
+  (9,16): error FXKIT0009: The [Lambda] attribute is only supported on class/record/struct declarations and static methods
+]

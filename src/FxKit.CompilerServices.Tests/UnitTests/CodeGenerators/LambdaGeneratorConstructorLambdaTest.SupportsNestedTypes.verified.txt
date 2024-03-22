@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Woah.SoCool;
+public static partial class Nested {
+
+public partial record MyRecord
+{
+    /// <summary>
+    ///     The MyRecord constructor as a Func.
+    /// </summary>
+    public static readonly Func<string, int, global::System.Collections.Generic.List<string>, MyRecord> λ = (Param1, Param2, Param3) => new(Param1, Param2, Param3);
+}
+}

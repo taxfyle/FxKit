@@ -1,0 +1,4 @@
+﻿[
+  (13,16): error FXKIT0006: 'IsAbstract' is marked as a union and cannot be marked as abstract because unions will be automatically marked as abstract,
+  (7,16): error FXKIT0006: 'IsSealed' is marked as a union and cannot be marked as sealed because unions will be automatically marked as abstract
+]
