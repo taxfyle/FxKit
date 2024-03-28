@@ -113,7 +113,7 @@
   &amp;lt;/Language&amp;gt;
 &amp;lt;/profile&amp;gt;&lt;/RIDER_SETTINGS&gt;&lt;/Profile&gt;</s:String>
     
-    <s:String x:Key="/Default/CodeStyle/CodeCleanup/RecentlyUsedProfile/@EntryValue">Worklayer: Full Cleanup</s:String>
+    <s:String x:Key="/Default/CodeStyle/CodeCleanup/RecentlyUsedProfile/@EntryValue">FxKit: Full Cleanup</s:String>
     <s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CommonFormatter/SHOW_AUTODETECT_CONFIGURE_FORMATTING_TIP/@EntryValue">False</s:Boolean>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/ARGUMENTS_LITERAL/@EntryValue">Named</s:String>
     <s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/ARGUMENTS_SKIP_SINGLE/@EntryValue">True</s:Boolean>
@@ -527,9 +527,9 @@
     <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=2CBD6971A7955044AD2624B84FB49E38/Position/@EntryValue">9</s:Int64>
     <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=567DCF4B487C244A9F6BB46E4E9F3B84/Position/@EntryValue">6</s:Int64>
     <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=7F2A1BE8D0078241A9AE7802038BAD3C/Position/@EntryValue">7</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=83CD0452B9227D4BB8603890E8F65888/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=83CD0452B9227D4BB8603890E8F65888/EntryName/@EntryValue">&lt;No Name&gt;</s:String>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=83CD0452B9227D4BB8603890E8F65888/Position/@EntryValue">10</s:Int64>
+    
+    
+    
     <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=C4795E57DDEC1C4F97BBC8C7173EBBCA/Position/@EntryValue">8</s:Int64>
     <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=20870D3896899E4FBD00F9F4B9FAB159/@KeyIndexDefined">True</s:Boolean>
     <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=20870D3896899E4FBD00F9F4B9FAB159/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
@@ -569,91 +569,7 @@ public async Task OneTimeTearDown()
 </s:String>
     <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6467199EF4F7094399005EC66AC9D7A0/@KeyIndexDefined">False</s:Boolean>
 
-
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/@KeyIndexDefined">True</s:Boolean>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Description/@EntryValue">JSON Deserialization Constructor</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Field/=classname/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Field/=classname/Expression/@EntryValue">typeName()</s:String>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Field/=classname/InitialRange/@EntryValue">-1</s:Int64>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Field/=classname/Order/@EntryValue">0</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Reformat/@EntryValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Scope/=C3001E7C0DA78E4487072B7E050D86C5/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Scope/=C3001E7C0DA78E4487072B7E050D86C5/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Scope/=C3001E7C0DA78E4487072B7E050D86C5/Type/@EntryValue">InCSharpFile</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Shortcut/@EntryValue">ctorjson</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=7B6BBC6F299DE345A05BA3CDD1D89726/Text/@EntryValue">#region JSON Constructor
-#pragma warning disable 8618
-/// &lt;summary&gt;
-///     Constructor used for JSON deserialization.
-/// &lt;/summary&gt;
-[JsonConstructor]
-public $classname$()
-{
-}
-
-#pragma warning restore 8618
-#endregion</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/@KeyIndexDefined">True</s:Boolean>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Applicability/=File/@EntryIndexedValue">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/CustomProperties/=Extension/@EntryIndexedValue">cs</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/CustomProperties/=FileName/@EntryIndexedValue">&amp;Command</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/CustomProperties/=ValidateFileName/@EntryIndexedValue">True</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Description/@EntryValue">Command Handler</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=COMMAND/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=COMMAND/Expression/@EntryValue">getAlphaNumericFileNameWithoutExtension()</s:String>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=COMMAND/InitialRange/@EntryValue">-1</s:Int64>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=COMMAND/Order/@EntryValue">2</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=NAMESPACE/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=NAMESPACE/Expression/@EntryValue">fileDefaultNamespace()</s:String>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=NAMESPACE/InitialRange/@EntryValue">-1</s:Int64>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=NAMESPACE/Order/@EntryValue">1</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=PROBLEM/@KeyIndexDefined">True</s:Boolean>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=PROBLEM/InitialRange/@EntryValue">1</s:Int64>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Field/=PROBLEM/Order/@EntryValue">0</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Reformat/@EntryValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Scope/=E8F0594528C33E45BBFEC6CFE851095D/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Scope/=E8F0594528C33E45BBFEC6CFE851095D/Type/@EntryValue">InCSharpProjectFile</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/Text/@EntryValue">using BigMoney.CompilerServices;
-using BigMoney.Core;
-using BigMoney.Core.Commands;
-
-namespace $NAMESPACE$;
-
-/// &lt;summary&gt;
-///     $END$
-/// &lt;/summary&gt;
-[Lambda]
-public partial record $COMMAND$(
     
-) : ICommand&lt;Saved, $PROBLEM$&gt;;
-
-/// &lt;summary&gt;
-///     Handler for &lt;see cref="$COMMAND$"/&gt;.
-/// &lt;/summary&gt;
-public class $COMMAND$Handler
-    : ICommandHandler&lt;$COMMAND$, Saved, $PROBLEM$&gt;
-{
-    /// &lt;summary&gt;
-    ///     Constructor.
-    /// &lt;/summary&gt;
-    public $COMMAND$Handler()
-    {
-    }
-
-    /// &lt;inheritdoc /&gt;
-    public Task&lt;Result&lt;Saved, $PROBLEM$&gt;&gt; HandleAsync(
-        $COMMAND$ command,
-        MessageContext ctx,
-        CancellationToken ct = default)
-    {
-        throw new NotImplementedException("TODO");
-    }
-}
-</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=83CD0452B9227D4BB8603890E8F65888/UITag/@EntryValue">BigMoney</s:String>
     <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=8F70EBAC457D0E4D879A9A97F68A7BC2/@KeyIndexDefined">True</s:Boolean>
     <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=8F70EBAC457D0E4D879A9A97F68A7BC2/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
     <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=8F70EBAC457D0E4D879A9A97F68A7BC2/Description/@EntryValue">Generates an async NUnit test case</s:String>
@@ -670,94 +586,9 @@ public async Task $TestName$()
 {
     $END$
 }</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/@KeyIndexDefined">True</s:Boolean>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Description/@EntryValue">JSON Discriminator Gunk</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=classname/@KeyIndexDefined">False</s:Boolean>
 
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=TagType/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=TagType/Expression/@EntryValue">constant("string")</s:String>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=TagType/Order/@EntryValue">1</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=Type/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=Type/Expression/@EntryValue">typeName()</s:String>
-    <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Field/=Type/Order/@EntryValue">0</s:Int64>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Reformat/@EntryValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Scope/=B68999B9D6B43E47A02B22C12A54C3CC/@KeyIndexDefined">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Scope/=B68999B9D6B43E47A02B22C12A54C3CC/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Scope/=B68999B9D6B43E47A02B22C12A54C3CC/Type/@EntryValue">InCSharpTypeMember</s:String>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Shortcut/@EntryValue">jsondiscriminator</s:String>
-    <s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
-    <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=FAA43FFC697EF84CA0E9027E2CE03B6A/Text/@EntryValue">#region JSON Discriminator Gunk
-
-/// &lt;summary&gt;
-///     The discriminator instance used to serialize and deserialize to the correct sub-type.
-/// &lt;/summary&gt;
-private static readonly Discriminator discriminator = 
-    Discriminate&lt;$Type$&gt;
-        .On(x =&gt; x.Type)
-        .MapNestedTypes();
-
-/// &lt;summary&gt;
-///     The type discriminator property.
-/// &lt;/summary&gt;
-[JsonPropertyName("type")]
-public $TagType$ Type =&gt; Discriminator.GetTagFromAttribute&lt;$TagType$&gt;(this);
-
-#endregion</s:String>
     <s:Boolean x:Key="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue">False</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Abatements/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=appsettings/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Backfill/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Bedwell/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=bigmoney/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=comparand/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Configurer/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=convo/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=datname/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Decorrelated/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Demuxer/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Dequeuer/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=devlocal/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=downcasted/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Dtos/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Enqueuer/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=deadletter/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=enrichers/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=ESDB/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=EVENTSTORE/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=eventstoredb/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Evolve_0027s/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=fmap/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Formattable/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=gitignore_0027d/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=hotdog/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Idempotently/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=ilike/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=matchmake/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=matchmakings/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=NACK_0027ed/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Noda/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Persister/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Postgre/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Protos/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=pubsub/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Querier/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Queriers/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=reconciler/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=reindexed/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Reindexes/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=schemaname/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Sepulveda/@EntryIndexedValue">True</s:Boolean>
 
-
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=sjcl/@EntryIndexedValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/UserDictionary/Words/=Somes/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Stackdriver/@EntryIndexedValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/UserDictionary/Words/=stringified/@EntryIndexedValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/UserDictionary/Words/=tablename/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=taxfyle/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Tickmark/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=timestamptz/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=txsrc/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=Worklayer/@EntryIndexedValue">True</s:Boolean>
-    <s:Boolean x:Key="/Default/UserDictionary/Words/=_0022pubsu/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
