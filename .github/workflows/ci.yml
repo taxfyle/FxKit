@@ -87,9 +87,9 @@ jobs:
       working-directory: ./src
       run: dotnet test --no-restore --verbosity normal
 
-    # Only run on main branch
+    # Only run on main branch or when releasing
     - name: Publish to NuGet
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' || github.event_name == 'release'
       working-directory: ./src
       run: |
         dotnet nuget push nupkg/**/*.nupkg --api-key ${{ secrets.NUGET_OSS_API_KEY }} --source https://api.nuget.org/v3/index.json
