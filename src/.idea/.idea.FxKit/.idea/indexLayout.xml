@@ -5,6 +5,19 @@
       <Path>../../fxkit</Path>
     </attachedFolders>
     <explicitIncludes />
-    <explicitExcludes />
+    <explicitExcludes>
+      <Path>FxKit.CompilerServices.Annotations/bin</Path>
+      <Path>FxKit.CompilerServices.Annotations/obj</Path>
+      <Path>FxKit.CompilerServices.Tests/bin</Path>
+      <Path>FxKit.CompilerServices.Tests/obj</Path>
+      <Path>FxKit.CompilerServices/bin</Path>
+      <Path>FxKit.CompilerServices/obj</Path>
+      <Path>FxKit.Testing/bin</Path>
+      <Path>FxKit.Testing/obj</Path>
+      <Path>FxKit.Tests/bin</Path>
+      <Path>FxKit.Tests/obj</Path>
+      <Path>FxKit/bin</Path>
+      <Path>FxKit/obj</Path>
+    </explicitExcludes>
   </component>
 </project>
