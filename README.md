@@ -11,7 +11,7 @@ FxKit is broken up into the following packages:
 
 * [FxKit](https://nuget.org/packages/FxKit): The core library. Can be used on its own.
 * [FxKit.CompilerServices](https://nuget.org/packages/FxKit.CompilerServices): Roslyn analyzers and source generators.
-* [FxKit.CompilerServices.Annotations](https://nuget.org/packages/FxKit.CompilerServices.Annotations): Annotations`: Attributes used by the compiler services.
+* [FxKit.CompilerServices.Annotations](https://nuget.org/packages/FxKit.CompilerServices.Annotations): Attributes used by the compiler services.
 * [FxKit.Testing](https://nuget.org/packages/FxKit.Testing): Contains test helpers for asserting on the FxKit types.
 
 It is recommended to add the following `global using` to make it easy to construct the core data types.
@@ -35,17 +35,20 @@ All of them contain escape hatches for when you need to do imperative work. Addi
 nullable reference types (that is, types annotated with `?`, e.g. `int?`, `string?`) in any of their values.
 
 `Option`, `Result`, and `Validation` all contain:
-* `Map` / `Select`: transform the inner value
+* `Map` / `Select`: transform the inner value.
 * `FlatMap` / `SelectMany`: also called monadic bind.
 * `Match`: exhaustive pattern match on the type's constituents.
 * `Unwrap`: escape hatch which may throw. There are variations.
 * `TryGet`: escape hatch using `if` control flow.
+* Implicit conversions: each type has implicit conversions where possible (`Option<int> o = 1;` would be the same as `Some(1)`).
 
 Extension methods have also been provided for the built-in `Task` to make interop seamless. 
 
 > The following usage documentation is not an exhaustive listing of the available APIs.
 
-### `Unit`
+---
+
+### The `Unit` type
 
 `Unit` is useful when you need to return a value from a method that doesn't have a meaningful value to return. 
 It's similar to `void`, but can be used as a value.
@@ -61,7 +64,9 @@ public Unit DoSomething()
 }
 ```
 
-### `Option`
+---
+
+### The `Option` type
 
 The `Option` type is a replacement for nullable types. It can be used to represent a value that may or may not be present.
 
@@ -72,7 +77,7 @@ public Option<string> OnlyNonWhitespace(string? value) =>
         : Some(value);
 ```
 
-The `Option` escape hatch is `TryGet`.
+You can use `TryGet` as an escape hatch to get the value out.
 
 ```csharp
 Option<string> nonWhitespace = OnlyNonWhitespace("hello");
@@ -161,9 +166,11 @@ Option<IReadOnlyList<int>> listOfOnlyEvenNumbers =
 // Some([2, 4, 6])
 ```
 
-### `Result`
+---
 
-The `Result` type is used to represent a value that may or may not be present, but also may contain an error.
+### The `Result` type
+
+The `Result` type (also commonly known as "Either") can hold either an `Ok` value or an `Err` value.
 
 ```csharp
 public Result<int, string> Divide(int a, int b) =>
@@ -172,7 +179,7 @@ public Result<int, string> Divide(int a, int b) =>
         : Ok(a / b);
 ```
 
-The `Result` escape hatch is `TryGet`.
+You can use `TryGet` as an escape hatch to get the value and error out.
 
 ```csharp
 Result<int, string> result = Divide(10, 2);
@@ -200,7 +207,7 @@ public enum FileError
 }
 
 // Implementation omitted
-public Task<Result<string, NameProblem>> ReadFileAsStringAsync(string path);
+public Task<Result<string, FileError>> ReadFileAsStringAsync(string path);
 ```
 
 And we have another method for parsing a string as a number like this:
@@ -230,7 +237,7 @@ public partial ReadAndParseError
     partial record NumberOverflow;
 }
 
-public async Task<Result<int, ReadAndParseError>> ReadAndParseAsync(string path) =>
+public Task<Result<int, ReadAndParseError>> ReadAndParseAsync(string path) =>
     // Read the file contents
     from contents in ReadFileAsStringAsync(path)
         .MapErrT(ReadAndParseError.ReadingFileFailed.Of) // forward the error by wrapping it in our error type
@@ -247,8 +254,6 @@ public async Task<Result<int, ReadAndParseError>> ReadAndParseAsync(string path)
     select parsed;
 ```
 
-That's a lot to unpack.
-
 First, we define our functions - one of them happens to be async (returns `Task`). 
 We also define our error types for the file reading and the number parsing.  Then, we define 
 a new error type that combines the two. This is a union type, which is a type that can be one of 
@@ -261,18 +266,115 @@ You may have noticed some interesting bits and pieces such as the `[EnumMatch]`,
 
 * `[EnumMatch]` is used to generate an exhaustive `Match` method for the enum type.
 * `[Union]` declares the type as a union type and marks it `abstract` - each `partial record` defined inside will inherit the
-   decorated type. Methods like `Of` and `Match` are generated to enable inference-friendly construction and exhaustive 
-* matching, respectively.
+   decorated type. Methods like `Of` and `Match` are generated to enable inference-friendly construction and exhaustive
+   matching, respectively.
 * `MapErr` maps the error of the result, in case the result is in the error state
 * `MapErrT` is like `.Map(x => x.MapErr(y => ...))` - the reason we used it here is because we are working 
-* with `Task<Result<..>>` rather than `Result` directly`.
+* with `Task<Result<..>>` rather than `Result` directly.
 * `AsTask` is used to turn a `Result` into a `Task<Result<..>>` in order to satisfy the compiler - this is needed for
   the LINQ syntax to work.
 
+---
+
+### The `Validation` type
+
+The `Validation` type is like `Result`, but can hold multiple errors.
+
+```csharp
+// `ValueOf` is a simple value wrapper type that overrides equality checks,  hashcode, and provides
+// implicit conversions to the underlying type.
+public sealed class Age : ValueOf<int>
+{
+    private Age(int value)
+        : base(value)
+    {
+    }
+
+    public static Validation<Age, string> Parse(int age)
+    {
+        var errors = new List<string>();
+        if (age < 18)
+        {
+            errors.Add("You must be at least 18 years of age");
+        }
+
+        if (age % 2 != 0)
+        {
+            errors.Add("Your age must be an even number - sorry, I don't make the rules");
+        }
+
+        return errors.Count == 0
+            ? Valid(new Age(age))
+            : Invalid(errors.AsEnumerable());
+    }
+}
+
+public sealed class Name : ValueOf<string>
+{
+    private Name(string value)
+        : base(value)
+    {
+    }
+
+    public static Validation<Name, string> Parse(string name) =>
+        // `NonNullOrWhiteSpace` returns an `Option<string>` which
+        // we can turn into a `Validation` like so:
+        StringParser.NonNullOrWhiteSpace(name)
+            .ValidOr("Name must not be empty");
+}
+
+[Lambda] // generates a function we can use for lifting
+public partial record Person(Name Name, Age Age);
+```
+
+We have defined 2 value objects with `Parse` methods that allow us to parse a primitive value into
+a rich type. We have also defined a `Person` type which is a composition of the 2 previous types.
+
+How do we construct a `Person` but also collect all validation errors together without a bunch of boilerplate?
+
+We can use the applicative property of `Validation` to do this.
+
+```csharp
+Validation<Person, string> personValidation =
+    // λ is a function generated by the `[Lambda]` attribute which
+    // lets us pass `Person`'s constructor as a regular function.
+    // Use your editor's autocomplete for this.
+    Valid(Person.λ)
+        // Next, we can apply each parameter.
+        .Apply(Name.Parse("Bob"))
+        .Apply(Age.Parse(26));
+
+// If all the validations are valid, then we'll get a constructed `Person`.
+// Otherwise, all the errors will be collected.
+if (personValidation.TryGet(out var person, out var errors)) 
+{
+    // ...
+}
+```
+
 ## Source generation
 
-TBD.
+FxKit ships with a few (optional) source generators, each enabled by their respective attribute:
+* `[EnumMatch]`: generates a `Match` extension method for the enum type. 
+    Useful to guarantee exhaustive matching. Each enum member will be represented as a function parameter to `Match`.
+* `[Lambda]`: when used at the type level, generates a `λ` as a `Func`, allowing you to pass a type's constructor as a function.
+    When used on a method, generates a `Func` for that method suffixed with `λ` in the name.
+* `[Union]`: turns the record into a union type. Each member gets a `λ` and `Of` methods for constructing the member. 
+    The return type of these is the base type which makes it useful for mapping.
 
 ## Transformer methods
 
-TBD.
+When working with stacked types, such as `Task<Option<T>>`, `Result<Option<T>, E>` etc, it can be a pain to operate 
+on the innermost type.
+
+Most of these have auto-generated transformer methods - that is, the method with a `T` suffix, for 
+example `MapT`, `OkOrElseT`, `UnwrapT` etc.
+
+```csharp
+var result =
+    // <> needed here as compiler cannot infer the error type.    
+    Ok<Option<string>, string>(Some("Hello"));
+
+// Maps the value in the inner `Option`
+Result<Option<int>, string> mapped = result.MapT(x => x.Length);
+```
