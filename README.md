@@ -422,7 +422,7 @@ public static Validation<int, string> ValidateAge(int age);
 
 // Add to a partial type (record, struct, class)
 [Lambda]
-public partial record Person(string Aame, int Age);
+public partial record Person(string Name, int Age);
 
 // That generates a `Func` named `λ`. Can be used like this:
 var person = Valid(Person.λ)
