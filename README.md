@@ -5,6 +5,19 @@ Also includes source generators for generating union types, and much more.
 
 > Documentation is a work in progress.
 
+* [Installation](#installation)
+* [Core data types](#core-data-types)
+   + [The `Unit` type](#the-unit-type)
+   + [The `Option` type](#the-option-type)
+   + [The `Result` type](#the-result-type)
+   + [The `Validation` type](#the-validation-type)
+* [Source generation](#source-generation)
+   + [The `[EnumMatch]` generator](#the-enummatch-generator)
+   + [The `[Lambda]` generator](#the-lambda-generator)
+   + [The `[Union]` generator](#the-union-generator)
+* [Transformer methods](#transformer-methods)
+   + [Transformers for `Task`](#transformers-for-task)
+
 ## Installation
 
 FxKit is broken up into the following packages:
@@ -228,7 +241,7 @@ Now we want to use them together:
 
 ```csharp
 [Union] // FxKit magic sauce 👀 See the section on source generation
-public partial ReadAndParseError
+public partial record ReadAndParseError
 {
     // For the file error, we want to pass it along.
     partial record ReadingFileFailed(FileError Error);
@@ -352,6 +365,8 @@ if (personValidation.TryGet(out var person, out var errors))
 }
 ```
 
+---
+
 ## Source generation
 
 FxKit ships with a few (optional) source generators, each enabled by their respective attribute:
@@ -361,6 +376,102 @@ FxKit ships with a few (optional) source generators, each enabled by their respe
     When used on a method, generates a `Func` for that method suffixed with `λ` in the name.
 * `[Union]`: turns the record into a union type. Each member gets a `λ` and `Of` methods for constructing the member. 
     The return type of these is the base type which makes it useful for mapping.
+
+To use, install the `FxKit.CompilerServices` and `FxKit.CompilerServices.Annotations` packages.
+
+---
+
+### The `[EnumMatch]` generator
+
+When using `switch` on enums, it is not an exhaustive match - that means if you add new members to the enum, the
+compiler does not guarantee that you handle it.
+
+The `[EnumMatch]` generator will generate a `Match` function with parameters for each enum member.
+
+```csharp
+[EnumMatch]
+public enum DotNetLanguage
+{
+    CSharp,
+    FSharp,
+    VB
+}
+
+// Usage:
+public string GetLanguageName(DotNetLanguage language) =>
+    language.Match(
+        CSharp: () => "C#",
+        FSharp: () => "F#",
+        VB: () => "Visual Basic");
+```
+
+If you add a new entry to the enum, the `Match` method is regenerated and will cause a compilation
+error due to missing a parameter.
+
+---
+
+### The `[Lambda]` generator
+
+Generates a `Func` alias for the decorated type's constructor. Useful for lifting into an applicative such as `Valid`.
+
+```csharp
+
+// Methods for validation
+public static Validation<string, string> ValidateName(string name);
+public static Validation<int, string> ValidateAge(int age);
+
+// Add to a partial type (record, struct, class)
+[Lambda]
+public partial record Person(string Aame, int Age);
+
+// That generates a `Func` named `λ`. Can be used like this:
+var person = Valid(Person.λ)
+    .Apply(ValidateName("Bob"))
+    .Apply(ValidateAge(48))
+    // Turn the validation into a result and join the errors
+    // into a string.
+    .OkOrElse(error => error.ToJoinedString())
+    .Unwrap();
+```
+
+---
+
+### The `[Union]` generator
+
+Simplifies the construction of discriminated unions using `record`s. It also includes an analyzer to ensure correct
+usage.
+
+```csharp
+// Makes `BoxedValue` abstract
+[Union]
+public partial record BoxedValue
+{
+    // Each entry becomes `public sealed partial record`
+    partial record StringValue(string Value);
+    partial record IntValue(int Value);
+}
+```
+
+This grants `BoxedValue` some new powers.
+
+* `BoxedValue.[Member].Of`: A static function alias for the constructor that returns the base type. 
+  Useful for inference.
+  ```csharp
+  // Does not compile
+  var value = true ? new BoxedValue.StringValue("One") : new BoxedValue.IntValue(2);
+  
+  // Compiles
+  var value = true ? BoxedValue.StringValue.Of("One") : BoxedValue.IntValue.Of(2);
+  ```
+* `BoxedValue.[Member].λ`: A `Func` version of the above, see [the `[Lambda]` generator](#the-lambda-generator).
+* `BoxedValue.Match`: A function for exhaustive matching on the union's members, see [the `[EnumMatch]` generator](#the-enummatch-generator).
+  ```csharp
+  var matched = value.Match(
+    StringValue: sv => $"string:{sv.Value}",
+    IntValue: iv => $"int:{iv.Value}");
+  ```
+
+---
 
 ## Transformer methods
 
@@ -377,4 +488,21 @@ var result =
 
 // Maps the value in the inner `Option`
 Result<Option<int>, string> mapped = result.MapT(x => x.Length);
+```
+
+---
+
+### Transformers for `Task`
+
+The `Task` type is probably the most common "outer" type in a type stack in most real-world programs.
+Additionally, `async` is used very frequently, therefore, special methods exist that allow returning `Task`s
+such as  `MapAsync`, `FlatMapAsync`, `MapAsyncT`, `FlatMapAsyncT` to name a few.
+
+For example, if you have a `Task<Result<int, string>> stacked`, if you want to map the `int` held in the
+innermost type (the `Result`) using an `async` method:
+
+```csharp
+// `value` is the `int`, assuming `SomeAsyncMapping` returns `Task<bool>`:
+Task<Result<bool, string>> taskOfResultMapped = stacked.MapAsyncT(
+    async value => await SomeAsyncMapping(value))
 ```
