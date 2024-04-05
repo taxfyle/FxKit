@@ -105,14 +105,13 @@ public readonly struct Option<T>
     ///     If source is in a Some state, and it's of type <typeparamref name="U"/>,
     ///     returns `Some` of type <typeparamref name="U"/>. Otherwise, returns None.
     /// </summary>
-    /// <param name="source"></param>
-    /// <param name="predicate"></param>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="U"></typeparam>
     /// <returns></returns>
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<U> OfType<U>()
-        where U : notnull, T =>
+        where U : T =>
         TryGet(out var some) && some is U cast ? Option<U>.Some(cast) : Option<U>.None;
 
     /// <summary>
