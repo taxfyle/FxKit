@@ -85,7 +85,7 @@ public class OptionValidationAssertions<T>
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(_option.IsSome)
-            .FailWith("Expected result to be Ok{reason}, but it was None");
+            .FailWith("Expected result to be Some{reason}, but it was None");
 
         return _option.Match(
             Some: v => v,
