@@ -1,4 +1,3 @@
-using FluentAssertions;
 using FxKit.CompilerServices;
 using FxKit.Testing.FluentAssertions;
 
@@ -7,7 +6,7 @@ using FxKit.Testing.FluentAssertions;
 
 namespace FxKit.Tests.UnitTests.Option;
 
-public partial class OptionFilteringTests
+public class OptionFilteringTests
 {
     [Test]
     public void Where_FiltersCorrectly()
