@@ -333,7 +333,8 @@ public sealed class Name : ValueOf<string>
         // `NonNullOrWhiteSpace` returns an `Option<string>` which
         // we can turn into a `Validation` like so:
         StringParser.NonNullOrWhiteSpace(name)
-            .ValidOr("Name must not be empty");
+            .ValidOr("Name must not be empty")
+            .Map(name => new Name(name));
 }
 
 [Lambda] // generates a function we can use for lifting
