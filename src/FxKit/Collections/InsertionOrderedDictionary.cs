@@ -8,7 +8,8 @@ namespace FxKit.Collections;
 ///     A dictionary that preserves insertion order when enumerating.
 ///     Uses a <see cref="Dictionary{TKey,TValue}" /> under the hood.
 /// </summary>
-public sealed class InsertionOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+public sealed class InsertionOrderedDictionary<TKey, TValue>
+    : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     where TKey : notnull
 {
     /// <summary>
@@ -31,7 +32,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue> : IDictionary<TKey,
     /// </summary>
     private ReadOnlyCollection<TKey>? _readOnlyKeys;
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IReadOnlyDictionary{TKey,TValue}" />
     [ExcludeFromCodeCoverage]
     public int Count => _dict.Count;
 
@@ -41,6 +42,12 @@ public sealed class InsertionOrderedDictionary<TKey, TValue> : IDictionary<TKey,
 
     /// <inheritdoc />
     public ICollection<TKey> Keys => _readOnlyKeys ??= _keys.AsReadOnly();
+
+    /// <inheritdoc />
+    IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+
+    /// <inheritdoc />
+    IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
 
     /// <inheritdoc />
     public ICollection<TValue> Values => _values ??= new ValueCollection(this);
@@ -112,7 +119,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue> : IDictionary<TKey,
         _keys.Add(key);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IReadOnlyDictionary{TKey,TValue}" />
     [ExcludeFromCodeCoverage]
     public bool ContainsKey(TKey key) => _dict.ContainsKey(key);
 
@@ -128,7 +135,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue> : IDictionary<TKey,
         return false;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IReadOnlyDictionary{TKey,TValue}" />
     [ExcludeFromCodeCoverage]
     public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value) =>
         // Disabling "Parameter 'value' must have a non-null value when exiting with 'true'." because
@@ -137,7 +144,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue> : IDictionary<TKey,
         _dict.TryGetValue(key, out value);
 #pragma warning restore CS8762
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IReadOnlyDictionary{TKey,TValue}" />
     public TValue this[TKey key]
     {
         get => _dict[key];
