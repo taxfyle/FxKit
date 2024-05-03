@@ -272,7 +272,7 @@ dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
 end_of_line = lf
-trim_trailing_whitespace = false
+trim_trailing_whitespace = true
 indent_size = 4
 csharp_keep_blank_lines_in_declarations = 1
 
