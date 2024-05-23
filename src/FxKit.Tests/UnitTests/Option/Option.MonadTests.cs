@@ -1,5 +1,5 @@
-using FxKit.Testing.FluentAssertions;
 using FluentAssertions;
+using FxKit.Testing.FluentAssertions;
 
 // ReSharper disable SuggestVarOrType_Elsewhere
 // ReSharper disable ConvertToLocalFunction

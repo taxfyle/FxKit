@@ -1,6 +1,6 @@
-using FxKit.Testing.FluentAssertions;
 using FluentAssertions;
 using FxKit.Collections;
+using FxKit.Testing.FluentAssertions;
 
 namespace FxKit.Tests.UnitTests.Result;
 

@@ -237,7 +237,7 @@ public static class BakeValid<T>
     public static Validation<T, E> Invalid<E>(E e)
         where E : notnull
         => Validation<T, E>.Invalid(e);
-    
+
     /// <summary>
     ///     Creates a <see cref="Validation{T,E}" /> in the `Invalid` state.
     /// </summary>

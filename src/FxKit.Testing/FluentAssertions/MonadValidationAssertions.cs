@@ -5,7 +5,7 @@ using FxKit.Extensions;
 namespace FxKit.Testing.FluentAssertions;
 
 /// <summary>
-///     Assertions for <see cref="Validation{T, E}"/>.
+///     Assertions for <see cref="Validation{T, E}" />.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="E"></typeparam>
@@ -23,7 +23,7 @@ public class ValidationAssertions<T, E>
     {
         _validation = validation;
     }
-    
+
     /// <summary>
     ///     Asserts that the Validation is in the Valid state.
     /// </summary>

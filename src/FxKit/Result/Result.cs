@@ -233,4 +233,16 @@ public static partial class Result
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Result<Unit, Unit> RequireTrue(bool? value) =>
         value is true ? Ok<Unit, Unit>(Unit()) : Err<Unit, Unit>(Unit());
+
+    /// <summary>
+    ///     Returns a <see cref="Result{T,E}" /> that will be <c>Ok</c>
+    ///     if the <paramref name="value" /> is <c>true</c>; otherwise returns
+    ///     <c>Err</c>.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Result<Unit, Unit> RequireTrue(bool value) =>
+        value ? Ok<Unit, Unit>(Unit()) : Err<Unit, Unit>(Unit());
 }

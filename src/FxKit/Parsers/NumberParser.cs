@@ -28,7 +28,7 @@ public static class NumberParser
         static Validation<int, NumberParseProblem> ParseIntCore(string str) =>
             int.TryParse(str, out var value) ? value : NumberParseProblem.Malformed;
     }
-    
+
     /// <summary>
     ///     Parses a decimal value from a string.
     /// </summary>

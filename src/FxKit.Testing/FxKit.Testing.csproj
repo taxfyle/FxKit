@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Title>FxKit Testing</Title>
-        <Description>Test utilities for asserting on FxKit data types.</Description>
-    </PropertyGroup>
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Title>FxKit Testing</Title>
+    <Description>Test utilities for asserting on FxKit data types.</Description>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\FxKit\FxKit.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FxKit\FxKit.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.0"/>
+  </ItemGroup>
 
 </Project>

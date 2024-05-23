@@ -55,6 +55,16 @@ public class OptionEscapeTests
         Option<string>.None.ToNullable().Should().BeNull();
     }
 
+    /// <summary>
+    ///     "Nullable" refers to a reference type, as opposed to a value type.
+    /// </summary>
+    [Test]
+    public async Task ToNullableAsync_ReturnsTheCorrectValue()
+    {
+        (await Some("Input").ToTask().ToNullableAsync()).Should().Be("Input");
+        (await Option<string>.None.ToTask().ToNullableAsync()).Should().BeNull();
+    }
+
     [Test]
     public void ToNullable_AlwaysBoxes()
     {

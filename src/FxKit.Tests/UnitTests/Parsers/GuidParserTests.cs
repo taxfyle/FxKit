@@ -19,15 +19,15 @@ public class GuidParserTests
         GuidParser.Parse("not a guid")
             .Should()
             .BeInvalid([GuidParseProblem.Malformed]);
-        
+
         GuidParser.Parse("")
             .Should()
             .BeInvalid([GuidParseProblem.Empty]);
-        
+
         GuidParser.Parse((Guid?)null)
             .Should()
             .BeInvalid([GuidParseProblem.Empty]);
-        
+
         GuidParser.Parse(Guid.Empty)
             .Should()
             .BeInvalid([GuidParseProblem.Empty]);

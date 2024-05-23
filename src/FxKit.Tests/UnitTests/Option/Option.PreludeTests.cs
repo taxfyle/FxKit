@@ -1,5 +1,5 @@
-using FxKit.Testing.FluentAssertions;
 using FluentAssertions;
+using FxKit.Testing.FluentAssertions;
 
 namespace FxKit.Tests.UnitTests.Option;
 

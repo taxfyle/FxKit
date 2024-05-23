@@ -1,4 +1,5 @@
 using FxKit.Testing.FluentAssertions;
+
 namespace FxKit.Tests.UnitTests.Result;
 
 public class TaskResultMonadTests

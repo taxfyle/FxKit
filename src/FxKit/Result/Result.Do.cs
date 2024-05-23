@@ -55,4 +55,56 @@ public static partial class Result
 
         return source;
     }
+
+    /// <summary>
+    ///     Like <see cref="Do{TOk,TErr}" /> but awaits the callback and turns the overall result into
+    ///     a task.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="callback"></param>
+    /// <typeparam name="TOk"></typeparam>
+    /// <typeparam name="TErr"></typeparam>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static async Task<Result<TOk, TErr>> DoAsync<TOk, TErr>(
+        this Result<TOk, TErr> source,
+        Func<TOk, Task> callback)
+        where TOk : notnull
+        where TErr : notnull
+    {
+        if (source.TryGet(out var ok, out _))
+        {
+            await callback(ok);
+        }
+
+        return source;
+    }
+
+    /// <summary>
+    ///     Like <see cref="DoErr{TOk,TErr}" /> but awaits the callback and turns the overall result into
+    ///     a task.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="callback"></param>
+    /// <typeparam name="TOk"></typeparam>
+    /// <typeparam name="TErr"></typeparam>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static async Task<Result<TOk, TErr>> DoErrAsync<TOk, TErr>(
+        this Result<TOk, TErr> source,
+        Func<TErr, Task> callback)
+        where TOk : notnull
+        where TErr : notnull
+    {
+        if (!source.TryGet(out _, out var err))
+        {
+            await callback(err);
+        }
+
+        return source;
+    }
 }

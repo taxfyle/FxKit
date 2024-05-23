@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace FxKit.Collections;
 
@@ -44,13 +45,13 @@ public sealed class InsertionOrderedDictionary<TKey, TValue>
     public ICollection<TKey> Keys => _readOnlyKeys ??= _keys.AsReadOnly();
 
     /// <inheritdoc />
+    public ICollection<TValue> Values => _values ??= new ValueCollection(this);
+
+    /// <inheritdoc />
     IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
     /// <inheritdoc />
     IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
-
-    /// <inheritdoc />
-    public ICollection<TValue> Values => _values ??= new ValueCollection(this);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InsertionOrderedDictionary{TKey,TValue}" /> class.
@@ -71,6 +72,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue>
     }
 
     /// <inheritdoc />
+    [MustDisposeResource]
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
         return EnumerateOrdered().GetEnumerator();
@@ -86,6 +88,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue>
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
+    [MustDisposeResource]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc />
@@ -185,6 +188,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue>
         }
 
         /// <inheritdoc />
+        [MustDisposeResource]
         public IEnumerator<TValue> GetEnumerator()
         {
             return EnumerateOrdered().GetEnumerator();
@@ -200,6 +204,7 @@ public sealed class InsertionOrderedDictionary<TKey, TValue>
 
         /// <inheritdoc />
         [ExcludeFromCodeCoverage]
+        [MustDisposeResource]
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_collection).GetEnumerator();
 
         /// <inheritdoc />

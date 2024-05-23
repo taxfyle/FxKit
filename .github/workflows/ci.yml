@@ -31,7 +31,7 @@ jobs:
         with:
           global-json-file: src/global.json
 
-      # Cache NuGet packages.  
+      # Cache NuGet packages.
       - name: "Cache NuGet"
         uses: actions/cache@v4
         with:
@@ -58,39 +58,39 @@ jobs:
           cd .. && ./scripts/inspect-code.sh
         env:
           CACHE_DIR: /tmp/fxkit_resharper_cache
-  
+
   build:
     name: "Build & Test"
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        filter: tree:0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: tree:0
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        global-json-file: src/global.json
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: src/global.json
 
-    - name: Install dependencies
-      working-directory: ./src
-      run: dotnet restore
-      
-    - name: Build
-      working-directory: ./src
-      run: | 
-        dotnet build --configuration Release --no-restore
-        dotnet pack --no-build --no-restore --output nupkg
+      - name: Install dependencies
+        working-directory: ./src
+        run: dotnet restore
 
-    - name: Test
-      working-directory: ./src
-      run: dotnet test --no-restore --verbosity normal
+      - name: Build
+        working-directory: ./src
+        run: |
+          dotnet build --configuration Release --no-restore
+          dotnet pack --no-build --no-restore --output nupkg
 
-    # Only run on main branch or when releasing
-    - name: Publish to NuGet
-      if: github.ref == 'refs/heads/main' || github.event_name == 'release'
-      working-directory: ./src
-      run: |
-        dotnet nuget push nupkg/**/*.nupkg --api-key ${{ secrets.NUGET_OSS_API_KEY }} --source https://api.nuget.org/v3/index.json
+      - name: Test
+        working-directory: ./src
+        run: dotnet test --no-restore --verbosity normal
+
+      # Only run on main branch or when releasing
+      - name: Publish to NuGet
+        if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+        working-directory: ./src
+        run: |
+          dotnet nuget push nupkg/**/*.nupkg --api-key ${{ secrets.NUGET_OSS_API_KEY }} --source https://api.nuget.org/v3/index.json
