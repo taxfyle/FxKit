@@ -33,4 +33,52 @@ public class ResultDoTests
         x.Should().Be("err");
         y.Should().Be("two");
     }
+
+    [Test]
+    public async Task DoAsync_ShouldWork()
+    {
+        var x = 2;
+        var y = 3;
+
+        await Result<int, string>.Ok(2)
+            .DoAsync(
+                async i =>
+                {
+                    await Task.CompletedTask;
+                    x += i;
+                });
+        await Result<int, string>.Err("Error")
+            .DoAsync(
+                async _ =>
+                {
+                    await Task.CompletedTask;
+                    y++;
+                });
+        x.Should().Be(4);
+        y.Should().Be(3);
+    }
+
+    [Test]
+    public async Task DoErrAsync_ShouldWork()
+    {
+        var x = "one";
+        var y = "two";
+
+        await Result<int, string>.Err("err")
+            .DoErrAsync(
+                async e =>
+                {
+                    await Task.CompletedTask;
+                    x = e;
+                });
+        await Result<int, string>.Ok(3)
+            .DoErrAsync(
+                async e =>
+                {
+                    await Task.CompletedTask;
+                    y = e;
+                });
+        x.Should().Be("err");
+        y.Should().Be("two");
+    }
 }
