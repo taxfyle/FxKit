@@ -57,7 +57,7 @@ public static partial class Result
     }
 
     /// <summary>
-    ///     Like <see cref="Do{TOk,TErr}"/> but awaits the callback and turns the overall result into
+    ///     Like <see cref="Do{TOk,TErr}" /> but awaits the callback and turns the overall result into
     ///     a task.
     /// </summary>
     /// <param name="source"></param>
@@ -83,7 +83,7 @@ public static partial class Result
     }
 
     /// <summary>
-    ///     Like <see cref="DoErr{TOk,TErr}"/> but awaits the callback and turns the overall result into
+    ///     Like <see cref="DoErr{TOk,TErr}" /> but awaits the callback and turns the overall result into
     ///     a task.
     /// </summary>
     /// <param name="source"></param>

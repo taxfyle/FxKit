@@ -45,13 +45,13 @@ public sealed class InsertionOrderedDictionary<TKey, TValue>
     public ICollection<TKey> Keys => _readOnlyKeys ??= _keys.AsReadOnly();
 
     /// <inheritdoc />
+    public ICollection<TValue> Values => _values ??= new ValueCollection(this);
+
+    /// <inheritdoc />
     IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
     /// <inheritdoc />
     IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
-
-    /// <inheritdoc />
-    public ICollection<TValue> Values => _values ??= new ValueCollection(this);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InsertionOrderedDictionary{TKey,TValue}" /> class.

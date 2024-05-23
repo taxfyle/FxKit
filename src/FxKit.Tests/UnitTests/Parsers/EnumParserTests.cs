@@ -10,7 +10,7 @@ public class EnumParserTests
     {
         EnumParser.Parse<MyEnum>("Foo").Should().BeValid(MyEnum.Foo);
         EnumParser.Parse<MyEnum>("Bar").Should().BeValid(MyEnum.Bar);
-        
+
         EnumParser.Parse<MyEnum>("").Should().BeInvalid([EnumParseProblem.Empty]);
         EnumParser.Parse<MyEnum>("not foo").Should().BeInvalid([EnumParseProblem.Unknown]);
     }

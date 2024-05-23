@@ -60,7 +60,7 @@ public static partial class Option
         source.TryGet(out var result) ? result : null;
 
     /// <summary>
-    ///     Like <see cref="ToNullable{T}"/> but for tasks.
+    ///     Like <see cref="ToNullable{T}" /> but for tasks.
     /// </summary>
     /// <param name="source"></param>
     /// <typeparam name="T"></typeparam>
@@ -72,7 +72,7 @@ public static partial class Option
         (await source).TryGet(out var result) ? result : null;
 
     /// <summary>
-    ///     Like <see cref="ToNullable{T}"/> but for tasks.
+    ///     Like <see cref="ToNullable{T}" /> but for tasks.
     /// </summary>
     /// <param name="source"></param>
     /// <typeparam name="T"></typeparam>

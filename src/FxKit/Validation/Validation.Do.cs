@@ -3,8 +3,8 @@ namespace FxKit;
 public static partial class Validation
 {
     /// <summary>
-    /// Calls the <paramref name="callback"/> if the <see cref="Validation{TValid,TInvalid}"/> is
-    /// in a Valid state.
+    ///     Calls the <paramref name="callback" /> if the <see cref="Validation{TValid,TInvalid}" /> is
+    ///     in a Valid state.
     /// </summary>
     /// <param name="source">The source validation.</param>
     /// <param name="callback">The callback to execute if the validation is valid.</param>
@@ -26,7 +26,7 @@ public static partial class Validation
     }
 
     /// <summary>
-    /// Calls the <paramref name="callback"/> if the <see cref="Validation{TValid,TInvalid}"/> is in an Invalid state.
+    ///     Calls the <paramref name="callback" /> if the <see cref="Validation{TValid,TInvalid}" /> is in an Invalid state.
     /// </summary>
     /// <param name="source">The source validation.</param>
     /// <param name="callback">The callback to execute if the validation is invalid.</param>
@@ -48,7 +48,8 @@ public static partial class Validation
     }
 
     /// <summary>
-    /// Like <see cref="Do{TValid,TInvalid}"/> but awaits the <paramref name="callback"/> and turns the overall result into a task.
+    ///     Like <see cref="Do{TValid,TInvalid}" /> but awaits the <paramref name="callback" /> and turns the overall result
+    ///     into a task.
     /// </summary>
     /// <param name="source">The source validation.</param>
     /// <param name="callback">The callback to execute if the validation is valid.</param>
@@ -70,7 +71,8 @@ public static partial class Validation
     }
 
     /// <summary>
-    /// Like <see cref="DoInvalid{TValid,TInvalid}"/> but awaits the <paramref name="callback"/> and turns the overall result into a task.
+    ///     Like <see cref="DoInvalid{TValid,TInvalid}" /> but awaits the <paramref name="callback" /> and turns the overall
+    ///     result into a task.
     /// </summary>
     /// <param name="source">The source validation.</param>
     /// <param name="callback">The callback to execute if the validation is invalid.</param>

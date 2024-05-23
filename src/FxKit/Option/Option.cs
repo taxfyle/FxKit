@@ -102,8 +102,8 @@ public readonly struct Option<T>
         None: static () => "None");
 
     /// <summary>
-    ///     If source is in a Some state, and it's of type <typeparamref name="U"/>,
-    ///     returns `Some` of type <typeparamref name="U"/>. Otherwise, returns None.
+    ///     If source is in a Some state, and it's of type <typeparamref name="U" />,
+    ///     returns `Some` of type <typeparamref name="U" />. Otherwise, returns None.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="U"></typeparam>
