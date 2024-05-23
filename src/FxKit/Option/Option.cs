@@ -98,8 +98,8 @@ public readonly struct Option<T>
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => Match(
-        Some: v => $"Some({v})",
-        None: () => "None");
+        Some: static v => $"Some({v})",
+        None: static () => "None");
 
     /// <summary>
     ///     If source is in a Some state, and it's of type <typeparamref name="U"/>,

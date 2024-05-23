@@ -60,6 +60,30 @@ public static partial class Option
         source.TryGet(out var result) ? result : null;
 
     /// <summary>
+    ///     Like <see cref="ToNullable{T}"/> but for tasks.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task<T?> ToNullableAsync<T>(this Task<Option<T>> source)
+        where T : class =>
+        (await source).TryGet(out var result) ? result : null;
+
+    /// <summary>
+    ///     Like <see cref="ToNullable{T}"/> but for tasks.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async ValueTask<T?> ToNullableAsync<T>(this ValueTask<Option<T>> source)
+        where T : class =>
+        (await source).TryGet(out var result) ? result : null;
+
+    /// <summary>
     ///     Unwraps the option, returning the <typeparamref name="T" />> held within if in a Some state.
     ///     If not, throws an <see cref="InvalidOperationException" />. Only use when you are certain that
     ///     the option is in a Some state.
