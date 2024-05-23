@@ -15,9 +15,13 @@ public class ResultMiscTests
     [Test]
     public void RequireTrue_ShouldReturnOk_WhenTrue()
     {
+        bool? nullableTrue = true;
+        FxKit.Result.RequireTrue(nullableTrue).Should().BeOk(Unit());
         // ReSharper disable once EqualExpressionComparison
         FxKit.Result.RequireTrue(4 == 4).Should().BeOk(Unit());
 
+        bool? nullable = null;
+        FxKit.Result.RequireTrue(nullable).Should().BeErr(Unit());
         // ReSharper disable once EqualExpressionComparison
         FxKit.Result.RequireTrue(4 != 4).Should().BeErr(Unit());
     }
