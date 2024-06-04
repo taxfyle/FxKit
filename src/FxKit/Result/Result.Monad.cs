@@ -170,4 +170,54 @@ public static partial class Result
             Result<TNewOk, TErr>.Err);
 
     #endregion
+
+    #region Ensure
+
+    /// <summary>
+    /// Returns a new failure result if the predicate is false. Otherwise, returns the original result.
+    /// </summary>
+    /// <typeparam name="TOk">The type of the value in the result.</typeparam>
+    /// <typeparam name="TErr">The type of the error in the result.</typeparam>
+    /// <param name="source">The input <see cref="Result{TOk,TErr}"/>.</param>
+    /// <param name="predicate">The predicate to be evaluated on the value.</param>
+    /// <param name="error">The default error value to return if the check fails.</param>
+    /// <returns>A <see cref="Result{TOk,TErr}"/> containing either the original value or the specified error.</returns>
+    [DebuggerHidden]
+    [StackTraceHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static Result<TOk, TErr> Ensure<TOk, TErr>(
+        this Result<TOk, TErr> source,
+        Func<TOk, bool> predicate,
+        TErr error)
+        where TOk : notnull
+        where TErr : notnull =>
+        source.TryGet(out var value, out _)
+            ? predicate(value) ? source : Err<TOk, TErr>(error)
+            : source;
+
+    /// <summary>
+    /// Returns a new failure result if the predicate is false. Otherwise, returns the original result.
+    /// </summary>
+    /// <typeparam name="TOk">The type of the value in the result.</typeparam>
+    /// <typeparam name="TErr">The type of the error in the result.</typeparam>
+    /// <param name="source">The input <see cref="Result{TOk,TErr}"/>.</param>
+    /// <param name="predicate">The predicate to be evaluated on the value.</param>
+    /// <param name="error">A function that provides the default error value to return if the check fails.</param>
+    /// <returns>A <see cref="Result{TOk,TErr}"/> containing either the original value or the specified error.</returns>
+    [DebuggerHidden]
+    [StackTraceHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static Result<TOk, TErr> Ensure<TOk, TErr>(
+        this Result<TOk, TErr> source,
+        Func<TOk, bool> predicate,
+        Func<TErr> error)
+        where TOk : notnull
+        where TErr : notnull =>
+        source.TryGet(out var value, out _)
+            ? predicate(value) ? source : Err<TOk, TErr>(error())
+            : source;
+
+    #endregion
 }
