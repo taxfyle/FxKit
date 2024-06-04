@@ -26,6 +26,21 @@ public class OptionNaturalTransformationTests
     }
 
     [Test]
+    public void OkOr_ReturnsTheExpectedValue()
+    {
+        Option<int> some = 123;
+        Option<int> none = None;
+
+        some.OkOr("Err")
+            .Should()
+            .BeOk(123);
+
+        none.OkOr("Err")
+            .Should()
+            .BeErr("Err");
+    }
+
+    [Test]
     public void ToResult_ReturnsTheExpectedValue()
     {
         Option<int> some = Some(123);
