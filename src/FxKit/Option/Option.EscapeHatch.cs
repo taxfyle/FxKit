@@ -136,23 +136,99 @@ public static partial class Option
         where T : notnull => source.Match(ok => ok, fallback);
 
     /// <summary>
-    ///     Returns a list of the <c>Some</c> values.
+    /// Returns the values from a sequence of <see cref="Option{T}"/> where the option has a value.
     /// </summary>
-    /// <param name="source"></param>
-    /// <returns></returns>
+    /// <param name="source">The input sequence of <see cref="Option{T}"/>.</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> containing the values from the options with values.</returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static IEnumerable<T> Somes<T>(
+        this IEnumerable<Option<T>> source)
+        where T : notnull
+    {
+        foreach (var item in source)
+        {
+            if (item.TryGet(out var value))
+            {
+                yield return value;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns the values from a list of <see cref="Option{T}"/> where the option has a value.
+    /// </summary>
+    /// <param name="source">The input list of <see cref="Option{T}"/>.</param>
+    /// <returns>An <see cref="IReadOnlyList{T}"/> containing the values from the options with values.</returns>
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [GenerateTransformer]
     public static IReadOnlyList<T> Somes<T>(
-        this IEnumerable<Option<T>> source)
+        this IReadOnlyList<Option<T>> source)
         where T : notnull
     {
-        var result = source.TryGetNonEnumeratedCount(out var count) ? new List<T>(count) : new List<T>();
+        var result = new List<T>(source.Count);
         foreach (var option in source)
         {
             if (option.TryGet(out var some))
             {
                 result.Add(some);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Returns the values from a sequence of <see cref="Option{T}"/> where the option has a value.
+    /// Applies a selector function to each value and returns the results.
+    /// </summary>
+    /// <typeparam name="T">The type of the value in the option.</typeparam>
+    /// <typeparam name="U">The type of the result after applying the selector function.</typeparam>
+    /// <param name="source">The input sequence of <see cref="Option{T}"/>.</param>
+    /// <param name="selector">The selector function to apply to each value.</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> containing the results of applying the selector function to the values.</returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static IEnumerable<U> SomesMap<T, U>(
+        this IEnumerable<Option<T>> source,
+        Func<T, U> selector)
+        where T : notnull
+    {
+        foreach (var item in source)
+        {
+            if (item.TryGet(out var value))
+            {
+                yield return selector(value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns the values from a list of <see cref="Option{T}"/> where the option has a value.
+    /// Applies a selector function to each value and returns the results.
+    /// </summary>
+    /// <typeparam name="T">The type of the value in the option.</typeparam>
+    /// <typeparam name="U">The type of the result after applying the selector function.</typeparam>
+    /// <param name="source">The input list of <see cref="Option{T}"/>.</param>
+    /// <param name="selector">The selector function to apply to each value.</param>
+    /// <returns>An <see cref="IReadOnlyList{T}"/> containing the results of applying the selector function to the values.</returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static IReadOnlyList<U> SomesMap<T, U>(
+        this IReadOnlyList<Option<T>> source,
+        Func<T, U> selector)
+        where T : notnull
+    {
+        var result = new List<U>(source.Count);
+        foreach (var option in source)
+        {
+            if (option.TryGet(out var some))
+            {
+                result.Add(selector(some));
             }
         }
 

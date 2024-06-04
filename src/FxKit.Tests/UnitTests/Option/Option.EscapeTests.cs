@@ -102,6 +102,37 @@ public class OptionEscapeTests
     }
 
     [Test]
+    public void Somes_ReturnsTheSomesInTheEnumerable()
+    {
+        // Mix
+        ListOf.Many(Some(4), Some(3), None, Some(10), None, None, Some(2))
+            .AsEnumerable()
+            .Somes()
+            .Should()
+            .Equal(4, 3, 10, 2);
+
+        // All Some
+        ListOf.Many(Some(4), Some(5))
+            .AsEnumerable()
+            .Somes()
+            .Should()
+            .Equal(4, 5);
+
+        // All None
+        ListOf.Many(Option<int>.None, Option<int>.None)
+            .AsEnumerable()
+            .Somes()
+            .Should()
+            .BeEmpty();
+
+        // Empty
+        Enumerable.Empty<Option<int>>()
+            .Somes()
+            .Should()
+            .BeEmpty();
+    }
+
+    [Test]
     public void Somes_ReturnsTheSomesInTheList()
     {
         // Mix
@@ -123,6 +154,117 @@ public class OptionEscapeTests
             .Somes()
             .Should()
             .BeEmpty();
+    }
+
+    [Test]
+    public void Somes_ShouldMaterializeWhenReadOnlyList()
+    {
+        ListOf.Many(Some(4), Some(3), None, Some(10), None, None, Some(2))
+            .AsEnumerable()
+            .Somes()
+            .TryGetNonEnumeratedCount(out _)
+            .Should()
+            .BeFalse();
+
+        ListOf.Many(Some(4), Some(3), None, Some(10), None, None, Some(2))
+            .Somes()
+            .TryGetNonEnumeratedCount(out _)
+            .Should()
+            .BeTrue();
+    }
+
+    [Test]
+    public void SomesMap_ReturnsTheTransformedSomesInTheEnumerable()
+    {
+        // Mix
+        ListOf.Many(
+                Some("Cut To The Chase"),
+                None,
+                Some("Elvis Has Left The Building"),
+                Some("Down And Out"),
+                None,
+                Some("A Fool and His Money Are Soon Parted"),
+                None,
+                None,
+                Some("In a Pickle"))
+            .AsEnumerable()
+            .SomesMap(v => v.Length)
+            .Should()
+            .Equal(16, 27, 12, 36, 11);
+
+        // All Some
+        ListOf.Many(Some("Hello"), Some("world"))
+            .AsEnumerable()
+            .SomesMap(v => v.Length)
+            .Should()
+            .Equal(5, 5);
+
+        // All None
+        ListOf.Many(Option<string>.None, Option<string>.None)
+            .AsEnumerable()
+            .SomesMap(v => v.Length)
+            .Should()
+            .BeEmpty();
+
+        // Empty
+        Enumerable.Empty<Option<string>>()
+            .SomesMap(v => v.Length)
+            .Should()
+            .BeEmpty();
+    }
+
+    [Test]
+    public void SomesMap_ReturnsTheTransformedSomesInTheList()
+    {
+        // Mix
+        ListOf.Many(
+                Some("Cut To The Chase"),
+                None,
+                Some("Elvis Has Left The Building"),
+                Some("Down And Out"),
+                None,
+                Some("A Fool and His Money Are Soon Parted"),
+                None,
+                None,
+                Some("In a Pickle"))
+            .SomesMap(v => v.Length)
+            .Should()
+            .Equal(16, 27, 12, 36, 11);
+
+        // All Some
+        ListOf.Many(Some("Hello"), Some("world"))
+            .SomesMap(v => v.Length)
+            .Should()
+            .Equal(5, 5);
+
+        // All None
+        ListOf.Many(Option<string>.None, Option<string>.None)
+            .SomesMap(v => v.Length)
+            .Should()
+            .BeEmpty();
+
+        // Empty
+        Array.Empty<Option<string>>()
+            .SomesMap(v => v.Length)
+            .Should()
+            .BeEmpty();
+    }
+
+    [Test]
+    public void SomesMap_ShouldMaterializeWhenReadOnlyList()
+    {
+        ListOf.Many(Some("Hello"), Some("world"))
+            .AsEnumerable()
+            .SomesMap(v => v.Length)
+            .TryGetNonEnumeratedCount(out _)
+            .Should()
+            .BeFalse();
+
+        ListOf.Many(Some("Hello"), Some("world"))
+            .SomesMap(v => v.Length)
+            .TryGetNonEnumeratedCount(out _)
+            .Should()
+            .BeTrue();
     }
 
     [Test]

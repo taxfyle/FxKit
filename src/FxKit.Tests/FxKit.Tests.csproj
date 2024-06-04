@@ -38,8 +38,4 @@
     <ProjectReference Include="..\FxKit\FxKit.csproj"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TestHelpers\"/>
-  </ItemGroup>
-
 </Project>
