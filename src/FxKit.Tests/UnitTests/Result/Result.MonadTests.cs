@@ -227,4 +227,45 @@ public class ResultMonadTests
     }
 
     #endregion
+
+    #region Ensure
+
+    [Test]
+    public void Ensure_ShouldEvaluatePredicateCorrectly()
+    {
+        Ok<int, string>(10)
+            .Ensure(v => v < 50, "Greater or equal to 50")
+            .Should()
+            .BeOk(10);
+
+        Ok<int, string>(10)
+            .Ensure(v => v < 10, "Greater or equal to 10")
+            .Should()
+            .BeErr("Greater or equal to 10");
+    }
+
+    [Test]
+    public void Ensure_ShouldCreateErrorCorrectly()
+    {
+        Ok<int, string>(10)
+            .Ensure(v => v < 50, () => "Greater or equal to 50")
+            .Should()
+            .BeOk(10);
+
+        Ok<int, string>(10)
+            .Ensure(v => v < 10, () => "Greater or equal to 10")
+            .Should()
+            .BeErr("Greater or equal to 10");
+    }
+
+    [Test]
+    public void Ensure_ShouldNotCreateErrorWhenOk()
+    {
+        Ok<int, string>(10)
+            .Ensure(v => v < 50, () => throw new InvalidOperationException())
+            .Should()
+            .BeOk(10);
+    }
+
+    #endregion
 }
