@@ -611,3 +611,7 @@ tab_width = 4
 
 [Cargo.lock]
 indent_size = 1
+
+[*.{ts,mts,json}]
+indent_size = 2
+insert_final_newline = false

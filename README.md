@@ -3,7 +3,7 @@
 A library for C# to enable functional programming using common data types like `Result`, `Option` and `Validation`.
 Also includes source generators for generating union types, and much more.
 
-> Documentation is a work in progress.
+> The documentation is available at https://taxfyle.github.io/FxKit/.
 
 * [Installation](#installation)
 * [Core data types](#core-data-types)
