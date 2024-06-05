@@ -100,8 +100,8 @@ value.
 You may have noticed some interesting bits and pieces such as the `[EnumMatch]`, `[Union]`, `MapErr` and `MapErrT`,
 and `AsTask`.
 
-* [`[EnumMatch]`](/annotations/enum-match) is used to generate an exhaustive `Match` method for the enum type.
-* [`[Union]`](/annotations/union) declares the type as a union type and marks it `abstract` - each `partial record` defined inside will
+* [`[EnumMatch]`](/compiler/enum-match) is used to generate an exhaustive `Match` method for the enum type.
+* [`[Union]`](/compiler/union) declares the type as a union type and marks it `abstract` - each `partial record` defined inside will
   inherit the decorated type. Methods like `Of` and `Match` are generated to enable inference-friendly construction
   and exhaustive matching, respectively.
 * `MapErr` maps the error of the result, in case the result is in the error state
