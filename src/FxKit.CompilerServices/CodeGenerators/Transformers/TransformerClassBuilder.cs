@@ -13,7 +13,7 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 /// <summary>
 ///     Creates transformer methods.
 /// </summary>
-public static class TransformerClassBuilder
+internal static class TransformerClassBuilder
 {
     private const string IEnumerableFullyQualifiedName   = "System.Collections.Generic.IEnumerable";
     private const string IReadOnlyListFullyQualifiedName = "System.Collections.Generic.IReadOnlyList";
@@ -62,13 +62,13 @@ public static class TransformerClassBuilder
         foreach (var outer in outerContainers)
         {
             namespaceList.Add(outer.ContainingNamespace);
-            namespaceList.Add(outer.FunctorMethodsNamespace);
+            namespaceList.Add(outer.FunctorImplementationNamespace);
 
             foreach (var method in methodGroup)
             {
                 namespaceList.AddRange(method.RequiredNamespaces);
 
-                // Skip "SelectMany" for now since it requires a different implementation. 
+                // Skip "SelectMany" for now since it requires a different implementation.
                 // We can come back to this later.
                 if (method.Name == LinqMonadicBind)
                 {
@@ -79,8 +79,8 @@ public static class TransformerClassBuilder
                 if (method.Name is Traverse or Sequence)
                 {
                     // Skip over `Traverse`/`Sequence` methods that would nest two of the same functors.
-                    if (method.ReturnType is ReturnType.Functor f &&
-                        f.FunctorReference.FullyQualifiedName == outer.FullyQualifiedName)
+                    if (method.ReturnType is ReturnType.Constructed f &&
+                        f.ConstructedType.FullyQualifiedName == outer.FullyQualifiedName)
                     {
                         continue;
                     }
@@ -104,7 +104,7 @@ public static class TransformerClassBuilder
                         // a `Task<IEnumerable>` is expected.
                         var synthesized = method.ReplaceFunctor(
                             method.Functor.ReplaceReference(
-                                functor: "IReadOnlyList",
+                                name: "IReadOnlyList",
                                 containingNamespace: "System.Collections.Generic"));
                         transformerMethods.Add(
                             CreateTransformer(
@@ -178,11 +178,17 @@ public static class TransformerClassBuilder
         FunctorMethodDescriptor method,
         out bool typeParamCollision)
     {
-        var stackedSource = Compose(outer, method.Functor);
+        var stackedSource = Compose(
+            outer: outer.ToGenericNameSyntax(),
+            inner: method.Functor.ToTypeSyntax());
         var rawReturnType = method.ReturnType switch
         {
-            ReturnType.Functor functor => Compose(outer, functor.FunctorReference),
-            ReturnType.Primitive primitive => Compose(outer, primitive.Type),
+            ReturnType.Constructed constructed => Compose(
+                outer: outer.ToGenericNameSyntax(),
+                inner: constructed.ConstructedType.ToTypeSyntax()),
+            ReturnType.Concrete primitive => Compose(
+                outer: outer.ToGenericNameSyntax(),
+                inner: primitive.Type.ToTypeSyntax()),
             _ => throw new ArgumentOutOfRangeException(nameof(method.ReturnType))
         };
 
@@ -261,25 +267,27 @@ public static class TransformerClassBuilder
         out bool typeParamCollision)
     {
         // For a method of the form:
-        // 
+        //
         // Result<TNewOk, TErr> Map<TOk, TErr, TNewOk>(...)
-        // 
+        //
         // If we're creating a Validation of Result transformer and use the
-        // original method's type parameters as well as Validation's type 
-        // parameters as the transformer's type parameters, we'll end up 
+        // original method's type parameters as well as Validation's type
+        // parameters as the transformer's type parameters, we'll end up
         // with an unused parameter:
-        // 
+        //
         // Validation<Result<TNewOk, TErr>, TInvalid> MapT<TOk, TErr, TNewOk, TValid, TInvalid>(...).
-        // 
+        //
         // In this case, it was `TValid`. It's not used because `Result` gets used in its place.
         // For that reason, we want to remove the type parameter in the spot where we're
         // placing the composed type.
 
-        var typeParams = method.TypeParameters.Concat(outer.TypeParameters.Skip(1)).ToImmutableList();
+        var typeParamIdentifiers =
+            method.TypeParameters.Concat(outer.TypeParameters.Skip(1)).ToImmutableList();
 
-        typeParamCollision = typeParams.Select(x => x.Identifier.ToString()).Distinct().Count() !=
-                             typeParams.Count;
-        return TypeParameterList(SeparatedList(typeParams));
+        typeParamCollision = typeParamIdentifiers.Distinct().Count() != typeParamIdentifiers.Count;
+        var typeParameters = typeParamIdentifiers
+            .Select(static ident => TypeParameter(ident));
+        return TypeParameterList(SeparatedList(typeParameters));
     }
 
     /// <summary>
@@ -299,10 +307,12 @@ public static class TransformerClassBuilder
 
         var parameterApplied = outer.TypeParameters.ToList().ElementAt(0);
 
-        var clausesFromOuter = outer.ConstraintClauses.ToImmutableList()
-            .Where(a => a.Name.ToString() != parameterApplied.Identifier.ToString());
+        var clausesFromFunctorDefinition = outer.ConstraintClauses.ToImmutableList()
+            .Where(a => a.Name.ToString() != parameterApplied);
 
-        return method.ConstraintClauses.Concat(clausesFromOuter);
+        return method.ConstraintClauses
+            .Concat(clausesFromFunctorDefinition)
+            .SelectNotNull(static x => x.ToConstraintClauseSyntax());
     }
 
     /// <summary>
@@ -320,7 +330,14 @@ public static class TransformerClassBuilder
             .WithType(stack)
             .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)));
 
-        return ParameterList(SeparatedList(ListOfOne(thisParameter).Concat(method.Parameters)));
+        return ParameterList(
+            SeparatedList(
+                SingletonList(thisParameter)
+                    .Concat(
+                        method.Parameters
+                            .Select(
+                                static p =>
+                                    Parameter(ParseToken(p.Name)).WithType(ParseTypeName(p.Type))))));
     }
 
     /// <summary>
@@ -345,7 +362,7 @@ public static class TransformerClassBuilder
                             ArgumentList(
                                 SeparatedList(
                                     method.Parameters.Select(
-                                        x => Argument(IdentifierName(x.Identifier.ToString())))))));
+                                        x => Argument(IdentifierName(x.Name)))))));
 
         var bodyExpression = InvocationExpression(
                 MemberAccessExpression(

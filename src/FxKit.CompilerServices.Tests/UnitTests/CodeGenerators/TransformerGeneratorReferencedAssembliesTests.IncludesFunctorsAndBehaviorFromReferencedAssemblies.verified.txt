@@ -1,0 +1,77 @@
+﻿using App.Inner;
+using Core;
+using Core.Collections;
+using Monads;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace App
+{
+    public static class FilteredT
+    {
+        /// <summary>
+        ///     <c>Paged</c> of <c>Filtered</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Paged<Filtered<U>> MapT<T, U>(this Paged<Filtered<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Task</c> of <c>Filtered</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Task<Filtered<U>> MapT<T, U>(this Task<Filtered<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IEnumerable</c> of <c>Filtered</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IEnumerable<Filtered<U>> MapT<T, U>(this IEnumerable<Filtered<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IReadOnlyList</c> of <c>Filtered</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IReadOnlyList<Filtered<U>> MapT<T, U>(this IReadOnlyList<Filtered<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Option</c> of <c>Filtered</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Option<Filtered<U>> MapT<T, U>(this Option<Filtered<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+    }
+}
+
+-------------
+
+using App;
+using Core;
+using Core.Collections;
+using Monads;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace App.Inner
+{
+    public static class PagedT
+    {
+        /// <summary>
+        ///     <c>Filtered</c> of <c>Paged</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Filtered<Paged<U>> MapT<T, U>(this Filtered<Paged<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Task</c> of <c>Paged</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Task<Paged<U>> MapT<T, U>(this Task<Paged<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IEnumerable</c> of <c>Paged</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IEnumerable<Paged<U>> MapT<T, U>(this IEnumerable<Paged<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IReadOnlyList</c> of <c>Paged</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static IReadOnlyList<Paged<U>> MapT<T, U>(this IReadOnlyList<Paged<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Option</c> of <c>Paged</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Option<Paged<U>> MapT<T, U>(this Option<Paged<T>> source, Func<T, U> selector) => source.Map(inner => inner.Map(selector));
+    }
+}
+
+-------------
+
+[assembly: FxKit.CompilerServices.ContainsFunctors]

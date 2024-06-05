@@ -1,42 +1,19 @@
-﻿using System.Collections.Immutable;
+﻿using System.Runtime.CompilerServices;
+using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 
 /// <summary>
-///     Represents a method return type - either a general primitive `T` or some <see cref="Transformers.Functor" />.
-/// </summary>
-public abstract record ReturnType
-{
-    /// <summary>
-    ///     A functor return type.
-    /// </summary>
-    public sealed record Functor(FunctorReference FunctorReference) : ReturnType
-    {
-        public FunctorReference FunctorReference { get; } = FunctorReference;
-        public static ReturnType Of(FunctorReference cr) => new Functor(cr);
-    }
-
-    /// <summary>
-    ///     A primitive generic return type.
-    /// </summary>
-    public sealed record Primitive(TypeSyntax Type) : ReturnType
-    {
-        public TypeSyntax Type { get; } = Type;
-        public static ReturnType Of(TypeSyntax type) => new Primitive(type);
-    }
-}
-
-/// <summary>
 ///     Represents a descriptor for a method that operates on a functor.
 /// </summary>
-public readonly struct FunctorMethodDescriptor
+internal sealed record FunctorMethodDescriptor
 {
     /// <summary>
     ///     The parent functor reference this method operates upon.
     /// </summary>
-    public FunctorReference Functor { get; }
+    public ConstructedType Functor { get; }
 
     /// <summary>
     ///     The return type of this method.
@@ -49,48 +26,42 @@ public readonly struct FunctorMethodDescriptor
     public string Name { get; }
 
     /// <summary>
-    ///     The Type Parameters that this method takes.
+    ///     The Type Parameters that this method takes (name only).
     /// </summary>
-    public IEnumerable<TypeParameterSyntax> TypeParameters { get; }
-
-    /// <summary>
-    ///     The parameters this method takes.
-    /// </summary>
-    /// <remarks>
-    ///     Does not include the "source" "this" argument from the extension method.
-    /// </remarks>
-    public IEnumerable<ParameterSyntax> Parameters { get; }
+    public EquatableArray<string> TypeParameters { get; }
 
     /// <summary>
     ///     The constraint clauses present on this method.
     /// </summary>
-    public IEnumerable<TypeParameterConstraintClauseSyntax> ConstraintClauses { get; }
+    public EquatableArray<TypeParameterConstraints> ConstraintClauses { get; }
 
     /// <summary>
-    ///     The namespaces that method uses.
+    ///     The namespaces that the method uses.
     /// </summary>
-    public ImmutableHashSet<string> RequiredNamespaces { get; }
+    public EquatableArray<string> RequiredNamespaces { get; }
 
     /// <summary>
-    ///     Leading trivia for the method.
+    ///     Location of the method in source code, if we have it.
     /// </summary>
-    public SyntaxTriviaList LeadingTrivia { get; }
+    public LocationInfo? Location { get; }
 
     /// <summary>
-    ///     Location of the method in source code.
+    ///     The parameters this method takes, as strings that need to be parsed.
     /// </summary>
-    public Location Location { get; }
+    /// <remarks>
+    ///     Does not include the "source" "this" argument from the extension method.
+    /// </remarks>
+    public EquatableArray<(string Type, string Name)> Parameters { get; }
 
     private FunctorMethodDescriptor(
-        FunctorReference functor,
+        ConstructedType functor,
         ReturnType returnType,
         string name,
-        IEnumerable<TypeParameterSyntax> typeParameters,
-        IEnumerable<ParameterSyntax> parameters,
-        IEnumerable<TypeParameterConstraintClauseSyntax> constraintClauses,
-        ImmutableHashSet<string> requiredNamespaces,
-        SyntaxTriviaList leadingTrivia,
-        Location location)
+        EquatableArray<string> typeParameters,
+        EquatableArray<(string Type, string Name)> parameters,
+        EquatableArray<TypeParameterConstraints> constraintClauses,
+        EquatableArray<string> requiredNamespaces,
+        LocationInfo? location)
     {
         Functor = functor;
         ReturnType = returnType;
@@ -99,32 +70,33 @@ public readonly struct FunctorMethodDescriptor
         Parameters = parameters;
         ConstraintClauses = constraintClauses;
         RequiredNamespaces = requiredNamespaces;
-        LeadingTrivia = leadingTrivia;
         Location = location;
     }
 
     /// <summary>
     ///     Creates a copy of this functor method descriptor but uses the specified
-    ///     functor reference.
+    ///     constructed type in place of the current one (which references the functor).
     /// </summary>
-    /// <param name="functorReference"></param>
+    /// <param name="constructedType"></param>
     /// <returns></returns>
-    public FunctorMethodDescriptor ReplaceFunctor(FunctorReference functorReference)
+    public FunctorMethodDescriptor ReplaceFunctor(ConstructedType constructedType)
     {
         return new FunctorMethodDescriptor(
-            functor: functorReference,
+            functor: constructedType,
             returnType: ReturnType,
             name: Name,
             typeParameters: TypeParameters,
             parameters: Parameters,
             constraintClauses: ConstraintClauses,
-            requiredNamespaces: RequiredNamespaces.Add(functorReference.ContainingNamespace),
-            leadingTrivia: LeadingTrivia,
+            requiredNamespaces: RequiredNamespaces
+                .Append(constructedType.ContainingNamespace)
+                .ToEquatableArray(),
             location: Location);
     }
 
     /// <summary>
-    ///     Creates an <see cref="FunctorMethodDescriptor" /> from a <see cref="MethodDeclarationSyntax" /> node.
+    ///     Creates a <see cref="FunctorMethodDescriptor" /> from
+    ///     a <see cref="MethodDeclarationSyntax" /> node and its symbol.
     /// </summary>
     /// <param name="method"></param>
     /// <param name="symbol"></param>
@@ -135,38 +107,49 @@ public readonly struct FunctorMethodDescriptor
         if (method.TypeParameterList is null || !method.TypeParameterList.Parameters.Any())
         {
             throw new InvalidOperationException(
-                "Can't create a FunctorMethodDescriptor from a method with no parameters.");
+                $"Can't create a {nameof(FunctorMethodDescriptor)} from a method with no parameters.");
         }
 
         var thisParamContainingNamespace =
             symbol.Parameters[0].Type.ContainingNamespace.ToDisplayString();
-        var containerReference = FunctorReference.From(
-            (GenericNameSyntax)method.ParameterList.Parameters.First().Type!,
-            thisParamContainingNamespace);
+
+        // The first parameter to a method is always the functor itself.
+        var containerReference = ConstructedType.From(
+            value: Unsafe.As<GenericNameSyntax>(method.ParameterList.Parameters.First().Type!),
+            containingNamespace: thisParamContainingNamespace);
 
         var returnType = method.ReturnType switch
         {
-            GenericNameSyntax gns => ReturnType.Functor.Of(
-                FunctorReference.From(
-                    gns,
-                    symbol.ReturnType.ContainingNamespace.ToDisplayString())),
-            _ => ReturnType.Primitive.Of(method.ReturnType)
+            GenericNameSyntax gns => ReturnType.Constructed.Of(
+                constructedType: ConstructedType.From(
+                    value: gns,
+                    containingNamespace: symbol.ReturnType.ContainingNamespace.ToDisplayString())),
+            _ => ReturnType.Concrete.Of(type: ConcreteType.From(method.ReturnType))
         };
 
-        var requiredNamespaces = symbol.Parameters.Select(p => p.ContainingNamespace)
-            .Append(symbol.ReturnType.ContainingNamespace)
-            .Select(n => n.ToDisplayString())
-            .ToImmutableHashSet();
+        // The namespaces that the method uses.
+        var requiredNamespaces = symbol.Parameters
+            .SelectMany(static p => TypeSymbolHelper.GetRequiredNamespaces(p.Type))
+            .Concat(TypeSymbolHelper.GetRequiredNamespaces(symbol.ReturnType))
+            .Distinct()
+            .ToEquatableArray();
+
+        var parameters = method.ParameterList.Parameters.Skip(1)
+            .Select(static p => (Type: p.Type!.ToString(), Name: p.Identifier.ToString()))
+            .ToEquatableArray();
 
         return new FunctorMethodDescriptor(
             functor: containerReference,
             returnType: returnType,
             name: method.Identifier.ToString(),
-            typeParameters: method.TypeParameterList.Parameters,
-            parameters: method.ParameterList.Parameters.Skip(1),
-            constraintClauses: method.ConstraintClauses,
+            typeParameters: method.TypeParameterList.Parameters
+                .Select(p => p.Identifier.ToString())
+                .ToEquatableArray(),
+            parameters: parameters,
+            constraintClauses: symbol.TypeParameters
+                .Select(TypeParameterConstraints.FromTypeParameterSymbol)
+                .ToEquatableArray(),
             requiredNamespaces: requiredNamespaces,
-            leadingTrivia: method.GetLeadingTrivia(),
-            location: method.GetLocation());
+            location: LocationInfo.CreateFrom(method));
     }
 }

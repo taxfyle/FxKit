@@ -12,22 +12,42 @@ namespace Monads
         ///     <c>Validation</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static Validation<Result<TNewOk, TErr>, TInvalid> MapT<TOk, TErr, TNewOk, TInvalid>(this Validation<Result<TOk, TErr>, TInvalid> source, Func<TOk, TNewOk> selector)
-            where TNewOk : notnull where TErr : notnull where TOk : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+            where TOk : notnull where TErr : notnull where TNewOk : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Validation</c> of <c>Result</c> Transformer Method for <c>Unwrap</c>.
+        /// </summary>
+        public static Validation<TOk, TInvalid> UnwrapT<TOk, TErr, TInvalid>(this Validation<Result<TOk, TErr>, TInvalid> source)
+            where TOk : notnull where TErr : notnull where TInvalid : notnull => source.Map(inner => inner.Unwrap());
         /// <summary>
         ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static Task<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this Task<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
-            where TNewOk : notnull where TErr : notnull where TOk : notnull => source.Map(inner => inner.Map(selector));
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>Unwrap</c>.
+        /// </summary>
+        public static Task<TOk> UnwrapT<TOk, TErr>(this Task<Result<TOk, TErr>> source)
+            where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap());
         /// <summary>
         ///     <c>IEnumerable</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static IEnumerable<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this IEnumerable<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
-            where TNewOk : notnull where TErr : notnull where TOk : notnull => source.Map(inner => inner.Map(selector));
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IEnumerable</c> of <c>Result</c> Transformer Method for <c>Unwrap</c>.
+        /// </summary>
+        public static IEnumerable<TOk> UnwrapT<TOk, TErr>(this IEnumerable<Result<TOk, TErr>> source)
+            where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap());
         /// <summary>
         ///     <c>IReadOnlyList</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static IReadOnlyList<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this IReadOnlyList<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
-            where TNewOk : notnull where TErr : notnull where TOk : notnull => source.Map(inner => inner.Map(selector));
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>IReadOnlyList</c> of <c>Result</c> Transformer Method for <c>Unwrap</c>.
+        /// </summary>
+        public static IReadOnlyList<TOk> UnwrapT<TOk, TErr>(this IReadOnlyList<Result<TOk, TErr>> source)
+            where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap());
     }
 }
 
@@ -47,22 +67,22 @@ namespace Monads
         ///     <c>Result</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static Result<Validation<TNewValid, TInvalid>, TErr> MapT<TValid, TInvalid, TNewValid, TErr>(this Result<Validation<TValid, TInvalid>, TErr> source, Func<TValid, TNewValid> selector)
-            where TValid : notnull where TNewValid : notnull where TInvalid : notnull where TErr : notnull => source.Map(inner => inner.Map(selector));
+            where TValid : notnull where TInvalid : notnull where TNewValid : notnull where TErr : notnull => source.Map(inner => inner.Map(selector));
         /// <summary>
         ///     <c>Task</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static Task<Validation<TNewValid, TInvalid>> MapT<TValid, TInvalid, TNewValid>(this Task<Validation<TValid, TInvalid>> source, Func<TValid, TNewValid> selector)
-            where TValid : notnull where TNewValid : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+            where TValid : notnull where TInvalid : notnull where TNewValid : notnull => source.Map(inner => inner.Map(selector));
         /// <summary>
         ///     <c>IEnumerable</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static IEnumerable<Validation<TNewValid, TInvalid>> MapT<TValid, TInvalid, TNewValid>(this IEnumerable<Validation<TValid, TInvalid>> source, Func<TValid, TNewValid> selector)
-            where TValid : notnull where TNewValid : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+            where TValid : notnull where TInvalid : notnull where TNewValid : notnull => source.Map(inner => inner.Map(selector));
         /// <summary>
         ///     <c>IReadOnlyList</c> of <c>Validation</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static IReadOnlyList<Validation<TNewValid, TInvalid>> MapT<TValid, TInvalid, TNewValid>(this IReadOnlyList<Validation<TValid, TInvalid>> source, Func<TValid, TNewValid> selector)
-            where TValid : notnull where TNewValid : notnull where TInvalid : notnull => source.Map(inner => inner.Map(selector));
+            where TValid : notnull where TInvalid : notnull where TNewValid : notnull => source.Map(inner => inner.Map(selector));
     }
 }
 
@@ -120,3 +140,7 @@ namespace System.Collections.Generic
             where TInvalid : notnull => source.Map(inner => inner.Sequence());
     }
 }
+
+-------------
+
+[assembly: FxKit.CompilerServices.ContainsFunctors]

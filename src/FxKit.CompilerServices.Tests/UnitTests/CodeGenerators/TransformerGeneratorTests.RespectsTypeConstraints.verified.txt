@@ -1,0 +1,36 @@
+﻿using App;
+
+#nullable enable
+namespace Monads
+{
+    public static class ResultT
+    {
+        /// <summary>
+        ///     <c>Filtered</c> of <c>Result</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Filtered<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this Filtered<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.Map(selector));
+    }
+}
+
+-------------
+
+using Monads;
+using System;
+
+#nullable enable
+namespace App
+{
+    public static class FilteredT
+    {
+        /// <summary>
+        ///     <c>Result</c> of <c>Filtered</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Result<Filtered<U>, TErr> MapT<T, U, TErr>(this Result<Filtered<T>, TErr> source, Func<T, U> selector)
+            where T : global::System.IEquatable<T>, global::System.IEquatable<string> where U : global::System.IEquatable<U>, global::System.IEquatable<string> where TErr : notnull => source.Map(inner => inner.Map(selector));
+    }
+}
+
+-------------
+
+[assembly: FxKit.CompilerServices.ContainsFunctors]
