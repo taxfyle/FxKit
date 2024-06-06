@@ -1,11 +1,11 @@
-# Core
+# Data Types
 
 FxKit exposes C#-friendly implementations of common functional programming data types:
 
-* `Unit`: A replacement for `void` that can be used as a value.
-* `Option`: Alternative to nullable types.
-* `Result`: Contains either a success value or an error value. The API is similar to that of Rust's `Result` type.
-* `Validation`: Like `Result` but can hold multiple errors.
+* [`Unit`](unit): A replacement for `void` that can be used as a value.
+* [`Option`](option): Alternative to nullable types.
+* [`Result`](result): Contains either a success value or an error value. The API is similar to that of Rust's `Result` type.
+* [`Validation`](validation): Like `Result` but can hold multiple errors.
 
 All of them contain escape hatches for when you need to do imperative work. Additionally, they do not allow
 nullable reference types (that is, types annotated with `?`, e.g. `int?`, `string?`) in any of their values.

@@ -66,10 +66,10 @@ public readonly struct Option<T>
     /// <summary>
     ///     Matches on the value held within the <see cref="Option{T}" />.
     /// </summary>
-    /// <param name="Some"></param>
-    /// <param name="None"></param>
-    /// <typeparam name="R"></typeparam>
-    /// <returns></returns>
+    /// <param name="Some">A function to invoke if the <see cref="Option{T}"/> has a value.</param>
+    /// <param name="None">A function to invoke if the <see cref="Option{T}"/> is empty.</param>
+    /// <typeparam name="R">The return type of the match functions.</typeparam>
+    /// <returns>The result of invoking the <paramref name="Some"/> or the <paramref name="None"/> function.</returns>
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public R Match<R>(

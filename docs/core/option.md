@@ -10,7 +10,11 @@ public Option<string> OnlyNonWhitespace(string? value) =>
         : Some(value);
 ```
 
-## TryGet / Unwrap
+## Accessors and Unwrapping
+
+Functions that are used to access or extract values from their containers.
+
+### TryGet / Unwrap
 
 You can use `TryGet` as an escape hatch to get the value out.
 
@@ -22,22 +26,36 @@ if (nonWhitespace.TryGet(out var value))
     Console.WriteLine(value);
 }
 
-// Alternatively, `Unwrap` can be used, but will throw an exception if in the `None` state.
+// Alternatively, `Unwrap` can be used,
+// but will throw an exception if in the `None` state.
 string value = nonWhitespace.Unwrap();
 ```
 
-## Map / Select
-
-Transforming the value:
+Or you can use `UnwrapOr` / `UnwrapOrElse` and specify a fallback value for when option is empty.
 
 ```csharp
-OnlyNonWhitespace("  hello  ")
-    .Map(x => x.Trim());
+Option<string> nonWhitespace = OnlyNonWhitespace("hello");
+
+string value = nonWhitespace.UnwrapOr("<undefined>");
 ```
 
-## Match
+### ToNullable
 
-Matching:
+The `ToNullable` / `ToNullableValue` is used to unwrap the value from option and fallback to `null` when it is empty.
+
+```csharp
+Option<string> nonWhitespace = OnlyNonWhitespace("hello");
+
+string? value = nonWhitespace.ToNullable();
+```
+
+## Pattern Matching and Transformation
+
+Functions that are used to apply transformations or perform pattern matching on values within containers.
+
+### Match
+
+To handle the possible states of the option:
 
 ```csharp
 int length = OnlyNonWhitespace("  hello  ")
@@ -56,9 +74,34 @@ int length = OnlyNonWhitespace("  hello  ")
     .UnwrapOr(0);
 ```
 
-## Where
+### OkOr / OkOrElse
 
-Filtering:
+You can turn `Option`s into other types, such as `Result`:
+
+```csharp
+Result<int, string> result = OnlyNonWhitespace("  hello  ")
+    .Map(x => x.Trim())
+    .Where(x => x.Length > 0)
+    .OkOr("That string was only whitespace! Bad!")
+```
+
+### ValidOr / ValidOrElse
+
+To convert an `Option` to `Validation`:
+
+```csharp
+Validation<int, string> result = Some("Hello")
+    .Where(x => x.Length < 10)
+    .ValidOr("Too long text");
+```
+
+## Filtering and Conditional Operators
+
+Functions that are used to filter or conditionally manipulate values within containers.
+
+### Where
+
+Filter the element of an option, if any, based on a predicate.
 
 ```csharp
 Option<int> nonZeroLength = OnlyNonWhitespace("  hello  ")
@@ -67,7 +110,34 @@ Option<int> nonZeroLength = OnlyNonWhitespace("  hello  ")
     .Where(x => x.Length > 0);
 ```
 
-## FlatMap / SelectMany
+### OfType
+
+Use `OfType` to filter the value held in `Some` based on its type.
+
+> This is essentially a shorthand for `FlatMap(a => a is U u ? Some(u) : None)`
+
+## Mapping and Flat Mapping
+
+Functions that are used to apply transformations to each element within a container and manage nested containers.
+
+### Map / Select
+
+Transforming the value:
+
+```csharp
+OnlyNonWhitespace("  hello  ")
+    .Map(x => x.Trim());
+```
+
+LINQ syntax is supported too.
+
+```csharp
+Option<int> result =
+    from a in Some(3)
+    select a + 1;
+```
+
+### FlatMap / SelectMany
 
 Monadic bind (also called flat mapping):
 
@@ -89,19 +159,41 @@ Option<string> greeting =
     select $"{a} {b}";
 ```
 
-## OkOr / OkOrElse
+### Do
 
-You can turn `Option`s into other types, such as `Result`:
+Use `Do` to execute an imperative operation when the option has a value.
 
 ```csharp
-Result<int, string> result = OnlyNonWhitespace("  hello  ")
-    .Map(x => x.Trim())
-    .Map(x => x.Length)
-    .Where(x => x.Length > 0)
-    .OkOr("That string was only whitespace! Bad!")
+Some("Hello")
+    .Do(x => Console.WriteLine(x));
 ```
 
-## Traverse
+## Aggregation and Collection Operations
+
+Functions that are used to aggregate or collect values from multiple containers.
+
+### Somes
+
+Use the `Somes` to extract the values from a sequence of options.
+
+```csharp
+IEnumerable<int> numbers = ListOf
+    .Many(Some(4), Some(3), None, Some(10), None, None, Some(2))
+    .AsEnumerable()
+    .Somes()
+```
+
+### SomesMap
+
+You can use `SomesMap` as a shortcut for `Somes` + `Map`.
+
+```csharp
+IEnumerable<int> lengths = ListOf
+    .Many(Some("Hello"), Some("world"))
+    .SomesMap(v => v.Length)
+```
+
+### Traverse
 
 You can _traverse_ between various other container types. For example:
 
@@ -111,4 +203,43 @@ IReadOnlyList<int> list = [2, 4, 6];
 Option<IReadOnlyList<int>> listOfOnlyEvenNumbers =
     list.Traverse(x => x % 2 == 0 ? Some(x) : None);
 // Some([2, 4, 6])
+```
+
+### Sequence
+
+Use `Sequence` to traverse without the mapping step.
+
+> This is equivalent to `Traverse(Identity)` / `Traverse(x => x)`
+
+```csharp
+IReadOnlyList<Option<int>> list = [Some(2), Some(4), None, Some(6)];
+
+Option<IReadOnlyList<int>> sequenced =
+    list.Sequence();
+```
+
+## Prelude
+
+The `Prelude` class provides the following functions for `Option`:
+
+### Some / None
+
+Returns a wrapped value or an empty `Option`.
+
+```csharp
+public Option<string> OnlyNonWhitespace(string? value) =>
+    string.IsNullOrWhiteSpace(value)
+        ? None
+        : Some(value);
+```
+
+### Optional
+
+Use `Optional` to convert a nullable value to `Option`.
+If the input value is **not** `null`, the result will be `Some(value)`,
+otherwise the result will be an empty option (`None`).
+
+```csharp
+string? value = "Hello";
+Option<string> wrapped = Optional(value);
 ```

@@ -12,11 +12,11 @@ public static partial class Option
     ///     Matches on the value held within the <see cref="Option{T}" />.
     /// </summary>
     /// <param name="source"></param>
-    /// <param name="Some"></param>
-    /// <param name="None"></param>
-    /// <typeparam name="R"></typeparam>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    /// <param name="Some">A function to invoke if the <see cref="Option{T}"/> has a value.</param>
+    /// <param name="None">A function to invoke if the <see cref="Option{T}"/> is empty.</param>
+    /// <typeparam name="R">The return type of the match functions.</typeparam>
+    /// <typeparam name="T">The type of the value contained in the <see cref="Option{T}"/>.</typeparam>
+    /// <returns>The result of invoking the <paramref name="Some"/> or the <paramref name="None"/> function.</returns>
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [GenerateTransformer]
@@ -88,10 +88,10 @@ public static partial class Option
     ///     If not, throws an <see cref="InvalidOperationException" />. Only use when you are certain that
     ///     the option is in a Some state.
     /// </summary>
-    /// <param name="source"></param>
+    /// <param name="source">The input to unwrap value from.</param>
     /// <param name="exceptionMessage">If specified, will use as the exception message.</param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="InvalidOperationException">The option did not contain a value.</exception>
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [GenerateTransformer]

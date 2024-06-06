@@ -13,3 +13,23 @@ public Unit DoSomething()
     // return default;
 }
 ```
+
+## Prelude
+
+The `Prelude` class provides the following functions for `Unit`:
+
+### Unit Function
+
+`Unit` value can be returned using the `Unit()` function.
+
+```csharp
+public Result<Unit, string> DoSomething()
+{
+    // Do something
+    return Unit();
+}
+```
+
+### Ignore Function
+
+The `Ignore` function transforms any value into a `Unit` value.

@@ -28,6 +28,14 @@ export default defineConfig({
       { text: 'Intro', link: '/introduction' }
     ],
 
+    search: {
+      provider: 'local'
+    },
+
+    outline: {
+      level: [2, 3]
+    },
+
     logo: '/favicon-128x128.png',
 
     sidebar: [
