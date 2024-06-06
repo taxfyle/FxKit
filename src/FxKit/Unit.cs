@@ -56,10 +56,10 @@ public static partial class Prelude
     public static Unit Unit() => FxKit.Unit.Default;
 
     /// <summary>
-    ///     Ignores the input argument and returns <see cref="Unit" />.
+    ///     Ignores the input argument and returns <see cref="FxKit.Unit" />.
     /// </summary>
-    /// <param name="_"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    /// <param name="_">Any value.</param>
+    /// <typeparam name="T">The type of ignored value.</typeparam>
+    /// <returns>The <see cref="FxKit.Unit"/> value, regardless of the input value.</returns>
     public static Unit Ignore<T>(T _) => FxKit.Unit.Default;
 }
