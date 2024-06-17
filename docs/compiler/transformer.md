@@ -1,10 +1,10 @@
-# Transformer methods
+# Transformer Generator
 
-When working with stacked types, such as `Task<Option<T>>`, `Result<Option<T>, E>` etc, it can be a pain to operate
+When working with stacked types, such as `Task<Option<T>>`, `Result<Option<T>, E>`, etc. it can be a pain to operate
 on the innermost type.
 
 Most of these have auto-generated transformer methods - that is, the method with a `T` suffix, for
-example `MapT`, `OkOrElseT`, `UnwrapT` etc.
+example `MapT`, `OkOrElseT`, `UnwrapT`, etc.
 
 ```csharp
 var result =
@@ -92,7 +92,7 @@ public static class MoreBoxExtensions
 }
 ```
 
-This will now result in `MapT` and `UnwrapT`-variant being generated for every known functor type in your project.
+This will now result in `MapT` and `UnwrapT`-variants being generated for every known functor type in your project.
 
 ```csharp
 var box = new Box<int>(2);
