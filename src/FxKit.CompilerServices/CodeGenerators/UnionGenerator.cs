@@ -105,7 +105,7 @@ public class UnionGenerator : IIncrementalGenerator
             // inheriting from a type.
             var typeInfo = ctx.SemanticModel.GetDeclaredSymbol(recordDecl);
 
-            // If the base type is not System.Object, then it is something user-defined. 
+            // If the base type is not System.Object, then it is something user-defined.
             if (typeInfo is { BaseType.SpecialType: not SpecialType.System_Object })
             {
                 return null;
@@ -186,7 +186,7 @@ public class UnionGenerator : IIncrementalGenerator
                     constructors: unionConstructors));
         }
 
-        return unionsToGenerate.ToImmutableArray();
+        return [..unionsToGenerate];
     }
 
     /// <summary>
@@ -223,7 +223,7 @@ public class UnionGenerator : IIncrementalGenerator
                     parameters: constructorParameters));
         }
 
-        return constructors.ToImmutableArray();
+        return [..constructors];
     }
 
     /// <summary>

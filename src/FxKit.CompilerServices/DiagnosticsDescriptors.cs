@@ -7,7 +7,7 @@ namespace FxKit.CompilerServices;
 /// <summary>
 ///     Descriptors for reporting diagnostics.
 /// </summary>
-public static class DiagnosticsDescriptors
+internal static class DiagnosticsDescriptors
 {
     #region Categories
 

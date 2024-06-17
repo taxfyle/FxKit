@@ -6,12 +6,12 @@ namespace FxKit.CompilerServices.Utilities;
 /// <summary>
 ///     Composes two types.
 /// </summary>
-public delegate GenericNameSyntax Composer(GenericNameSyntax outer, TypeSyntax inner);
+internal delegate GenericNameSyntax Composer(GenericNameSyntax outer, TypeSyntax inner);
 
 /// <summary>
 ///     Composes two types.
 /// </summary>
-public static class TypeComposer
+internal static class TypeComposer
 {
     /// <summary>
     ///     Composes the given types. For example, given <c>Result&lt;T, E&gt;</c>

@@ -1,56 +1,67 @@
-﻿using FxKit.CompilerServices.Extensions;
+﻿using System.Reflection.Metadata;
+using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
+// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+// ReSharper disable LoopCanBeConvertedToQuery
 
 namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 
 /// <summary>
 ///     Helpers.
 /// </summary>
-public static class Helpers
+internal static class Helpers
 {
     /// <summary>
-    ///     Gets the namespaces providing functor behavior for the functor names specified.
+    ///     Checks whether the specified <paramref name="reference"/>
+    ///     contains functor definitions and/or `Map` implementations by scanning for the
+    ///     assembly-level `ContainsFunctor` attribute.
     /// </summary>
-    /// <param name="compilation"></param>
-    /// <param name="functorNames"></param>
+    /// <param name="reference"></param>
     /// <returns></returns>
-    public static IEnumerable<(string Functor, string Namespace)?> GetFunctorBehaviorNamespaces(
-        Compilation compilation,
-        ISet<string> functorNames)
+    public static bool ContainsFunctors(MetadataReference reference)
     {
-        return compilation.SyntaxTrees.SelectMany(
-                st => st
-                    .GetRoot()
-                    .DescendantNodes()
-                    .OfType<MethodDeclarationSyntax>())
-            .Where(IsRelevantFunctorMethod)
-            .Select(m => compilation.GetSemanticModel(m.SyntaxTree).GetDeclaredSymbol(m))
-            .Select<IMethodSymbol?, (string, string)?>(
-                s => s is null
-                    ? null
-                    : (s.Parameters.First().Type.Name, s.ContainingNamespace.ToDisplayString()));
+        if (reference is PortableExecutableReference pe &&
+            pe.GetMetadata() is AssemblyMetadata asmFromPe)
+        {
+            return AssemblyContainsFunctors(asmFromPe);
+        }
 
-        // Indicates whether the given method is a relevant functor method.
-        bool IsRelevantFunctorMethod(MethodDeclarationSyntax m) =>
-            m.Identifier.ToString() == "Map" &&
-            m.IsExtensionMethod() &&
-            m.ParameterList.Parameters[0].Type is GenericNameSyntax gns &&
-            functorNames.Contains(gns.Identifier.ToString());
+        if (reference is CompilationReference ce)
+        {
+            return AssemblyContainsFunctors(ce);
+        }
+
+        return false;
     }
 
     /// <summary>
-    ///     Gets the namespace for the given functor.
+    ///     Filters locators based on known functors.
     /// </summary>
-    /// <param name="namespaces"></param>
-    /// <param name="functorName"></param>
+    /// <param name="referencedFunctors"></param>
+    /// <param name="allFunctorFullyQualifiedMetadataNames"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static string GetNamespaceForFunctor(
-        ISet<(string Functor, string Namespace)> namespaces,
-        string functorName) =>
-        namespaces.First(t => t.Functor == functorName).Namespace;
+    public static IEnumerable<FunctorImplementationLocator> FilterLocatorsBasedOnKnownFunctors(
+        IEnumerable<ReferencedFunctors> referencedFunctors,
+        ISet<string> allFunctorFullyQualifiedMetadataNames,
+        CancellationToken cancellationToken)
+    {
+        foreach (var referenced in referencedFunctors)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            foreach (var locator in referenced.Locators)
+            {
+                if (allFunctorFullyQualifiedMetadataNames.Contains(
+                        locator.FunctorFullyQualifiedMetadataName))
+                {
+                    yield return locator;
+                }
+            }
+        }
+    }
 
     /// <summary>
     ///     Converts an enumerable of <see cref="ITypeParameterSymbol" />s to an enumerable of
@@ -58,74 +69,82 @@ public static class Helpers
     /// </summary>
     /// <param name="symbols"></param>
     /// <returns></returns>
-    public static IEnumerable<TypeParameterSyntax> ToTypeParameterSyntax(
+    public static EquatableArray<string> ToTypeParameterNames(
         IEnumerable<ITypeParameterSymbol> symbols)
-        => symbols.Select(
-            s => TypeParameter(s.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
+        => symbols
+            .Select(s => s.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))
+            .ToEquatableArray();
 
     /// <summary>
-    ///     Converts an enumerable of <see cref="ITypeParameterSymbol" /> to an enumerable of
-    ///     <see cref="TypeParameterConstraintClauseSyntax" />.
-    /// </summary>
-    /// <param name="symbols"></param>
-    /// <returns></returns>
-    public static IEnumerable<TypeParameterConstraintClauseSyntax> ToConstraintClauseSyntax(
-        IEnumerable<ITypeParameterSymbol> symbols)
-    {
-        foreach (var typeParameterSymbol in symbols)
-        {
-            List<TypeParameterConstraintSyntax> constraints = new();
-
-            if (typeParameterSymbol.HasConstructorConstraint)
-            {
-                constraints.Add(ConstructorConstraint());
-            }
-
-            if (typeParameterSymbol.HasNotNullConstraint)
-            {
-                constraints.Add(TypeConstraint(IdentifierName("notnull")));
-            }
-
-            if (typeParameterSymbol.HasReferenceTypeConstraint)
-            {
-                constraints.Add(ClassOrStructConstraint(SyntaxKind.ClassConstraint));
-            }
-
-            if (typeParameterSymbol.HasValueTypeConstraint)
-            {
-                constraints.Add(ClassOrStructConstraint(SyntaxKind.StructConstraint));
-            }
-
-            if (!typeParameterSymbol.ConstraintTypes.IsEmpty)
-            {
-                constraints.AddRange(
-                    typeParameterSymbol.ConstraintTypes.Select(
-                        x => TypeConstraint(ParseTypeName(x.Name))));
-            }
-
-            yield return TypeParameterConstraintClause(
-                IdentifierName(typeParameterSymbol.Name),
-                SeparatedList(constraints));
-        }
-    }
-
-    /// <summary>
-    ///     Creates a list of one item.
-    /// </summary>
-    /// <param name="first"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public static IEnumerable<T> ListOfOne<T>(T first) => new List<T>
-    {
-        first
-    };
-
-    /// <summary>
-    ///     Computes a type's fully qualified name.
+    ///     Computes a type's fully qualified name without type parameters.
     /// </summary>
     /// <param name="containingNamespace"></param>
     /// <param name="typeName"></param>
     /// <returns></returns>
     public static string FullyQualifiedName(string containingNamespace, string typeName) =>
         $"{containingNamespace}.{typeName}";
+
+    /// <summary>
+    ///     Checks a compilation reference for whether it contains any functors.
+    /// </summary>
+    /// <param name="compilationReference"></param>
+    /// <returns></returns>
+    private static bool AssemblyContainsFunctors(CompilationReference compilationReference)
+    {
+        foreach (var attributeData in compilationReference.Compilation.Assembly.GetAttributes())
+        {
+            if (attributeData.AttributeClass is not { } attr)
+            {
+                continue;
+            }
+
+            var name = attr.GetFullyQualifiedMetadataName();
+            if (name == TransformerGenerator.ContainsFunctorsAttribute)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Checks a PE reference for whether it contains any functors.
+    /// </summary>
+    /// <param name="asmMeta"></param>
+    /// <returns></returns>
+    private static bool AssemblyContainsFunctors(
+        AssemblyMetadata asmMeta)
+    {
+        foreach (var module in asmMeta.GetModules())
+        {
+            var metadataReader = module.GetMetadataReader();
+            foreach (var customAttributeHandle in metadataReader.GetAssemblyDefinition()
+                         .GetCustomAttributes())
+            {
+                var customAttribute = metadataReader.GetCustomAttribute(customAttributeHandle);
+                var constructorHandle = customAttribute.Constructor;
+
+                if (constructorHandle.Kind != HandleKind.MemberReference)
+                {
+                    continue;
+                }
+
+                var memberReference =
+                    metadataReader.GetMemberReference((MemberReferenceHandle)constructorHandle);
+                var containingType =
+                    metadataReader.GetTypeReference((TypeReferenceHandle)memberReference.Parent);
+
+                var containingTypeName = metadataReader.GetString(containingType.Name);
+                var containingTypeNamespace = metadataReader.GetString(containingType.Namespace);
+                var fullName = $"{containingTypeNamespace}.{containingTypeName}";
+                if (fullName == TransformerGenerator.ContainsFunctorsAttribute)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

@@ -106,6 +106,6 @@ and `AsTask`.
   and exhaustive matching, respectively.
 * `MapErr` maps the error of the result, in case the result is in the error state
 * `MapErrT` is like `.Map(x => x.MapErr(y => ...))` - the reason we used it here is because we are working
-* with `Task<Result<..>>` rather than `Result` directly.
+  with `Task<Result<..>>` rather than `Result` directly.
 * `AsTask` is used to turn a `Result` into a `Task<Result<..>>` in order to satisfy the compiler - this is needed for
   the LINQ syntax to work.

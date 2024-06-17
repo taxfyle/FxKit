@@ -13,14 +13,13 @@ public static class CompilationUtil
     public static CSharpCompilation CreateCompilation(string sourceCode)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode);
-        var references = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(assembly => !assembly.IsDynamic)
-            .Select(
-                assembly => MetadataReference
-                    .CreateFromFile(assembly.Location))
-            .Cast<MetadataReference>()
-            .ToList();
-        references.Add(MetadataReference.CreateFromFile(typeof(UnionAttribute).Assembly.Location));
+        var references = Basic.Reference.Assemblies.Net80.References.All
+            .CastArray<MetadataReference>()
+            // Add a reference to the `Annotations` assembly.
+            .Add(
+                MetadataReference.CreateFromFile(
+                    typeof(GenerateTransformerAttribute).Assembly.Location));
+
 
         var compilation = CSharpCompilation.Create(
             $"RoslynTests_{Guid.NewGuid():N}",
@@ -30,6 +29,7 @@ public static class CompilationUtil
             },
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
         return compilation;
     }
 }

@@ -7,7 +7,7 @@ namespace FxKit.CompilerServices.Extensions;
 /// <summary>
 ///     Extension methods for <see cref="MethodDeclarationSyntax" />.
 /// </summary>
-public static class MethodDeclarationSyntaxExtensions
+internal static class MethodDeclarationSyntaxExtensions
 {
     /// <summary>
     ///     Indicates whether <see cref="m" /> is an extension method.

@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FxKit.CompilerServices.Utilities;
 
-public static class SemanticModelHelper
+internal  static class SemanticModelHelper
 {
     /// <summary>
     ///     Whether the attribute list contains the exact attribute we are looking for.

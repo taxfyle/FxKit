@@ -8,7 +8,7 @@ public static class CodeGeneratorTestUtil
 {
     /// <summary>
     ///     Uses the generator to generate source code from the input.
-    ///     Returns the generated code, or <c>null</c> if there should be no code generated.
+    ///     Returns the generated code, or an empty string if there should be no code generated.
     /// </summary>
     /// <param name="generator"></param>
     /// <param name="sourceCode"></param>
@@ -17,15 +17,25 @@ public static class CodeGeneratorTestUtil
     {
         var compilation = CompilationUtil.CreateCompilation(sourceCode);
 
+        return GetGeneratedOutput(generator, compilation);
+    }
+
+    /// <summary>
+    ///     Uses the generator to generate source code from the input.
+    ///     Returns the generated code, or an empty string if there should be no code generated.
+    /// </summary>
+    /// <param name="generator"></param>
+    /// <param name="compilation"></param>
+    /// <returns></returns>
+    public static string GetGeneratedOutput(ISourceGenerator generator, CSharpCompilation compilation)
+    {
         CSharpGeneratorDriver.Create(generator)
             .RunGeneratorsAndUpdateCompilation(
                 compilation,
                 out var outputCompilation,
                 out var diagnostics);
 
-        diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)
-            .Should()
-            .BeEmpty();
+        diagnostics.Should().BeEmpty();
 
         return OutputToString(outputCompilation);
     }
@@ -41,6 +51,18 @@ public static class CodeGeneratorTestUtil
     {
         var compilation = CompilationUtil.CreateCompilation(sourceCode);
 
+        return GetGeneratedOutput(generator, compilation);
+    }
+
+    /// <summary>
+    ///     Uses the generator to generate source code from the input.
+    ///     Returns the generated code, or <c>null</c> if there should be no code generated.
+    /// </summary>
+    /// <param name="generator"></param>
+    /// <param name="compilation"></param>
+    /// <returns></returns>
+    public static string GetGeneratedOutput(IIncrementalGenerator generator, CSharpCompilation compilation)
+    {
         CSharpGeneratorDriver.Create(generator)
             .RunGeneratorsAndUpdateCompilation(
                 compilation,
@@ -59,7 +81,7 @@ public static class CodeGeneratorTestUtil
     /// </summary>
     /// <param name="outputCompilation"></param>
     /// <returns></returns>
-    private static string OutputToString(Compilation outputCompilation) => string.Join(
+    public static string OutputToString(Compilation outputCompilation) => string.Join(
         "\n\n-------------\n\n",
         outputCompilation.SyntaxTrees.Skip(1));
 }
