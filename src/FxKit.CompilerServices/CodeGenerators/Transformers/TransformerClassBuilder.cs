@@ -337,7 +337,18 @@ internal static class TransformerClassBuilder
                         method.Parameters
                             .Select(
                                 static p =>
-                                    Parameter(ParseToken(p.Name)).WithType(ParseTypeName(p.Type))))));
+                                {
+                                    var parameter = Parameter(Identifier(p.Name))
+                                        .WithType(ParseTypeName(p.TypeFullName));
+
+                                    if (p.Default is not null)
+                                    {
+                                        return parameter.WithDefault(
+                                            EqualsValueClause(ParseExpression(p.Default)));
+                                    }
+
+                                    return parameter;
+                                }))));
     }
 
     /// <summary>
@@ -361,8 +372,7 @@ internal static class TransformerClassBuilder
                         .WithArgumentList(
                             ArgumentList(
                                 SeparatedList(
-                                    method.Parameters.Select(
-                                        x => Argument(IdentifierName(x.Name)))))));
+                                    method.Parameters.Select(x => Argument(IdentifierName(x.Name)))))));
 
         var bodyExpression = InvocationExpression(
                 MemberAccessExpression(

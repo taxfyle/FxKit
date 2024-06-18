@@ -247,6 +247,51 @@ public class TransformerGeneratorTests
         await output.VerifyGeneratedCode();
     }
 
+    [Test]
+    public async Task PreservesParameterDefault()
+    {
+        var output = Generate(
+            $$"""
+                {{ResultTypeAndImplementation}}
+
+                namespace App
+                {
+                  using System;
+                  using System.Collections.Generic;
+                  using FxKit.CompilerServices;
+                  using Monads;
+                  using StringAlias = string;
+
+                  public static class ResultExtensions
+                  {
+                      [GenerateTransformer]
+                      public static TOk Unwrap<TOk, TErr>(
+                          this Result<TOk, TErr> source,
+                          StringAlias? exceptionMessage = null)
+                          where TOk : notnull
+                          where TErr : notnull
+                          => throw new NotImplementedException();
+                  }
+                }
+
+                namespace TaskExtensions
+                {
+                    using System;
+                    using System.Threading.Tasks;
+                    using System.Collections.Generic;
+
+                    public static class E
+                    {
+                        public static async Task<U> Map<T, U>(
+                            this Task<T> source,
+                            Func<T, U> selector) => selector(await source);
+                    }
+                }
+            """);
+
+        await output.VerifyGeneratedCode();
+    }
+
     private static string Generate(string source) =>
         CodeGeneratorTestUtil.GetGeneratedOutput(new TransformerGenerator(), source);
 }

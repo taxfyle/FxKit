@@ -51,14 +51,14 @@ internal sealed record FunctorMethodDescriptor
     /// <remarks>
     ///     Does not include the "source" "this" argument from the extension method.
     /// </remarks>
-    public EquatableArray<(string Type, string Name)> Parameters { get; }
+    public EquatableArray<FunctorMethodParameter> Parameters { get; }
 
     private FunctorMethodDescriptor(
         ConstructedType functor,
         ReturnType returnType,
         string name,
         EquatableArray<string> typeParameters,
-        EquatableArray<(string Type, string Name)> parameters,
+        EquatableArray<FunctorMethodParameter> parameters,
         EquatableArray<TypeParameterConstraints> constraintClauses,
         EquatableArray<string> requiredNamespaces,
         LocationInfo? location)
@@ -134,8 +134,18 @@ internal sealed record FunctorMethodDescriptor
             .Distinct()
             .ToEquatableArray();
 
-        var parameters = method.ParameterList.Parameters.Skip(1)
-            .Select(static p => (Type: p.Type!.ToString(), Name: p.Identifier.ToString()))
+        var parameters = symbol.Parameters.Zip(
+                method.ParameterList.Parameters,
+                static (parameterSymbol, syntax) => (Symbol: parameterSymbol, Syntax: syntax))
+            .Skip(1)
+            .Select(
+                static tuple => new FunctorMethodParameter(
+                    TypeFullName: tuple.Symbol.Type.ToDisplayString(
+                        // We can use minimal qualified format since we
+                        // track and include namespaces.
+                        format: SymbolDisplayFormat.MinimallyQualifiedFormat),
+                    Name: tuple.Symbol.Name,
+                    Default: tuple.Syntax.Default?.Value.ToString()))
             .ToEquatableArray();
 
         return new FunctorMethodDescriptor(
@@ -143,7 +153,7 @@ internal sealed record FunctorMethodDescriptor
             returnType: returnType,
             name: method.Identifier.ToString(),
             typeParameters: method.TypeParameterList.Parameters
-                .Select(p => p.Identifier.ToString())
+                .Select(static p => p.Identifier.ValueText)
                 .ToEquatableArray(),
             parameters: parameters,
             constraintClauses: symbol.TypeParameters
@@ -153,3 +163,14 @@ internal sealed record FunctorMethodDescriptor
             location: LocationInfo.CreateFrom(method));
     }
 }
+
+/// <summary>
+///     A parameter to a functor method.
+/// </summary>
+/// <param name="TypeFullName">The type.</param>
+/// <param name="Name">The parameter name.</param>
+/// <param name="Default">The default value (if any).</param>
+public sealed record FunctorMethodParameter(
+    string TypeFullName,
+    string Name,
+    string? Default);
