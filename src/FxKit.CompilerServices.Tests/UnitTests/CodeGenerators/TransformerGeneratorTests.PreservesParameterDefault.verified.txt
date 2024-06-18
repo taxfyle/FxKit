@@ -1,0 +1,26 @@
+﻿using App;
+using System;
+using System.Threading.Tasks;
+using TaskExtensions;
+
+#nullable enable
+namespace Monads
+{
+    public static class ResultT
+    {
+        /// <summary>
+        ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>Map</c>.
+        /// </summary>
+        public static Task<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this Task<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.Map(selector));
+        /// <summary>
+        ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>Unwrap</c>.
+        /// </summary>
+        public static Task<TOk> UnwrapT<TOk, TErr>(this Task<Result<TOk, TErr>> source, string? exceptionMessage = null)
+            where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap(exceptionMessage));
+    }
+}
+
+-------------
+
+[assembly: FxKit.CompilerServices.ContainsFunctors]

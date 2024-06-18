@@ -48,6 +48,9 @@
     <None Update="UnitTests\CodeGenerators\TransformerGeneratorReferencedAssembliesTests.IncludesFunctorsAndBehaviorFromReferencedAssemblies.verified.txt">
       <DependentUpon>TransformerGeneratorReferencedAssembliesTests.cs</DependentUpon>
     </None>
+    <None Update="UnitTests\CodeGenerators\TransformerGeneratorTests.PreservesParameterDefault.verified.txt">
+      <DependentUpon>TransformerGeneratorTests.cs</DependentUpon>
+    </None>
   </ItemGroup>
 
   <PropertyGroup>
