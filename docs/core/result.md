@@ -9,7 +9,11 @@ public Result<int, string> Divide(int a, int b) =>
         : Ok(a / b);
 ```
 
-## TryGet
+## Accessors and Unwrapping
+
+Functions that are used to access or extract values from their containers.
+
+### TryGet
 
 You can use `TryGet` as an escape hatch to get the value and error out.
 
@@ -25,6 +29,197 @@ else
     // `value` will be null, `error` will be non-null.
     Console.WriteLine(error);
 }
+```
+
+### Unwrap
+
+The `Unwrap` / `UnwrapOrThrow` methods get the `Ok` value, or throw an exception otherwise.
+
+```csharp
+Result<int, string> result = Divide(10, 2);
+int resultValue = result.Unwrap("Optional error message");
+```
+
+Or you can use `UnwrapOr` / `UnwrapOrElse` and specify a fallback value for when the result is in the error state.
+
+```csharp
+Result<int, string> result = Divide(10, 2);
+int resultValue = result.UnwrapOr(0);
+```
+
+### UnwrapErr
+
+The `UnwrapErr` method gets the `Err` value, or throws an exception otherwise.
+
+```csharp
+Result<int, string> result = Divide(10, 0);
+string error = result.UnwrapErr("Optional error message");
+```
+
+### UnwrapEither
+
+The `UnwrapEither` method returns either the Ok value or the Err value when both are of the same type.
+
+```csharp
+Result<string, string> result = ParseName("John Locke");
+string nameValue = result.UnwrapEither();
+```
+
+## Pattern Matching and Transformation
+
+Functions that are used to apply transformations or perform pattern matching on values within containers.
+
+### Match
+
+Use `Match` to handle the possible states of the result:
+
+```csharp
+string message = ParseInt("15")
+    .Match(
+        Ok: x => $"The value is {x}",
+        Err: x => $"Error parsing value: {x}");
+```
+
+### ToOption
+
+You can turn `Result`s into other types, such as `Option`:
+
+```csharp
+Option<int> number = ParseInt("40").ToOption();
+```
+
+### ToValidation
+
+To convert an `Result` to `Validation`:
+
+```csharp
+Validation<int, string> number = ParseInt("40").ToValidation();
+```
+
+## Filtering and Conditional Operators
+
+Functions that are used to filter or conditionally manipulate values within containers.
+
+### Ensure
+
+Filter the value of a result, if any, based on a predicate.
+
+```csharp
+Result<int, string> result = ParseInt("10")
+    .Ensure(x => x >= 0, "Value is less than zero");
+```
+
+> This is essentially a shorthand for `FlatMap(x => x >= 0 ? Ok(x) : Err("Value is less than zero"))`
+
+## Mapping and Flat Mapping
+
+Functions that are used to apply transformations to each element within a container and manage nested containers.
+
+### Map / Select
+
+Transforms the value:
+
+```csharp
+Result<int, string> result = Divide(10, 2);
+Result<string, string> mappedResult = result.Map(x => x.ToString());
+```
+
+### MapErr
+
+Transforms the error value:
+
+```csharp
+Result<int, string> result = Divide(10, 0);
+Result<int, string> mappedResult = result.Map(x => x.ToUpper());
+```
+
+### FlatMap / SelectMany
+
+Monadic bind (also called flat mapping):
+
+```csharp
+Result<int, string> result = ParseInt("10")
+    .FlatMap(a => Divide(a, 2));
+```
+
+That wasn't very pretty - you can use LINQ to make it nicer:
+
+```csharp
+Result<int, string> result =
+    from a in ParseInt("10")
+    from b in Divide(a, 2)
+    select b;
+```
+
+### FlatMapErr
+
+For binding the error:
+
+```csharp
+Result<int, string> result = ParseInt("Invalid")
+    .FlatMapErr(a => ParseInt("10"));
+```
+
+### Do
+
+Use `Do` to execute an imperative operation when the result has a value.
+
+```csharp
+ParseInt("10")
+    .Do(x => Console.WriteLine(x));
+```
+
+### DoErr
+
+Use `Do` to execute an imperative operation when the result is in the error state.
+
+```csharp
+ParseInt("Invalid")
+    .DoErr(x => Console.WriteLine(x));
+```
+
+## Aggregation and Collection Operations
+
+Functions that are used to aggregate or collect values from multiple containers.
+
+### Traverse
+
+You can _traverse_ between various other container types. For example:
+
+```csharp
+IReadOnlyList<string> list = ["7", "Hello", "12", "9"];
+
+Result<IReadOnlyList<int>, string> listOfNumbers =
+    list.Traverse(x => ParseInt(x));
+// Ok([7, 12, 9])
+```
+
+### Sequence
+
+Use `Sequence` to traverse without the mapping step.
+
+> This is equivalent to `Traverse(Identity)` / `Traverse(x => x)`
+
+```csharp
+IReadOnlyList<Result<int, string>> list = [ParseInt("7"), ParseInt("Hello"), ParseInt("6")];
+
+Result<IReadOnlyList<int>, string> sequenced =
+    list.Sequence();
+```
+
+## Prelude
+
+The `Prelude` class provides the following functions for `Result`:
+
+### Ok / Err
+
+Returns a wrapped value or error `Result`.
+
+```csharp
+public Result<int, ParseError> ParseInt(string value) =>
+    string.IsNullOrWhiteSpace(value) ? Err<int, ParseError>(ParseError.Empty) :
+    int.TryParse(value, out int number) ? Ok<int, ParseError>(number) :
+    Err<int, ParseError>(ParseError.NotANumber);
 ```
 
 ## Example
@@ -104,7 +299,7 @@ and `AsTask`.
 * [`[Union]`](/compiler/union) declares the type as a union type and marks it `abstract` - each `partial record` defined inside will
   inherit the decorated type. Methods like `Of` and `Match` are generated to enable inference-friendly construction
   and exhaustive matching, respectively.
-* `MapErr` maps the error of the result, in case the result is in the error state
+* [`MapErr`](#maperr) maps the error of the result, in case the result is in the error state
 * `MapErrT` is like `.Map(x => x.MapErr(y => ...))` - the reason we used it here is because we are working
   with `Task<Result<..>>` rather than `Result` directly.
 * `AsTask` is used to turn a `Result` into a `Task<Result<..>>` in order to satisfy the compiler - this is needed for
