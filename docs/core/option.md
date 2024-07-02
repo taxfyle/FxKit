@@ -1,7 +1,25 @@
 # Option
 
-The `Option` type is a replacement for nullable types. It can be used to represent a value that may or may not be
-present.
+The `Option` type is a powerful construct used to represent the presence or absence of a value.
+This type is particularly useful for eliminating null reference errors, a common source of bugs in C# applications.
+
+An `Option`  can be either `Some` (containing a value), or `None` (indicating the absence of a value).
+By using `Option`, developers can enforce safer code practices, making it explicit when a variable,
+property, or parameter might not have a value and requires handling both cases.
+
+For error handling, you can use the [`Result`](result) type, which can encapsulate the error information.
+
+## Overview
+
+The `Option` type is a container for a value, so it can be treated as a collection with a single value
+supporting operations such as:
+- [Mapping](#map--select): apply transformations to the value within a `Option`
+- [Filtering](#where): filters a value based on a predicate
+- [Flattening](#flatmap--selectmany): apply a function that returns an `Option` and flattens the result
+
+### Usage
+
+The following example demonstrates how to use `Option` to handle non-whitespace strings:
 
 ```csharp
 public Option<string> OnlyNonWhitespace(string? value) =>
@@ -9,6 +27,11 @@ public Option<string> OnlyNonWhitespace(string? value) =>
         ? None
         : Some(value);
 ```
+
+In this example:
+- The function `OnlyNonWhitespace` takes an input string that may be _null_ or contain whitespace.
+- If the input string is null, empty or contains only whitespace, the function returns `None`, indicating the absence of a valid string.
+- If the input string is non-whitespace, the function returns `Some` with the actual string value.
 
 ## Accessors and Unwrapping
 

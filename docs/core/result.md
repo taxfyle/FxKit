@@ -1,6 +1,26 @@
 # Result
 
-The `Result` type (also commonly known as "Either") can hold either an `Ok` value or an `Err` value.
+The `Result` type, also commonly known as "Either", represents values that can be either an `Ok` value
+or an `Err` value. This type is particularly useful for error handling, allowing you to represent either
+a successful computation with a value or an error with a message or other error information.
+
+For optional values that do not carry errors, you should use the [`Option`](option) type.
+
+## Overview
+
+In many programming scenarios, operations can either succeed or fail. The `Result` type provides a type-safe
+way to handle these outcomes explicitly, avoiding the use of exceptions. Exceptions are not ideal for
+reporting failures, as exceptions are not part of a method's signature, and the compiler doesn't enforce
+handling them. Additionally, exceptions are known to degrade performance.
+
+The `Result` type supports operations such as:
+- [Mapping](#map--select): apply transformations to the value within a `Result`
+- [Filtering](#ensure): filters a value based on a predicate
+- [Flattening](#flatmap--selectmany): apply a function that returns a `Result` and flattens the result
+
+### Usage
+
+The following example demonstrates how to use the `Result` type to handle division by zero:
 
 ```csharp
 public Result<int, string> Divide(int a, int b) =>
@@ -8,6 +28,12 @@ public Result<int, string> Divide(int a, int b) =>
         ? Err("Cannot divide by zero")
         : Ok(a / b);
 ```
+
+In this example:
+- The function `Divide` takes two integers as input.
+- It checks if the divisor `b` is zero.
+- If `b` is zero, the function returns `Err` with an error message.
+- If `b` is not zero, the function returns `Ok` with the result of the division.
 
 ## Accessors and Unwrapping
 
