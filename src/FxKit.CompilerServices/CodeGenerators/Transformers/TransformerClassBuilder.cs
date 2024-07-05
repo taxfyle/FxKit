@@ -1,12 +1,8 @@
-﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static FxKit.CompilerServices.CodeGenerators.Transformers.Helpers;
-using static FxKit.CompilerServices.Utilities.TypeComposer;
-
-// ReSharper disable CoVariantArrayConversion
 
 namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 
@@ -18,115 +14,49 @@ internal static class TransformerClassBuilder
     /// <summary>
     ///     Creates the transformer class and namespace.
     /// </summary>
-    /// <param name="methodGroup"></param>
-    /// <param name="allOuterContainers"></param>
-    /// <param name="typeParamCollisions"></param>
+    /// <param name="transformerSet"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static (string Name, CompilationUnitSyntax Unit) CreateTransformerFile(
-        IGrouping<(string Functor, string Namespace), FunctorMethodDescriptor> methodGroup,
-        IEnumerable<Functor> allOuterContainers,
-        out List<FunctorMethodDescriptor> typeParamCollisions)
+        TransformerSet transformerSet,
+        CancellationToken cancellationToken)
     {
-        var namespaceList = new HashSet<string>();
-        var methodsWithCollidingTypeParams = new List<FunctorMethodDescriptor>();
         var transformerMethods = new List<MethodDeclarationSyntax>();
 
-        var namespaceDecl = NamespaceDeclaration(IdentifierName(methodGroup.Key.Namespace));
-        var classDecl = ClassDeclaration($"{methodGroup.Key.Functor}T")
+        var namespaceDecl = NamespaceDeclaration(IdentifierName(transformerSet.FunctorNamespace));
+        var classDecl = ClassDeclaration(transformerSet.GeneratedClassName)
             .WithModifiers(
                 TokenList(
                     Token(SyntaxKind.PublicKeyword),
                     Token(SyntaxKind.StaticKeyword)));
 
-        // We don't want to nest one functor within the same functor.
-        var methodGroupFunctorFullyQualifiedName = FullyQualifiedName(
-            methodGroup.Key.Namespace,
-            methodGroup.Key.Functor);
-        var outerContainers = allOuterContainers.Where(
-            o => o.FullyQualifiedName != methodGroupFunctorFullyQualifiedName);
-
-        foreach (var outer in outerContainers)
+        foreach (var methodDescriptor in transformerSet.TransformerMethods)
         {
-            namespaceList.Add(outer.ContainingNamespace);
-            namespaceList.Add(outer.FunctorImplementationNamespace);
+            cancellationToken.ThrowIfCancellationRequested();
+            var returnType = methodDescriptor.ReturnType.ToGenericNameSyntax();
+            var modifiers = TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword));
+            var typeParameters = TypeParameterList(
+                SeparatedList(methodDescriptor.TypeParameterNames.Select(static t => TypeParameter(t))));
 
-            foreach (var method in methodGroup)
-            {
-                namespaceList.AddRange(method.RequiredNamespaces);
+            var transformer = MethodDeclaration(returnType, methodDescriptor.TransformerMethodName)
+                .WithModifiers(modifiers)
+                .WithTypeParameterList(typeParameters)
+                .WithParameterList(ComputeTransformerParameters(methodDescriptor))
+                .WithConstraintClauses(
+                    List(
+                        methodDescriptor.TypeParameterConstraints.SelectNotNull(
+                            static t => t.ToConstraintClauseSyntax())))
+                .WithExpressionBody(ComputeTransformerExpressionBody(methodDescriptor))
+                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                .WithLeadingTrivia(
+                    CreateDocumentation(
+                        methodDescriptor.OuterFunctorName,
+                        methodDescriptor.InnerFunctorName,
+                        methodDescriptor.InnerMethodName));
 
-                // Skip "SelectMany" for now since it requires a different implementation.
-                // We can come back to this later.
-                if (method.Name == LinqMonadicBind)
-                {
-                    continue;
-                }
-
-                // Special provisions for `Traverse`/`Sequence`.
-                if (method.Name is Traverse or Sequence)
-                {
-                    // Skip over `Traverse`/`Sequence` methods that would nest two of the same functors.
-                    if (method.ReturnType is ConcreteOrConstructedType.Constructed f &&
-                        f.ConstructedType.FullyQualifiedName == outer.FullyQualifiedName)
-                    {
-                        continue;
-                    }
-
-                    // Generate additional overloads of `Traverse`/`Sequence` that
-                    // accept `IReadOnlyList`, since C# variance sucks.
-                    // For example, doing a `SequenceT` on a `Task<IReadOnlyList<Validation<..>>>` would
-                    // not be allowed because `SequenceT`'s input is `Task<IEnumerable<Validation<..>>>`,
-                    // and C# isn't smart enough to see that yes, an `IReadOnlyList` can in fact be
-                    // a `Task<IEnumerable>`...
-                    if (method.Functor.FullyQualifiedName == IEnumerableFullyQualifiedName)
-                    {
-                        // Skip generating `IReadOnlyList<IReadOnlyList<..>>`.
-                        if (outer.FullyQualifiedName == IReadOnlyListFullyQualifiedName)
-                        {
-                            continue;
-                        }
-
-                        // Used to synthesize an `IReadOnlyList` overload for methods where the functor (source) is
-                        // `IEnumerable`. This is because C# does not allow a `Task<IReadOnlyList>` where
-                        // a `Task<IEnumerable>` is expected.
-                        var synthesized = method.ReplaceFunctor(
-                            method.Functor.ReplaceReference(
-                                name: "IReadOnlyList",
-                                containingNamespace: "System.Collections.Generic"));
-                        transformerMethods.Add(
-                            CreateTransformer(
-                                name: ComputeTransformerName(synthesized.Name),
-                                outer: outer,
-                                method: synthesized,
-                                typeParamCollision: out _));
-                    }
-                }
-
-                transformerMethods.Add(
-                    CreateTransformer(
-                        ComputeTransformerName(method.Name),
-                        outer,
-                        method,
-                        out var typeParamCollision));
-
-                if (typeParamCollision)
-                {
-                    methodsWithCollidingTypeParams.Add(method);
-                }
-
-                // For LINQ's Where, we want to generate a `WhereT` transformer to be
-                // used with method chaining, and a `Where` transformer with the same signature
-                // as `WhereT` to be used by the LINQ Query Syntax.
-                if (method.Name == LinqFilterName)
-                {
-                    transformerMethods.Add(
-                        CreateTransformer(
-                            method.Name,
-                            outer,
-                            method,
-                            out _));
-                }
-            }
+            transformerMethods.Add(transformer);
         }
+
 
         var nullableEnabledTrivia =
             TriviaList(
@@ -135,170 +65,16 @@ internal static class TransformerClassBuilder
                         Token(SyntaxKind.EnableKeyword),
                         isActive: true)));
 
-        var usings = namespaceList.Where(n => n != methodGroup.Key.Namespace)
-            .OrderBy(u => u)
+        var usings = transformerSet.RequiredNamespaces
             .Select(n => UsingDirective(IdentifierName(n)));
-        var @namespace = namespaceDecl.AddMembers(classDecl.AddMembers(transformerMethods.ToArray()))
+        var @namespace = namespaceDecl.AddMembers(classDecl.AddMembers([..transformerMethods]))
             .WithLeadingTrivia(new SyntaxTriviaList(nullableEnabledTrivia));
 
         var compilationUnit = CompilationUnit()
             .WithUsings(new SyntaxList<UsingDirectiveSyntax>(usings))
             .WithMembers(new SyntaxList<MemberDeclarationSyntax>(@namespace));
 
-        typeParamCollisions = methodsWithCollidingTypeParams;
         return (classDecl.Identifier.ToString(), compilationUnit);
-    }
-
-    /// <summary>
-    ///     Creates the transformer method.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="outer"></param>
-    /// <param name="method"></param>
-    /// <param name="typeParamCollision"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    private static MethodDeclarationSyntax CreateTransformer(
-        string name,
-        Functor outer,
-        FunctorMethodDescriptor method,
-        out bool typeParamCollision)
-    {
-        var stackedSource = Compose(
-            outer: outer.ToGenericNameSyntax(),
-            inner: method.Functor.ToTypeSyntax());
-        var rawReturnType = method.ReturnType switch
-        {
-            ConcreteOrConstructedType.Constructed(var constructed) => Compose(
-                outer: outer.ToGenericNameSyntax(),
-                inner: constructed.ToTypeSyntax()),
-            ConcreteOrConstructedType.Concrete(var primitive) => Compose(
-                outer: outer.ToGenericNameSyntax(),
-                inner: primitive.ToTypeSyntax()),
-            _ => throw new ArgumentOutOfRangeException(nameof(method.ReturnType))
-        };
-
-        var returnType = FlattenReturnType(rawReturnType, out var flattened);
-
-        var modifiers = TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword));
-        var transformer = MethodDeclaration(returnType, name)
-            .WithModifiers(modifiers)
-            .WithTypeParameterList(
-                ComputeTransformerTypeParameters(method, outer, out typeParamCollision))
-            .WithParameterList(ComputeTransformerParameters(method, stackedSource))
-            .WithConstraintClauses(List(ComputeTransformerConstraintClauses(method, outer)))
-            .WithExpressionBody(ComputeTransformerExpressionBody(method, flattened))
-            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-            .WithLeadingTrivia(CreateDocumentation(outer.Name, method.Functor.Name, method.Name));
-
-        return transformer;
-    }
-
-    /// <summary>
-    ///     Computes the name for the transformer method.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    private static string ComputeTransformerName(string name) => name switch
-    {
-        "Select" => "Select",
-        _        => $"{name}T"
-    };
-
-    /// <summary>
-    ///     Processes the raw computed return type to handle requirements for flattening.
-    /// </summary>
-    /// <remarks>
-    ///     Currently handles cases related to <see cref="System.Threading.Tasks.Task" /> flattening.
-    /// </remarks>
-    /// <param name="returnType"></param>
-    /// <param name="flattened"></param>
-    /// <returns></returns>
-    private static GenericNameSyntax FlattenReturnType(GenericNameSyntax returnType, out bool flattened)
-    {
-        if (returnType.Identifier.ToString() != CSharpTaskMonad)
-        {
-            flattened = false;
-            return returnType;
-        }
-
-        //  `gns` is the nested type - i.e, `A` in `Task<A>`.
-        if (returnType.TypeArgumentList.Arguments.First() is not GenericNameSyntax gns)
-        {
-            flattened = false;
-            return returnType;
-        }
-
-        if (gns.Identifier.ToString() != returnType.Identifier.ToString())
-        {
-            flattened = false;
-            return returnType;
-        }
-
-        flattened = true;
-        return gns;
-    }
-
-    /// <summary>
-    ///     Computes the required type parameters for the transformer given the method in question
-    ///     and the functor type.
-    /// </summary>
-    /// <param name="method"></param>
-    /// <param name="outer"></param>
-    /// <param name="typeParamCollision"></param>
-    /// <returns></returns>
-    private static TypeParameterListSyntax ComputeTransformerTypeParameters(
-        FunctorMethodDescriptor method,
-        Functor outer,
-        out bool typeParamCollision)
-    {
-        // For a method of the form:
-        //
-        // Result<TNewOk, TErr> Map<TOk, TErr, TNewOk>(...)
-        //
-        // If we're creating a Validation of Result transformer and use the
-        // original method's type parameters as well as Validation's type
-        // parameters as the transformer's type parameters, we'll end up
-        // with an unused parameter:
-        //
-        // Validation<Result<TNewOk, TErr>, TInvalid> MapT<TOk, TErr, TNewOk, TValid, TInvalid>(...).
-        //
-        // In this case, it was `TValid`. It's not used because `Result` gets used in its place.
-        // For that reason, we want to remove the type parameter in the spot where we're
-        // placing the composed type.
-
-        var typeParamIdentifiers =
-            method.TypeParameters.Concat(outer.TypeParameters.Skip(1)).ToImmutableList();
-
-        typeParamCollision = typeParamIdentifiers.Distinct().Count() != typeParamIdentifiers.Count;
-        var typeParameters = typeParamIdentifiers
-            .Select(static ident => TypeParameter(ident));
-        return TypeParameterList(SeparatedList(typeParameters));
-    }
-
-    /// <summary>
-    ///     Computes the constraint clauses for the method.
-    /// </summary>
-    /// <param name="method"></param>
-    /// <param name="outer"></param>
-    /// ///
-    /// <returns></returns>
-    private static IEnumerable<TypeParameterConstraintClauseSyntax> ComputeTransformerConstraintClauses(
-        FunctorMethodDescriptor method,
-        Functor outer)
-    {
-        // When composing `Result<TOk, TErr>` within `Validation<TValid, TInvalid>`, the
-        // `TValid` parameter will no longer be needed (because `Result<TOk, TErr>` is `TValid`).
-        // Therefore, we don't want to copy its generic constraint over to the new method either.
-
-        var parameterApplied = outer.TypeParameters.ToList().ElementAt(0);
-
-        var clausesFromFunctorDefinition = outer.ConstraintClauses.ToImmutableList()
-            .Where(a => a.Name.ToString() != parameterApplied);
-
-        return method.ConstraintClauses
-            .Concat(clausesFromFunctorDefinition)
-            .SelectNotNull(static x => x.ToConstraintClauseSyntax());
     }
 
     /// <summary>
@@ -306,46 +82,36 @@ internal static class TransformerClassBuilder
     ///     and the functor stack.
     /// </summary>
     /// <param name="method"></param>
-    /// <param name="stack"></param>
     /// <returns></returns>
     private static ParameterListSyntax ComputeTransformerParameters(
-        FunctorMethodDescriptor method,
-        GenericNameSyntax stack)
+        FunctorTransformerMethodDescriptor method)
     {
         var thisParameter = Parameter(Identifier(ThisParameterName))
-            .WithType(stack)
+            .WithType(method.StackedSource.ToGenericNameSyntax())
             .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)));
 
-        return ParameterList(
-            SeparatedList(
-                SingletonList(thisParameter)
-                    .Concat(
-                        method.Parameters
-                            .Select(
-                                static p =>
-                                {
-                                    var parameter = Parameter(Identifier(p.Name))
-                                        .WithType(ParseTypeName(p.TypeFullName));
+        var parameters = method.Parameters
+            .Select(
+                static p =>
+                {
+                    var parameter = Parameter(Identifier(p.Name))
+                        .WithType(ParseTypeName(p.TypeFullName));
 
-                                    if (p.Default is not null)
-                                    {
-                                        return parameter.WithDefault(
-                                            EqualsValueClause(ParseExpression(p.Default)));
-                                    }
+                    return p.Default is not null
+                        ? parameter.WithDefault(EqualsValueClause(ParseExpression(p.Default)))
+                        : parameter;
+                });
 
-                                    return parameter;
-                                }))));
+        return ParameterList(SeparatedList(SingletonList(thisParameter).Concat(parameters)));
     }
 
     /// <summary>
     ///     Generates the expression body for the transformer.
     /// </summary>
     /// <param name="method"></param>
-    /// <param name="flatten"></param>
     /// <returns></returns>
     private static ArrowExpressionClauseSyntax ComputeTransformerExpressionBody(
-        FunctorMethodDescriptor method,
-        bool flatten = false)
+        FunctorTransformerMethodDescriptor method)
     {
         var innerLambdaExpression =
             SimpleLambdaExpression(Parameter(Identifier(InnerFunctorName)))
@@ -354,7 +120,7 @@ internal static class TransformerClassBuilder
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 IdentifierName(InnerFunctorName),
-                                IdentifierName(method.Name)))
+                                IdentifierName(method.InnerMethodName)))
                         .WithArgumentList(
                             ArgumentList(
                                 SeparatedList(
@@ -367,7 +133,7 @@ internal static class TransformerClassBuilder
                     IdentifierName(FunctorMap)))
             .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(innerLambdaExpression))));
 
-        if (flatten)
+        if (method.RequiresFlattening)
         {
             bodyExpression = InvocationExpression(
                 MemberAccessExpression(

@@ -205,8 +205,11 @@ public class TransformerGeneratorTests
             compilation,
             out _,
             out var diagnostics);
-        diagnostics.Should().HaveCount(1);
+        diagnostics.Should().HaveCount(expected: 2, because: "one for each map method");
         diagnostics[0]
+            .Descriptor.Should()
+            .Be(DiagnosticsDescriptors.MethodDeclarationCannotAllowCollidingTypeParameters);
+        diagnostics[1]
             .Descriptor.Should()
             .Be(DiagnosticsDescriptors.MethodDeclarationCannotAllowCollidingTypeParameters);
     }

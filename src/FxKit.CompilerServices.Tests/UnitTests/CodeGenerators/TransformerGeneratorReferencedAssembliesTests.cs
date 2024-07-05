@@ -135,15 +135,24 @@ public class TransformerGeneratorReferencedAssembliesTests
                         """));
             driver = driver.RunGenerators(compilation);
 
-            // Assert that the output was recomputed.
+            // Assert that the transformers were regenerated, but not the attribute.
             var result = driver.GetRunResult().Results.Single();
             var outputs = (
                 from step in result.TrackedOutputSteps.Values.SelectMany(x => x)
                 from outputStep in step.Outputs
                 select outputStep).ToList();
-            var transformers = outputs[0];
-            transformers.Reason.Should().Be(IncrementalStepRunReason.Modified);
-            var assemblyAttribute = outputs[1];
+
+            // All outputs except the last one are transformers.
+            var transformerOutputs = outputs.Take(outputs.Count - 1);
+            transformerOutputs.Should()
+                .AllSatisfy(
+                    transformers =>
+                    {
+                        transformers.Reason.Should()
+                            .BeOneOf(IncrementalStepRunReason.Modified, IncrementalStepRunReason.New);
+                    });
+
+            var assemblyAttribute = outputs.Last();
             assemblyAttribute.Reason.Should().Be(IncrementalStepRunReason.Cached);
 
             // Cached since we didn't add more functors in references.
@@ -168,7 +177,8 @@ public class TransformerGeneratorReferencedAssembliesTests
         }
     }
 
-    private static CSharpCompilation CreateEndUserCompilation(IReadOnlyList<MetadataReference> references) =>
+    private static CSharpCompilation CreateEndUserCompilation(
+        IReadOnlyList<MetadataReference> references) =>
         CSharpCompilation.Create(
             assemblyName: $"TransformerGeneratorTest_{Guid.NewGuid():N}",
             syntaxTrees: new[]

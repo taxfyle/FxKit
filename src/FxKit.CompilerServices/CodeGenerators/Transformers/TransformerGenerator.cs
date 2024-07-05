@@ -6,7 +6,6 @@ using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static FxKit.CompilerServices.CodeGenerators.Transformers.Helpers;
-using static FxKit.CompilerServices.CodeGenerators.Transformers.TransformerClassBuilder;
 
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable LoopCanBeConvertedToQuery
@@ -223,10 +222,40 @@ public class TransformerGenerator : IIncrementalGenerator
                 })
             .Collect();
 
+        // Construct transformer sets.
+        var transformerSets = allOuterFunctors.Combine(methodsByFunctor)
+            .SelectMany(
+                static (tuple, ct) =>
+                {
+                    var (allOuterFunctors, functorMethods) = tuple;
+
+                    // Methods grouped by their functor.
+                    var methodsByFunctor = functorMethods
+                        .GroupBy(
+                            static m => (Functor: m.Functor.Name,
+                                Namespace: m.Functor.ContainingNamespace))
+                        .ToImmutableList();
+
+                    var result = new List<TransformerSet>(capacity: methodsByFunctor.Count);
+                    foreach (var methodGroup in methodsByFunctor)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        var transformerSet = TransformerSet.Create(
+                            allOuterContainers: allOuterFunctors,
+                            functorName: methodGroup.Key.Functor,
+                            functorNamespace: methodGroup.Key.Namespace,
+                            methods: methodGroup.ToImmutableList(),
+                            cancellationToken: ct);
+                        result.Add(transformerSet);
+                    }
+
+                    return result;
+                });
+
         // Generate the transformers.
         context.RegisterSourceOutput(
-            source: allOuterFunctors.Combine(methodsByFunctor),
-            action: static (spc, source) => Execute(source.Left, source.Right, spc));
+            source: transformerSets,
+            action: static (spc, source) => Execute(source, spc));
 
         // If there are any functors defined in syntax, then we want to
         // add the `ContainsFunctors` attribute.
@@ -284,45 +313,32 @@ public class TransformerGenerator : IIncrementalGenerator
     /// <summary>
     ///     Generates the code.
     /// </summary>
-    /// <param name="functorMethods"></param>
+    /// <param name="transformerSet"></param>
     /// <param name="ctx"></param>
-    /// <param name="allOuterFunctors"></param>
     private static void Execute(
-        ImmutableArray<Functor> allOuterFunctors,
-        ImmutableArray<FunctorMethodDescriptor> functorMethods,
+        TransformerSet transformerSet,
         SourceProductionContext ctx)
     {
-        // Methods grouped by their functor.
-        var methodsByFunctor = functorMethods
-            .GroupBy(static m => (Functor: m.Functor.Name, Namespace: m.Functor.ContainingNamespace))
-            .ToImmutableList();
-
-        foreach (var methodGroup in methodsByFunctor)
+        if (transformerSet.MethodsWithCollidingTypeParameters.Length > 0)
         {
-            ctx.CancellationToken.ThrowIfCancellationRequested();
-            var transformerSet = CreateTransformerFile(
-                methodGroup,
-                allOuterFunctors,
-                out var collisions);
-
-            if (collisions.Count > 0)
+            foreach (var m in transformerSet.MethodsWithCollidingTypeParameters)
             {
-                foreach (var m in collisions)
-                {
-                    var descriptor = DiagnosticsDescriptors
-                        .MethodDeclarationCannotAllowCollidingTypeParameters;
-                    var diagnostic = Diagnostic.Create(
-                        descriptor: descriptor,
-                        location: m.Location?.ToLocation());
-                    ctx.ReportDiagnostic(diagnostic);
-                }
-
-                return;
+                var descriptor = DiagnosticsDescriptors
+                    .MethodDeclarationCannotAllowCollidingTypeParameters;
+                var diagnostic = Diagnostic.Create(
+                    descriptor: descriptor,
+                    location: m.Location?.ToLocation());
+                ctx.ReportDiagnostic(diagnostic);
             }
 
-            ctx.AddSource(
-                transformerSet.Name + ".Generated.cs",
-                transformerSet.Unit.NormalizeWhitespace().ToFullString());
+            return;
         }
+
+        var generated =
+            TransformerClassBuilder.CreateTransformerFile(transformerSet, ctx.CancellationToken);
+
+        ctx.AddSource(
+            generated.Name + ".Generated.cs",
+            generated.Unit.NormalizeWhitespace().ToFullString());
     }
 }
