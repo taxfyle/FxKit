@@ -17,23 +17,6 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 public class TransformerGenerator : IIncrementalGenerator
 {
     /// <summary>
-    ///     Fully qualified name for <see cref="GenerateTransformerAttribute" />.
-    /// </summary>
-    public const string GenerateTransformerAttribute =
-        "FxKit.CompilerServices.GenerateTransformerAttribute";
-
-    /// <summary>
-    ///     Fully qualified name for <see cref="ContainsFunctorsAttribute" />.
-    /// </summary>
-    public const string ContainsFunctorsAttribute =
-        "FxKit.CompilerServices.ContainsFunctorsAttribute";
-
-    /// <summary>
-    ///     Fully qualified name for <see cref="FunctorAttribute" />.
-    /// </summary>
-    public const string FunctorAttribute = "FxKit.CompilerServices.FunctorAttribute";
-
-    /// <summary>
     ///     These intrinsic functors will wrap others.
     /// </summary>
     private static readonly IReadOnlyList<string>
@@ -55,7 +38,7 @@ public class TransformerGenerator : IIncrementalGenerator
     {
         // Filter for marked methods and transform them to functor method descriptors.
         var methodsByFunctor = context.SyntaxProvider.ForAttributeWithMetadataName(
-                fullyQualifiedMetadataName: GenerateTransformerAttribute,
+                fullyQualifiedMetadataName: GenerateTransformerAttributeFullyQualifiedName,
                 predicate: static (s, _) => IsMethodSyntaxTargetForGeneration(s),
                 transform: static (ctx, _) =>
                 {
@@ -105,7 +88,7 @@ public class TransformerGenerator : IIncrementalGenerator
         // Find marked type declarations (functors).
         var functorCandidatesFromSyntax =
             context.SyntaxProvider.ForAttributeWithMetadataName(
-                    fullyQualifiedMetadataName: FunctorAttribute,
+                    fullyQualifiedMetadataName: FunctorAttributeFullyQualifiedName,
                     predicate: static (s, _) => IsTypeDeclarationSyntaxTargetForGeneration(s),
                     transform: static (ctx, _) =>
                     {

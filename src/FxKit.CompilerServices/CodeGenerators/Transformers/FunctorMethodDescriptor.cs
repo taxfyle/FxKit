@@ -18,7 +18,7 @@ internal sealed record FunctorMethodDescriptor
     /// <summary>
     ///     The return type of this method.
     /// </summary>
-    public ReturnType ReturnType { get; }
+    public ConcreteOrConstructedType ReturnType { get; }
 
     /// <summary>
     ///     The name of this method.
@@ -55,7 +55,7 @@ internal sealed record FunctorMethodDescriptor
 
     private FunctorMethodDescriptor(
         ConstructedType functor,
-        ReturnType returnType,
+        ConcreteOrConstructedType returnType,
         string name,
         EquatableArray<string> typeParameters,
         EquatableArray<FunctorMethodParameter> parameters,
@@ -120,11 +120,11 @@ internal sealed record FunctorMethodDescriptor
 
         var returnType = method.ReturnType switch
         {
-            GenericNameSyntax gns => ReturnType.Constructed.Of(
+            GenericNameSyntax gns => ConcreteOrConstructedType.Constructed.Of(
                 constructedType: ConstructedType.From(
                     value: gns,
                     containingNamespace: symbol.ReturnType.ContainingNamespace.ToDisplayString())),
-            _ => ReturnType.Concrete.Of(type: ConcreteType.From(method.ReturnType))
+            _ => ConcreteOrConstructedType.Concrete.Of(type: ConcreteType.From(method.ReturnType))
         };
 
         // The namespaces that the method uses.

@@ -27,8 +27,8 @@ internal sealed record ReferencedFunctors(
     ///     Finds functors and functor implementations in the given assembly reference.
     /// </summary>
     /// <remarks>
-    ///     We're extracting both functors (typed with a `[Functor]` attribute), as well
-    ///     as functor implementations (`Map` methods) in a single pass to avoid having
+    ///     We're extracting both functors (typed with a `[Functor]` attribute),
+    ///     as well as functor implementations (`Map` methods) in a single pass to avoid having
     ///     to iterate on references multiple times.
     /// </remarks>
     /// <param name="reference"></param>
@@ -54,7 +54,7 @@ internal sealed record ReferencedFunctors(
             foreach (var attributeData in typeSymbol.GetAttributes())
             {
                 if (attributeData.AttributeClass?.GetFullyQualifiedMetadataName() !=
-                    TransformerGenerator.FunctorAttribute)
+                    FunctorAttributeFullyQualifiedName)
                 {
                     continue;
                 }

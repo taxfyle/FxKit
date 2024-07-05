@@ -15,20 +15,6 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 /// </summary>
 internal static class TransformerClassBuilder
 {
-    private const string IEnumerableFullyQualifiedName   = "System.Collections.Generic.IEnumerable";
-    private const string IReadOnlyListFullyQualifiedName = "System.Collections.Generic.IReadOnlyList";
-
-    private const string ThisParameterName = "source";
-    private const string InnerFunctorName  = "inner";
-    private const string FunctorMap        = "Map";
-    private const string FunctorFlatten    = "Unwrap";
-    private const string Traverse          = "Traverse";
-    private const string Sequence          = "Sequence";
-
-    private const string LinqMonadicBind = "SelectMany";
-    private const string LinqFilterName  = "Where";
-    private const string CSharpTaskMonad = "Task";
-
     /// <summary>
     ///     Creates the transformer class and namespace.
     /// </summary>
@@ -79,7 +65,7 @@ internal static class TransformerClassBuilder
                 if (method.Name is Traverse or Sequence)
                 {
                     // Skip over `Traverse`/`Sequence` methods that would nest two of the same functors.
-                    if (method.ReturnType is ReturnType.Constructed f &&
+                    if (method.ReturnType is ConcreteOrConstructedType.Constructed f &&
                         f.ConstructedType.FullyQualifiedName == outer.FullyQualifiedName)
                     {
                         continue;
@@ -183,12 +169,12 @@ internal static class TransformerClassBuilder
             inner: method.Functor.ToTypeSyntax());
         var rawReturnType = method.ReturnType switch
         {
-            ReturnType.Constructed constructed => Compose(
+            ConcreteOrConstructedType.Constructed(var constructed) => Compose(
                 outer: outer.ToGenericNameSyntax(),
-                inner: constructed.ConstructedType.ToTypeSyntax()),
-            ReturnType.Concrete primitive => Compose(
+                inner: constructed.ToTypeSyntax()),
+            ConcreteOrConstructedType.Concrete(var primitive) => Compose(
                 outer: outer.ToGenericNameSyntax(),
-                inner: primitive.Type.ToTypeSyntax()),
+                inner: primitive.ToTypeSyntax()),
             _ => throw new ArgumentOutOfRangeException(nameof(method.ReturnType))
         };
 

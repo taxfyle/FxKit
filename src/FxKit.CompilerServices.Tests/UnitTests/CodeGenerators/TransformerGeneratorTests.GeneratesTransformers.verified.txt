@@ -19,6 +19,11 @@ namespace Monads
         public static Validation<TOk, TInvalid> UnwrapT<TOk, TErr, TInvalid>(this Validation<Result<TOk, TErr>, TInvalid> source)
             where TOk : notnull where TErr : notnull where TInvalid : notnull => source.Map(inner => inner.Unwrap());
         /// <summary>
+        ///     <c>Validation</c> of <c>Result</c> Transformer Method for <c>FlatMapAsync</c>.
+        /// </summary>
+        public static Validation<Task<Result<TNewOk, TErr>>, TInvalid> FlatMapAsyncT<TOk, TErr, TNewOk, TInvalid>(this Validation<Result<TOk, TErr>, TInvalid> source, Func<TOk, Task<Result<TNewOk, TErr>>> selector)
+            where TOk : notnull where TErr : notnull where TNewOk : notnull where TInvalid : notnull => source.Map(inner => inner.FlatMapAsync(selector));
+        /// <summary>
         ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static Task<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this Task<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
@@ -28,6 +33,11 @@ namespace Monads
         /// </summary>
         public static Task<TOk> UnwrapT<TOk, TErr>(this Task<Result<TOk, TErr>> source)
             where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap());
+        /// <summary>
+        ///     <c>Task</c> of <c>Result</c> Transformer Method for <c>FlatMapAsync</c>.
+        /// </summary>
+        public static Task<Result<TNewOk, TErr>> FlatMapAsyncT<TOk, TErr, TNewOk>(this Task<Result<TOk, TErr>> source, Func<TOk, Task<Result<TNewOk, TErr>>> selector)
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.FlatMapAsync(selector)).Unwrap();
         /// <summary>
         ///     <c>IEnumerable</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
@@ -39,6 +49,11 @@ namespace Monads
         public static IEnumerable<TOk> UnwrapT<TOk, TErr>(this IEnumerable<Result<TOk, TErr>> source)
             where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap());
         /// <summary>
+        ///     <c>IEnumerable</c> of <c>Result</c> Transformer Method for <c>FlatMapAsync</c>.
+        /// </summary>
+        public static IEnumerable<Task<Result<TNewOk, TErr>>> FlatMapAsyncT<TOk, TErr, TNewOk>(this IEnumerable<Result<TOk, TErr>> source, Func<TOk, Task<Result<TNewOk, TErr>>> selector)
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.FlatMapAsync(selector));
+        /// <summary>
         ///     <c>IReadOnlyList</c> of <c>Result</c> Transformer Method for <c>Map</c>.
         /// </summary>
         public static IReadOnlyList<Result<TNewOk, TErr>> MapT<TOk, TErr, TNewOk>(this IReadOnlyList<Result<TOk, TErr>> source, Func<TOk, TNewOk> selector)
@@ -48,6 +63,11 @@ namespace Monads
         /// </summary>
         public static IReadOnlyList<TOk> UnwrapT<TOk, TErr>(this IReadOnlyList<Result<TOk, TErr>> source)
             where TOk : notnull where TErr : notnull => source.Map(inner => inner.Unwrap());
+        /// <summary>
+        ///     <c>IReadOnlyList</c> of <c>Result</c> Transformer Method for <c>FlatMapAsync</c>.
+        /// </summary>
+        public static IReadOnlyList<Task<Result<TNewOk, TErr>>> FlatMapAsyncT<TOk, TErr, TNewOk>(this IReadOnlyList<Result<TOk, TErr>> source, Func<TOk, Task<Result<TNewOk, TErr>>> selector)
+            where TOk : notnull where TErr : notnull where TNewOk : notnull => source.Map(inner => inner.FlatMapAsync(selector));
     }
 }
 

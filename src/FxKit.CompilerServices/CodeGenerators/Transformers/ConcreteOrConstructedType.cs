@@ -5,25 +5,24 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 
 /// <summary>
-///     Represents a method return type - either a concrete type or a constructed
-///     type from a generic type.
+///     Represents either a concrete type, or a type constructed from a generic type.
 /// </summary>
-internal abstract record ReturnType
+internal abstract record ConcreteOrConstructedType
 {
     /// <summary>
     ///     A constructed generic return type (e.g <c>Option&lt;int&gt;</c>).
     /// </summary>
-    internal sealed record Constructed(ConstructedType ConstructedType) : ReturnType
+    internal sealed record Constructed(ConstructedType ConstructedType) : ConcreteOrConstructedType
     {
-        public static ReturnType Of(ConstructedType constructedType) => new Constructed(constructedType);
+        public static ConcreteOrConstructedType Of(ConstructedType constructedType) => new Constructed(constructedType);
     }
 
     /// <summary>
     ///     A concrete return type (e.g <c>int</c>).
     /// </summary>
-    internal sealed record Concrete(ConcreteType Type) : ReturnType
+    internal sealed record Concrete(ConcreteType Type) : ConcreteOrConstructedType
     {
-        public static ReturnType Of(ConcreteType type) => new Concrete(type);
+        public static ConcreteOrConstructedType Of(ConcreteType type) => new Concrete(type);
     }
 }
 
