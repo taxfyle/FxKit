@@ -122,16 +122,15 @@ public class TransformerGenerator : IIncrementalGenerator
         var referencedFunctors = context.MetadataReferencesProvider
             .Where(ContainsFunctors)
             .Combine(context.CompilationProvider)
+            // Ensure we don't re-scan references that don't change.
+            .Select(static (tuple, _) => new EquatableMetadataReference(tuple.Left, tuple.Right))
             .Select(
-                static (tuple, ct) =>
-                {
-                    var (reference, compilation) = tuple;
+                static (equatableReference, ct) =>
                     // SAFETY: nulls are filtered out in the subsequent step.
-                    return ReferencedFunctors.GetFunctorsAndBehaviorFromReference(
-                        reference: reference,
-                        compilation: compilation,
-                        cancellationToken: ct)!;
-                })
+                    ReferencedFunctors.GetFunctorsAndBehaviorFromReference(
+                        reference: equatableReference.Reference,
+                        compilation: equatableReference.Compilation,
+                        cancellationToken: ct)!)
             .Where(static x => x is not null)
             .Collect()
             .WithTrackingName("ReferencedFunctors");
