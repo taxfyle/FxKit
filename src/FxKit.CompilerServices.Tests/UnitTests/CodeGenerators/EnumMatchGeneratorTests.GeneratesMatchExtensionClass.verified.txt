@@ -5,7 +5,7 @@ using System;
 
 namespace EnumTest.PrettyCool;
 
-public static class MyEnumMatchExtension
+public static partial class MyEnumMatchExtension
 {
     /// <summary>
     ///     Perform an exhaustive match on the enum value.
@@ -20,6 +20,22 @@ public static class MyEnumMatchExtension
             EnumTest.PrettyCool.MyEnum.One => One(),
             EnumTest.PrettyCool.MyEnum.Two => Two(),
             EnumTest.PrettyCool.MyEnum.Three => Three(),
-            _ => throw new ArgumentOutOfRangeException(nameof(source))
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+        };
+
+    /// <summary>
+    ///     Perform an exhaustive match on the enum value.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public static TMatchResult Match<TMatchResult>(
+        this EnumTest.PrettyCool.MyEnum source,
+        TMatchResult One,
+        TMatchResult Two,
+        TMatchResult Three) => source switch
+        {
+            EnumTest.PrettyCool.MyEnum.One => One,
+            EnumTest.PrettyCool.MyEnum.Two => Two,
+            EnumTest.PrettyCool.MyEnum.Three => Three,
+            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
 }

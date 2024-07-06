@@ -159,7 +159,7 @@ public class EnumMatchGenerator : IIncrementalGenerator
         sb.Append("namespace ").Append(enumToGenerate.ContainingNamespace).AppendLine(";");
         sb.Append(
                 @"
-public static class ")
+public static partial class ")
             .Append(enumToGenerate.Identifier)
             .Append(
                 @"MatchExtension
@@ -174,15 +174,15 @@ public static class ")
             .Append(" source,");
 
         // Generate a parameter for each enum field.
+        var lastIndex = enumToGenerate.Members.Count - 1;
         for (var index = 0; index < enumToGenerate.Members.Count; index++)
         {
             var member = enumToGenerate.Members[index];
-            var isLast = index == enumToGenerate.Members.Count - 1;
             sb.Append(
                     @"
         Func<TMatchResult> ")
                 .Append(member);
-            if (!isLast)
+            if (index != lastIndex)
             {
                 sb.Append(',');
             }
@@ -204,7 +204,49 @@ public static class ")
         }
 
         sb.Append(
-            @"            _ => throw new ArgumentOutOfRangeException(nameof(source))
+            @"            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+        };
+
+    /// <summary>
+    ///     Perform an exhaustive match on the enum value.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public static TMatchResult Match<TMatchResult>(
+        this ")
+            .Append(enumToGenerate.Name)
+            .Append(" source,");
+
+        // Generate a parameter for each enum field.
+        for (var index = 0; index < enumToGenerate.Members.Count; index++)
+        {
+            var member = enumToGenerate.Members[index];
+            sb.Append(
+                    @"
+        TMatchResult ")
+                .Append(member);
+            if (index != lastIndex)
+            {
+                sb.Append(',');
+            }
+        }
+
+        sb.AppendLine(
+            @") => source switch
+        {");
+
+        foreach (var member in enumToGenerate.Members)
+        {
+            sb.Append(@"            ")
+                .Append(enumToGenerate.Name)
+                .Append('.')
+                .Append(member)
+                .Append(" => ")
+                .Append(member)
+                .AppendLine(",");
+        }
+
+        sb.Append(
+            @"            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
 }
 ");
