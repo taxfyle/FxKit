@@ -6,6 +6,7 @@
 
     <Title>FxKit Compiler Services</Title>
     <Description>Provides Roslyn source generators and analyzers for FxKit data types.</Description>
+    <DevelopmentDependency>true</DevelopmentDependency>
   </PropertyGroup>
 
   <PropertyGroup>
