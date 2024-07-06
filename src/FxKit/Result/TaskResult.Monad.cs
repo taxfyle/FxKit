@@ -15,13 +15,15 @@ public static partial class Result
     /// <typeparam name="U"></typeparam>
     /// <typeparam name="E"></typeparam>
     /// <returns></returns>
-    public static Task<Result<U, E>> SelectMany<T, U, E>(
+    public static async Task<Result<U, E>> SelectMany<T, U, E>(
         this Task<Result<T, E>> source,
         Func<T, Task<Result<U, E>>> selector)
         where T : notnull
         where U : notnull
         where E : notnull
-        => source.FlatMapAsyncT(selector);
+        => (await source.ConfigureAwait(false)).TryGet(out var ok, out var err)
+            ? await selector(ok).ConfigureAwait(false)
+            : Result<U, E>.Err(err);
 
     /// <summary>
     ///     LINQ Extension Method for `FlatMapAsyncT`.
@@ -34,7 +36,7 @@ public static partial class Result
     /// <typeparam name="UU"></typeparam>
     /// <typeparam name="E"></typeparam>
     /// <returns></returns>
-    public static Task<Result<UU, E>> SelectMany<T, U, UU, E>(
+    public static async Task<Result<UU, E>> SelectMany<T, U, UU, E>(
         this Task<Result<T, E>> source,
         Func<T, Task<Result<U, E>>> selector,
         Func<T, U, UU> project)
@@ -42,12 +44,11 @@ public static partial class Result
         where U : notnull
         where UU : notnull
         where E : notnull
-        => source.Map(
-                innerResult => innerResult
-                    .FlatMapAsync(
-                        t => selector(t)
-                            .Map(targetResult => targetResult.Map(u => project(t, u)))))
-            .Unwrap();
+        => (await source.ConfigureAwait(false)).TryGet(out var srcOk, out var srcErr)
+            ? (await selector(srcOk).ConfigureAwait(false)).TryGet(out var selOk, out var selErr)
+                ? project(srcOk, selOk)
+                : Result<UU, E>.Err(selErr)
+            : Result<UU, E>.Err(srcErr);
 
     /// <summary>
     ///     LINQ Extension Method for `FlatMapAsyncT`.
@@ -60,7 +61,7 @@ public static partial class Result
     /// <typeparam name="UU"></typeparam>
     /// <typeparam name="E"></typeparam>
     /// <returns></returns>
-    public static Task<Result<UU, E>> SelectMany<T, U, UU, E>(
+    public static async Task<Result<UU, E>> SelectMany<T, U, UU, E>(
         this Task<Result<T, E>> source,
         Func<T, Task<Result<U, E>>> selector,
         Func<T, U, Task<UU>> project)
@@ -68,13 +69,11 @@ public static partial class Result
         where U : notnull
         where UU : notnull
         where E : notnull
-        => source.Map(
-                innerResult => innerResult
-                    .FlatMapAsync(
-                        t => selector(t)
-                            .Map(targetResult => targetResult.MapAsync(u => project(t, u)))
-                            .Unwrap()))
-            .Unwrap();
+        => (await source.ConfigureAwait(false)).TryGet(out var srcOk, out var srcErr)
+            ? (await selector(srcOk).ConfigureAwait(false)).TryGet(out var selOk, out var selErr)
+                ? await project(srcOk, selOk).ConfigureAwait(false)
+                : Result<UU, E>.Err(selErr)
+            : Result<UU, E>.Err(srcErr);
 
     #endregion
 }

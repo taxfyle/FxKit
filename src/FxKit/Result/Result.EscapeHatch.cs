@@ -20,7 +20,7 @@ public static partial class Result
     public static T UnwrapEither<T>(
         this Result<T, T> source)
         where T : notnull =>
-        source.Match(ok => ok, err => err);
+        source.TryGet(out var ok, out var err) ? ok : err;
 
     /// <summary>
     ///     Unwraps the result and returns the Ok value, or throws an exception otherwise.
@@ -39,10 +39,10 @@ public static partial class Result
         string? exceptionMessage = "")
         where TOk : notnull
         where TErr : notnull
-        => source.Match(
-            ok => ok,
-            err => throw new InvalidOperationException(
-                exceptionMessage ?? err.ToString() ?? "The result was in an Error state."));
+        => source.TryGet(out var ok, out var err)
+            ? ok
+            : throw new InvalidOperationException(
+                exceptionMessage ?? err.ToString() ?? "The result was in an Error state.");
 
     /// <summary>
     ///     Unwraps the result, returning the <typeparamref name="TOk" />> held within if in a Ok state.
@@ -58,7 +58,7 @@ public static partial class Result
         this Result<TOk, TErr> source,
         TOk fallback)
         where TOk : notnull
-        where TErr : notnull => source.Match(ok => ok, _ => fallback);
+        where TErr : notnull => source.TryGet(out var ok, out _) ? ok : fallback;
 
     /// <summary>
     ///     Unwraps the result, returning the <typeparamref name="TOk" />> held within if in a Ok state.
@@ -75,7 +75,7 @@ public static partial class Result
         Func<TErr, Exception> mapException)
         where TOk : notnull
         where TErr : notnull
-        => source.Match(ok => ok, err => throw mapException(err));
+        => source.TryGet(out var ok, out var err) ? ok : throw mapException(err);
 
     /// <summary>
     ///     Unwraps the result, returning the <typeparamref name="TOk" /> held within if in an Ok state.
@@ -89,7 +89,7 @@ public static partial class Result
         Func<TOk> fallbackFunction)
         where TOk : notnull
         where TErr : notnull
-        => source.Match(Ok: Identity, Err: _ => fallbackFunction());
+        => source.TryGet(out var ok, out _) ? ok : fallbackFunction();
 
     /// <summary>
     ///     Unwraps the result, expecting it to be in an error state.
@@ -106,10 +106,10 @@ public static partial class Result
         string? exceptionMessage = null)
         where TOk : notnull
         where TErr : notnull
-        => source.Match(
-            Ok: ok => throw new InvalidOperationException(
-                exceptionMessage ?? ok.ToString() ?? "The result was in an Ok state."),
-            Err: Identity);
+        => source.TryGet(out var ok, out var err)
+            ? throw new InvalidOperationException(
+                exceptionMessage ?? ok.ToString() ?? "The result was in an Ok state.")
+            : err;
 
     /// <summary>
     ///     Matches on the result, calling either <paramref name="Ok" /> or <paramref name="Err" />

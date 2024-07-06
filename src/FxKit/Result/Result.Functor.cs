@@ -24,7 +24,9 @@ public static partial class Result
         where TOk : notnull
         where TErr : notnull
         where TNewOk : notnull =>
-        source.Match(ok => Result<TNewOk, TErr>.Ok(selector(ok)), Result<TNewOk, TErr>.Err);
+        source.TryGet(out var ok, out var err)
+            ? Result<TNewOk, TErr>.Ok(selector(ok))
+            : Result<TNewOk, TErr>.Err(err);
 
     /// <summary>
     ///     Asynchronously maps the source's Ok value to another one in case the result is in an Ok state.
@@ -47,10 +49,17 @@ public static partial class Result
         Func<TOk, Task<TNewOk>> selector)
         where TOk : notnull
         where TErr : notnull
-        where TNewOk : notnull =>
-        source.Match<Task<Result<TNewOk, TErr>>>(
-            async ok => Result<TNewOk, TErr>.Ok(await selector(ok)),
-            e => Result<TNewOk, TErr>.Err(e).ToTask());
+        where TNewOk : notnull
+    {
+        return source.TryGet(out var ok, out var err)
+            ? HandleOk(ok, selector)
+            : Task.FromResult(Result<TNewOk, TErr>.Err(err));
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static async Task<Result<TNewOk, TErr>> HandleOk(TOk ok, Func<TOk, Task<TNewOk>> selector) =>
+            Result<TNewOk, TErr>.Ok(await selector(ok).ConfigureAwait(false));
+    }
 
     /// <summary>
     ///     Maps the source's Err value to another one in case the result is in an Err state.
@@ -70,16 +79,10 @@ public static partial class Result
         Func<TErr, TNewErr> selector)
         where TOk : notnull
         where TErr : notnull
-        where TNewErr : notnull
-    {
-        return source.Match(
-            Result<TOk, TNewErr>.Ok,
-            OnErr);
-
-        [DebuggerHidden]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Result<TOk, TNewErr> OnErr(TErr e) => Result<TOk, TNewErr>.Err(selector(e));
-    }
+        where TNewErr : notnull =>
+        source.TryGet(out var ok, out var err)
+            ? Result<TOk, TNewErr>.Ok(ok)
+            : Result<TOk, TNewErr>.Err(selector(err));
 
     /// <summary>
     ///     Asynchronously maps the source's Err value to another one in case the result is in an Err state.
@@ -102,10 +105,17 @@ public static partial class Result
         Func<TErr, Task<TNewErr>> selector)
         where TOk : notnull
         where TErr : notnull
-        where TNewErr : notnull =>
-        source.Match<Task<Result<TOk, TNewErr>>>(
-            ok => Result<TOk, TNewErr>.Ok(ok).ToTask(),
-            async e => Result<TOk, TNewErr>.Err(await selector(e)));
+        where TNewErr : notnull
+    {
+        return source.TryGet(out var ok, out var err)
+            ? Task.FromResult(Result<TOk, TNewErr>.Ok(ok))
+            : HandleErr(err, selector);
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static async Task<Result<TOk, TNewErr>> HandleErr(TErr err, Func<TErr, Task<TNewErr>> selector) =>
+            Result<TOk, TNewErr>.Err(await selector(err).ConfigureAwait(false));
+    }
 
     /// <inheritdoc cref="Map{T,E,U}" />
     [DebuggerHidden]

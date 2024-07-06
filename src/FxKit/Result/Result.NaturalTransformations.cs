@@ -36,7 +36,7 @@ public static partial class Result
     public static Option<T> ToOption<T, E>(this Result<T, E> source)
         where T : notnull
         where E : notnull =>
-        source.Match(
-            Some,
-            _ => None);
+        source.TryGet(out var ok, out _)
+            ? Some(ok)
+            : None;
 }

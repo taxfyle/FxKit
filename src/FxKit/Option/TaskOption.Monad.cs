@@ -11,28 +11,28 @@ public static partial class Option
 
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<Option<U>> SelectMany<T, U>(
+    public static async Task<Option<U>> SelectMany<T, U>(
         this Task<Option<T>> source,
         Func<T, Task<Option<U>>> selector)
         where T : notnull
-        where U : notnull
-        => source.FlatMapAsyncT(selector);
+        where U : notnull =>
+        (await source.ConfigureAwait(false)).TryGet(out var srcValue)
+            ? await selector(srcValue).ConfigureAwait(false)
+            : Option<U>.None;
 
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<Option<UU>> SelectMany<T, U, UU>(
+    public static async Task<Option<UU>> SelectMany<T, U, UU>(
         this Task<Option<T>> source,
         Func<T, Task<Option<U>>> selector,
         Func<T, U, UU> project)
         where T : notnull
         where U : notnull
-        where UU : notnull
-        => source.Map(
-                innerResult => innerResult
-                    .FlatMapAsync(
-                        t => selector(t)
-                            .Map(targetResult => targetResult.Map(u => project(t, u)))))
-            .Unwrap();
+        where UU : notnull =>
+        (await source.ConfigureAwait(false)).TryGet(out var srcValue) &&
+        (await selector(srcValue).ConfigureAwait(false)).TryGet(out var selValue)
+            ? Option<UU>.Some(project(srcValue, selValue))
+            : Option<UU>.None;
 
     #endregion
 }

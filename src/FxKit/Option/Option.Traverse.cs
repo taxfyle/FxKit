@@ -23,12 +23,11 @@ public static partial class Option
         where T : notnull
         where TValid : notnull
         where TInvalid : notnull =>
-        source.Match(
-            Some: v => selector(v)
-                .Match(
-                    Valid: o => Validation<Option<TValid>, TInvalid>.Valid(Some(o)),
-                    Invalid: errs => Validation<Option<TValid>, TInvalid>.Invalid(errs)),
-            None: () => Validation<Option<TValid>, TInvalid>.Valid(Option<TValid>.None));
+        source.TryGet(out var value)
+            ? selector(value).TryGet(out var valid, out var invalid)
+                ? Validation<Option<TValid>, TInvalid>.Valid(Some(valid))
+                : Validation<Option<TValid>, TInvalid>.Invalid(invalid)
+            : Validation<Option<TValid>, TInvalid>.Valid(Option<TValid>.None);
 
     /// <summary>
     ///     The same as <see cref="Traverse{T,R}" /> but without the mapping step. Essentially,
@@ -42,7 +41,12 @@ public static partial class Option
     [GenerateTransformer]
     public static Validation<Option<TValid>, TInvalid> Sequence<TValid, TInvalid>(
         this Option<Validation<TValid, TInvalid>> source)
-        where TValid : notnull where TInvalid : notnull => source.Traverse(Identity);
+        where TValid : notnull where TInvalid : notnull =>
+        source.TryGet(out var value)
+            ? value.TryGet(out var valid, out var invalid)
+                ? Validation<Option<TValid>, TInvalid>.Valid(Some(valid))
+                : Validation<Option<TValid>, TInvalid>.Invalid(invalid)
+            : Validation<Option<TValid>, TInvalid>.Valid(Option<TValid>.None);
 
     #endregion
 
@@ -135,12 +139,11 @@ public static partial class Option
         where T : notnull
         where TOk : notnull
         where TErr : notnull =>
-        source.Match(
-            Some: v => selector(v)
-                .Match(
-                    Ok: o => Ok<Option<TOk>, TErr>(Some(o)),
-                    Err: x => x), // Identity doesn't work here. :(
-            None: () => Ok<Option<TOk>, TErr>(Option<TOk>.None));
+        source.TryGet(out var value)
+            ? selector(value).TryGet(out var ok, out var err)
+                ? Ok<Option<TOk>, TErr>(Some(ok))
+                : Err<Option<TOk>, TErr>(err)
+            : Ok<Option<TOk>, TErr>(Option<TOk>.None);
 
     /// <summary>
     ///     Turns an Option of Result into a Result of Option using the Option to Result
@@ -154,7 +157,12 @@ public static partial class Option
     public static Result<Option<T>, TErr> Sequence<T, TErr>(
         this Option<Result<T, TErr>> source)
         where T : notnull
-        where TErr : notnull => source.Traverse(x => x);
+        where TErr : notnull =>
+        source.TryGet(out var value)
+            ? value.TryGet(out var ok, out var err)
+                ? Ok<Option<T>, TErr>(Some(ok))
+                : Err<Option<T>, TErr>(err)
+            : Ok<Option<T>, TErr>(Option<T>.None);
 
     #endregion
 }

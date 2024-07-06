@@ -69,7 +69,7 @@ public static partial class Option
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task<T?> ToNullableAsync<T>(this Task<Option<T>> source)
         where T : class =>
-        (await source).TryGet(out var result) ? result : null;
+        (await source.ConfigureAwait(false)).TryGet(out var result) ? result : null;
 
     /// <summary>
     ///     Like <see cref="ToNullable{T}" /> but for tasks.
@@ -81,7 +81,7 @@ public static partial class Option
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async ValueTask<T?> ToNullableAsync<T>(this ValueTask<Option<T>> source)
         where T : class =>
-        (await source).TryGet(out var result) ? result : null;
+        (await source.ConfigureAwait(false)).TryGet(out var result) ? result : null;
 
     /// <summary>
     ///     Unwraps the option, returning the <typeparamref name="T" />> held within if in a Some state.
@@ -99,11 +99,10 @@ public static partial class Option
         this Option<T> source,
         string? exceptionMessage = null)
         where T : notnull =>
-        source.Match(
-            ok => ok,
-            () =>
-                throw new InvalidOperationException(
-                    exceptionMessage ?? "The option did not contain a value."));
+        source.TryGet(out var value)
+            ? value
+            : throw new InvalidOperationException(
+                exceptionMessage ?? "The option did not contain a value.");
 
     /// <summary>
     ///     Unwraps the option, returning the <typeparamref name="T" />> held within if in a Some state.
@@ -118,7 +117,7 @@ public static partial class Option
     public static T UnwrapOr<T>(
         this Option<T> source,
         T fallback)
-        where T : notnull => source.Match(ok => ok, () => fallback);
+        where T : notnull => source.TryGet(out var value) ? value : fallback;
 
     /// <summary>
     ///     Unwraps the option, returning the <typeparamref name="T" />> held within if in a Some state.
@@ -133,7 +132,7 @@ public static partial class Option
     public static T UnwrapOrElse<T>(
         this Option<T> source,
         Func<T> fallback)
-        where T : notnull => source.Match(ok => ok, fallback);
+        where T : notnull => source.TryGet(out var value) ? value : fallback();
 
     /// <summary>
     /// Returns the values from a sequence of <see cref="Option{T}"/> where the option has a value.
