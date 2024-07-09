@@ -1,30 +1,56 @@
 using FxKit.CompilerServices.Utilities;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 
 /// <summary>
-///     Represents a method return type - either a concrete type or a constructed
-///     type from a generic type.
+///     Represents either a concrete type, or a type constructed from a generic type.
 /// </summary>
-internal abstract record ReturnType
+internal abstract record ConcreteOrConstructedType
 {
     /// <summary>
     ///     A constructed generic return type (e.g <c>Option&lt;int&gt;</c>).
     /// </summary>
-    internal sealed record Constructed(ConstructedType ConstructedType) : ReturnType
+    internal sealed record Constructed(ConstructedType ConstructedType) : ConcreteOrConstructedType
     {
-        public static ReturnType Of(ConstructedType constructedType) => new Constructed(constructedType);
+        public static ConcreteOrConstructedType Of(ConstructedType constructedType) =>
+            new Constructed(constructedType);
     }
 
     /// <summary>
     ///     A concrete return type (e.g <c>int</c>).
     /// </summary>
-    internal sealed record Concrete(ConcreteType Type) : ReturnType
+    internal sealed record Concrete(ConcreteType Type) : ConcreteOrConstructedType
     {
-        public static ReturnType Of(ConcreteType type) => new Concrete(type);
+        public static ConcreteOrConstructedType Of(ConcreteType type) => new Concrete(type);
     }
+
+    /// <summary>
+    ///     Converts a <see cref="ConcreteOrConstructedType"/> to <see cref="TypeSyntax"/>.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public TypeSyntax ToTypeSyntax() => this switch
+    {
+        Concrete(var type)    => type.ToTypeSyntax(),
+        Constructed(var type) => type.ToTypeSyntax(),
+        _                     => throw new ArgumentOutOfRangeException()
+    };
+
+    /// <summary>
+    ///     Converts a <see cref="ITypeSymbol" /> to a <see cref="ConcreteOrConstructedType" />.
+    /// </summary>
+    /// <param name="symbol"></param>
+    /// <returns></returns>
+    public static ConcreteOrConstructedType FromTypeSymbol(ITypeSymbol symbol) =>
+        symbol switch
+        {
+            INamedTypeSymbol { TypeArguments.Length: > 0 } type =>
+                Constructed.Of(constructedType: ConstructedType.From(type)),
+            _ => Concrete.Of(type: ConcreteType.From(symbol))
+        };
 }
 
 /// <summary>
@@ -40,11 +66,11 @@ internal record ConcreteType(string Type)
     public TypeSyntax ToTypeSyntax() => ParseTypeName(Type);
 
     /// <summary>
-    ///     Creates a <see cref="ConcreteType" /> from a <see cref="TypeSyntax" />.
+    ///     Creates a <see cref="ConcreteType" /> from a <see cref="ITypeSymbol" />.
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    public static ConcreteType From(TypeSyntax type) => new(type.ToString());
+    public static ConcreteType From(ITypeSymbol type) => new(type.ToString());
 }
 
 /// <summary>
@@ -67,7 +93,7 @@ internal record ConstructedType
     ///     The type arguments that were passed to the generic type to construct it.
     /// </summary>
     /// <returns></returns>
-    public EquatableArray<string> TypeArguments { get; }
+    public EquatableArray<ConcreteOrConstructedType> TypeArguments { get; }
 
     /// <summary>
     ///     The namespace that the generic type declaration is contained within.
@@ -76,7 +102,7 @@ internal record ConstructedType
 
     private ConstructedType(
         string name,
-        EquatableArray<string> typeArguments,
+        EquatableArray<ConcreteOrConstructedType> typeArguments,
         string containingNamespace)
     {
         Name = name;
@@ -104,7 +130,8 @@ internal record ConstructedType
     /// <returns></returns>
     public TypeSyntax ToTypeSyntax()
     {
-        var parsedTypeArgs = TypeArguments.Select(static t => ParseTypeName(t)).ToArray();
+        var parsedTypeArgs = TypeArguments.Select(static t => t.ToTypeSyntax())
+            .ToArray();
         return GenericName(Name)
             .WithTypeArgumentList(TypeArgumentList(SeparatedList(parsedTypeArgs)));
     }
@@ -112,14 +139,13 @@ internal record ConstructedType
     /// <summary>
     ///     Creates a <see cref="ConstructedType" />.
     /// </summary>
-    /// <param name="value"></param>
-    /// <param name="containingNamespace"></param>
+    /// <param name="symbol"></param>
     /// <returns></returns>
-    public static ConstructedType From(GenericNameSyntax value, string containingNamespace) =>
+    public static ConstructedType From(
+        INamedTypeSymbol symbol) =>
         new(
-            name: value.Identifier.ToString(),
-            typeArguments: value.TypeArgumentList.Arguments
-                .Select(static a => a.ToString())
-                .ToEquatableArray(),
-            containingNamespace: containingNamespace);
+            name: symbol.Name,
+            containingNamespace: symbol.ContainingNamespace.ToDisplayString(),
+            typeArguments: symbol.TypeArguments.Select(ConcreteOrConstructedType.FromTypeSymbol)
+                .ToEquatableArray());
 }

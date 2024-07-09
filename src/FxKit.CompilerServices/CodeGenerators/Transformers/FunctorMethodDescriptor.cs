@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,7 +19,7 @@ internal sealed record FunctorMethodDescriptor
     /// <summary>
     ///     The return type of this method.
     /// </summary>
-    public ReturnType ReturnType { get; }
+    public ConcreteOrConstructedType ReturnType { get; }
 
     /// <summary>
     ///     The name of this method.
@@ -55,7 +56,7 @@ internal sealed record FunctorMethodDescriptor
 
     private FunctorMethodDescriptor(
         ConstructedType functor,
-        ReturnType returnType,
+        ConcreteOrConstructedType returnType,
         string name,
         EquatableArray<string> typeParameters,
         EquatableArray<FunctorMethodParameter> parameters,
@@ -110,22 +111,14 @@ internal sealed record FunctorMethodDescriptor
                 $"Can't create a {nameof(FunctorMethodDescriptor)} from a method with no parameters.");
         }
 
-        var thisParamContainingNamespace =
-            symbol.Parameters[0].Type.ContainingNamespace.ToDisplayString();
-
         // The first parameter to a method is always the functor itself.
-        var containerReference = ConstructedType.From(
-            value: Unsafe.As<GenericNameSyntax>(method.ParameterList.Parameters.First().Type!),
-            containingNamespace: thisParamContainingNamespace);
+        Debug.Assert(
+            symbol.Parameters[0].Type is INamedTypeSymbol,
+            "symbol.Parameters[0].Type is INamedTypeSymbol");
+        var firstMethodParameterType = Unsafe.As<INamedTypeSymbol>(symbol.Parameters[0].Type);
+        var containerReference = ConstructedType.From(firstMethodParameterType);
 
-        var returnType = method.ReturnType switch
-        {
-            GenericNameSyntax gns => ReturnType.Constructed.Of(
-                constructedType: ConstructedType.From(
-                    value: gns,
-                    containingNamespace: symbol.ReturnType.ContainingNamespace.ToDisplayString())),
-            _ => ReturnType.Concrete.Of(type: ConcreteType.From(method.ReturnType))
-        };
+        var returnType = ConcreteOrConstructedType.FromTypeSymbol(symbol.ReturnType);
 
         // The namespaces that the method uses.
         var requiredNamespaces = symbol.Parameters

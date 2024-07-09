@@ -63,14 +63,22 @@ public class TransformerGeneratorTests
                     public static Result<TNewOk, TErr> Map<TOk, TErr, TNewOk>(
                         this Result<TOk, TErr> source,
                         Func<TOk, TNewOk> selector)
-                    where TOk : notnull
-                    where TNewOk : notnull
-                    where TErr : notnull  => throw new NotImplementedException();
+                        where TOk : notnull
+                        where TNewOk : notnull
+                        where TErr : notnull  => throw new NotImplementedException();
 
                     [GenerateTransformer]
                     public static TOk Unwrap<TOk, TErr>(this Result<TOk, TErr> result)
-                    where TOk : notnull
-                    where TErr : notnull => throw new NotImplementedException();
+                        where TOk : notnull
+                        where TErr : notnull => throw new NotImplementedException();
+
+                    [GenerateTransformer]
+                    public static Task<Result<TNewOk, TErr>> FlatMapAsync<TOk, TErr, TNewOk>(
+                        this Result<TOk, TErr> source,
+                        Func<TOk, Task<Result<TNewOk, TErr>>> selector)
+                        where TOk : notnull
+                        where TErr : notnull
+                        where TNewOk : notnull => throw new NotImplementedException();
                 }
 
                 public static class Validation
@@ -197,8 +205,11 @@ public class TransformerGeneratorTests
             compilation,
             out _,
             out var diagnostics);
-        diagnostics.Should().HaveCount(1);
+        diagnostics.Should().HaveCount(expected: 2, because: "one for each map method");
         diagnostics[0]
+            .Descriptor.Should()
+            .Be(DiagnosticsDescriptors.MethodDeclarationCannotAllowCollidingTypeParameters);
+        diagnostics[1]
             .Descriptor.Should()
             .Be(DiagnosticsDescriptors.MethodDeclarationCannotAllowCollidingTypeParameters);
     }

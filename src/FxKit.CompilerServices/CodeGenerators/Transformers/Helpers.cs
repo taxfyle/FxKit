@@ -14,6 +14,27 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 /// </summary>
 internal static class Helpers
 {
+    public const string GenerateTransformerAttributeFullyQualifiedName =
+        "FxKit.CompilerServices.GenerateTransformerAttribute";
+
+    public const string ContainsFunctorsAttributeFullyQualifiedName =
+        "FxKit.CompilerServices.ContainsFunctorsAttribute";
+
+    public const string FunctorAttributeFullyQualifiedName = "FxKit.CompilerServices.FunctorAttribute";
+    public const string IEnumerableFullyQualifiedName      = "System.Collections.Generic.IEnumerable";
+    public const string IReadOnlyListFullyQualifiedName    = "System.Collections.Generic.IReadOnlyList";
+
+    public const string ThisParameterName = "source";
+    public const string InnerFunctorName  = "inner";
+    public const string FunctorMap        = "Map";
+    public const string FunctorFlatten    = "Unwrap";
+    public const string Traverse          = "Traverse";
+    public const string Sequence          = "Sequence";
+
+    public const string LinqMonadicBind = "SelectMany";
+    public const string LinqFilterName  = "Where";
+    public const string CSharpTaskMonad = "Task";
+
     /// <summary>
     ///     Checks whether the specified <paramref name="reference"/>
     ///     contains functor definitions and/or `Map` implementations by scanning for the
@@ -99,7 +120,7 @@ internal static class Helpers
             }
 
             var name = attr.GetFullyQualifiedMetadataName();
-            if (name == TransformerGenerator.ContainsFunctorsAttribute)
+            if (name == ContainsFunctorsAttributeFullyQualifiedName)
             {
                 return true;
             }
@@ -138,7 +159,7 @@ internal static class Helpers
                 var containingTypeName = metadataReader.GetString(containingType.Name);
                 var containingTypeNamespace = metadataReader.GetString(containingType.Namespace);
                 var fullName = $"{containingTypeNamespace}.{containingTypeName}";
-                if (fullName == TransformerGenerator.ContainsFunctorsAttribute)
+                if (fullName == ContainsFunctorsAttributeFullyQualifiedName)
                 {
                     return true;
                 }
