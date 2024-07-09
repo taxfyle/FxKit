@@ -66,9 +66,9 @@ public static partial class Option
         Func<E> selector)
         where T : notnull
         where E : notnull =>
-        source.Match(
-            Some: Validation<T, E>.Valid,
-            None: () => Validation<T, E>.Invalid(selector()));
+        source.TryGet(out var value)
+            ? Validation<T, E>.Valid(value)
+            : Validation<T, E>.Invalid(selector());
 
     /// <summary>
     ///     Maps the <see cref="Option{T}" /> to a <see cref="Validation{T,E}" />.
@@ -82,7 +82,10 @@ public static partial class Option
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [GenerateTransformer]
     public static Validation<T, E> ValidOr<T, E>(this Option<T> source, E invalidValue)
-        where E : notnull where T : notnull => source.ValidOrElse(() => invalidValue);
+        where E : notnull where T : notnull =>
+        source.TryGet(out var value)
+            ? Validation<T, E>.Valid(value)
+            : Validation<T, E>.Invalid(invalidValue);
 
     /// <summary>
     ///     Converts the <see cref="Option{T}" /> into a <see cref="Result{T,E}" />.
@@ -91,6 +94,8 @@ public static partial class Option
     /// <returns></returns>
     [GenerateTransformer]
     public static Result<T, Option.None> ToResult<T>(this Option<T> source)
-        where T : notnull
-        => source.OkOrElse(() => new Option.None());
+        where T : notnull =>
+        source.TryGet(out var value)
+            ? Result<T, None>.Ok(value)
+            : Result<T, None>.Err(new Option.None());
 }

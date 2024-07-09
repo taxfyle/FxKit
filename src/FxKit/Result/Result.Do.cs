@@ -76,7 +76,7 @@ public static partial class Result
     {
         if (source.TryGet(out var ok, out _))
         {
-            await callback(ok);
+            await callback(ok).ConfigureAwait(false);
         }
 
         return source;
@@ -102,7 +102,7 @@ public static partial class Result
     {
         if (!source.TryGet(out _, out var err))
         {
-            await callback(err);
+            await callback(err).ConfigureAwait(false);
         }
 
         return source;

@@ -21,5 +21,7 @@ public static partial class Option
         this Option<T> source,
         Func<T, bool> predicate)
         where T : notnull =>
-        FlatMap(source, v => predicate(v) ? Some(v) : Option<T>.None);
+        source.TryGet(out var value) && predicate(value)
+            ? source
+            : Option<T>.None;
 }

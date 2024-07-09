@@ -22,4 +22,18 @@ public partial class Option
 
         return source;
     }
+
+    /// <summary>
+    /// Asynchronously runs <see cref="callback" /> if the <paramref name="source" /> is Some.
+    /// </summary>
+    public static async Task<Option<T>> DoAsync<T>(this Option<T> source, Func<T, Task> callback)
+        where T : notnull
+    {
+        if (source.TryGet(out var value))
+        {
+            await callback(value).ConfigureAwait(false);
+        }
+
+        return source;
+    }
 }

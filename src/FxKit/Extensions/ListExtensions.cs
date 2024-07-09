@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using FxKit.CompilerServices;
 
 namespace FxKit.Extensions;
@@ -22,8 +23,15 @@ public static class ListExtensions
     [GenerateTransformer]
     public static IReadOnlyList<R> Map<T, R>(this IReadOnlyList<T> source, Func<T, R> selector)
     {
-        var result = new List<R>(source.Count);
-        result.AddRange(source.Select(item => selector(item)));
+        var result = new List<R>();
+
+        CollectionsMarshal.SetCount(result, source.Count);
+        var span = CollectionsMarshal.AsSpan(result);
+        for (var i = 0; i < source.Count; i++)
+        {
+            span[i] = selector(source[i]);
+        }
+
         return result;
     }
 

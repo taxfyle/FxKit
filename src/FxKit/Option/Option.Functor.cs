@@ -22,9 +22,9 @@ public static partial class Option
         Func<T, U> selector)
         where T : notnull
         where U : notnull =>
-        source.Match(
-            Some: v => Some(selector(v)),
-            None: () => Option<U>.None);
+        source.TryGet(out var value)
+            ? Option<U>.Some(selector(value))
+            : Option<U>.None;
 
     /// <summary>
     ///     Asynchronously maps the Some value using the given <paramref name="selector" />.
@@ -45,10 +45,17 @@ public static partial class Option
         this Option<T> source,
         Func<T, Task<U>> selector)
         where T : notnull
-        where U : notnull =>
-        source.Match(
-            Some: async v => Some(await selector(v)),
-            None: () => Option<U>.None.ToTask());
+        where U : notnull
+    {
+        return source.TryGet(out var value)
+            ? HandleSome(value, selector)
+            : Task.FromResult(Option<U>.None);
+
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static async Task<Option<U>> HandleSome(T value, Func<T, Task<U>> selector) =>
+            Option<U>.Some(await selector(value).ConfigureAwait(false));
+    }
 
     #region LINQ
 

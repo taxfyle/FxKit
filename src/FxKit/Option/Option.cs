@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using FxKit.CompilerServices;
@@ -31,7 +32,8 @@ internal interface IOption
 public readonly struct Option<T>
     : IOption,
         IEquatable<Option<T>>,
-        IEquatable<Option.None>
+        IEquatable<Option.None>,
+        IStructuralEquatable
     where T : notnull
 {
     /// <summary>
@@ -97,9 +99,7 @@ public readonly struct Option<T>
     /// <inheritdoc />
     [DebuggerHidden]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => Match(
-        Some: static v => $"Some({v})",
-        None: static () => "None");
+    public override string ToString() => IsSome ? $"Some({_value})" : "None";
 
     /// <summary>
     ///     If source is in a Some state, and it's of type <typeparamref name="U" />,
@@ -112,7 +112,7 @@ public readonly struct Option<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<U> OfType<U>()
         where U : T =>
-        TryGet(out var some) && some is U cast ? Option<U>.Some(cast) : Option<U>.None;
+        IsSome && _value is U cast ? Option<U>.Some(cast) : Option<U>.None;
 
     /// <summary>
     ///     Returns an <see cref="Option{T}" /> in the Some variant, holding a value.
@@ -150,6 +150,12 @@ public readonly struct Option<T>
         IsSome == other.IsSome && EqualityComparer<T>.Default.Equals(_value, other._value);
 
     /// <summary>
+    ///     Checks whether the options are equal using the specified comparer.
+    /// </summary>
+    public bool Equals(Option<T> other, IEqualityComparer<T> comparer) =>
+        IsSome == other.IsSome && comparer.Equals(_value, other._value);
+
+    /// <summary>
     ///     Checks whether the option is equal to <see cref="None" />.
     /// </summary>
     /// <param name="other"></param>
@@ -167,9 +173,24 @@ public readonly struct Option<T>
         };
 
     /// <inheritdoc />
+    public bool Equals(object? other, IEqualityComparer comparer) =>
+        other switch
+        {
+            Option<T> option => Equals(option, comparer),
+            Option.None      => !IsSome,
+            _                => false
+        };
+
+    /// <inheritdoc />
     public override int GetHashCode() =>
         IsSome
             ? HashCode.Combine(hashcodeMarker, _value)
+            : Option.None.GetNoneHashCode();
+
+    /// <inheritdoc />
+    public int GetHashCode(IEqualityComparer comparer) =>
+        IsSome
+            ? comparer.GetHashCode(_value)
             : Option.None.GetNoneHashCode();
 
     /// <summary>

@@ -22,9 +22,9 @@ public static partial class Option
         Func<T, Option<U>> selector)
         where T : notnull
         where U : notnull =>
-        source.Match(
-            Some: v => selector(v),
-            None: () => Option<U>.None);
+        source.TryGet(out var value)
+            ? selector(value)
+            : Option<U>.None;
 
     /// <summary>
     ///     Asynchronously maps the source's Some value to another Option that is unwrapped.
@@ -46,9 +46,9 @@ public static partial class Option
         Func<T, Task<Option<U>>> selector)
         where T : notnull
         where U : notnull =>
-        source.Match(
-            Some: selector,
-            None: () => Option<U>.None.ToTask());
+        source.TryGet(out var value)
+            ? selector(value)
+            : Task.FromResult(Option<U>.None);
 
     #region LINQ
 
@@ -83,9 +83,9 @@ public static partial class Option
         where T : notnull
         where U : notnull
         where UU : notnull =>
-        source.Match(
-            Some: b => bind(b).Select(v => selector(b, v)),
-            None: () => Option<UU>.None);
+        source.TryGet(out var srcValue) && bind(srcValue).TryGet(out var bindValue)
+            ? Option<UU>.Some(selector(srcValue, bindValue))
+            : Option<UU>.None;
 
     #endregion
 }

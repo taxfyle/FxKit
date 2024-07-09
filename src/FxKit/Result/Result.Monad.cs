@@ -27,9 +27,9 @@ public static partial class Result
         where TOk : notnull
         where TErr : notnull
         where TNewOk : notnull =>
-        source.Match(
-            selector,
-            Result<TNewOk, TErr>.Err);
+        source.TryGet(out var ok, out var err)
+            ? selector(ok)
+            : Result<TNewOk, TErr>.Err(err);
 
     /// <summary>
     ///     Asynchronously maps the source's Ok value to another Result that is unwrapped.
@@ -53,16 +53,10 @@ public static partial class Result
         Func<TOk, Task<Result<TNewOk, TErr>>> selector)
         where TOk : notnull
         where TErr : notnull
-        where TNewOk : notnull
-    {
-        return source.Match(
-            selector,
-            OnErr);
-
-        [DebuggerHidden]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Task<Result<TNewOk, TErr>> OnErr(TErr arg) => Result<TNewOk, TErr>.Err(arg).ToTask();
-    }
+        where TNewOk : notnull =>
+        source.TryGet(out var ok, out var err)
+            ? selector(ok)
+            : Task.FromResult(Result<TNewOk, TErr>.Err(err));
 
     #endregion
 
@@ -87,9 +81,9 @@ public static partial class Result
         where TOk : notnull
         where TErr : notnull
         where TNewErr : notnull =>
-        source.Match(
-            Result<TOk, TNewErr>.Ok,
-            selector);
+        source.TryGet(out var ok, out var err)
+            ? Result<TOk, TNewErr>.Ok(ok)
+            : selector(err);
 
     /// <summary>
     ///     Asynchronously maps the source's Err value to another Result that is unwrapped.
@@ -113,17 +107,10 @@ public static partial class Result
         Func<TErr, Task<Result<TOk, TNewErr>>> selector)
         where TOk : notnull
         where TErr : notnull
-        where TNewErr : notnull
-    {
-        return source.Match(
-            OnOk,
-            selector);
-
-        [DebuggerHidden]
-        [StackTraceHidden]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Task<Result<TOk, TNewErr>> OnOk(TOk arg) => Result<TOk, TNewErr>.Ok(arg).ToTask();
-    }
+        where TNewErr : notnull =>
+        source.TryGet(out var ok, out var err)
+            ? Task.FromResult(Result<TOk, TNewErr>.Ok(ok))
+            : selector(err);
 
     #endregion
 
@@ -165,9 +152,11 @@ public static partial class Result
         where TBind : notnull
         where TOk : notnull
         where TNewOk : notnull =>
-        source.Match(
-            b => bind(b).Select(r => selector(b, r)),
-            Result<TNewOk, TErr>.Err);
+        source.TryGet(out var srcOk, out var srcErr)
+            ? bind(srcOk).TryGet(out var bOk, out var bErr)
+                ? Result<TNewOk, TErr>.Ok(selector(srcOk, bOk))
+                : Result<TNewOk, TErr>.Err(bErr)
+            : Result<TNewOk, TErr>.Err(srcErr);
 
     #endregion
 
