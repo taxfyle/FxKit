@@ -47,6 +47,30 @@ public class TaskExtensionsTests
     }
 
     [Test]
+    public async Task Do_Async_Works()
+    {
+        var result1 = 0;
+        (await Task.FromResult(60).DoAsync(async v => result1 = v + 9)).Should().Be(60);
+        result1.Should().Be(69);
+
+        var result2 = 0;
+        (await ValueTask.FromResult(60).DoAsync(async v => result2 = v + 9)).Should().Be(60);
+        result2.Should().Be(69);
+    }
+
+    [Test]
+    public async Task Do_Async_NoReturnValue_Works()
+    {
+        var result1 = 0;
+        await Task.CompletedTask.DoAsync(async () => result1 += 69);
+        result1.Should().Be(69);
+
+        var result2 = 0;
+        await ValueTask.CompletedTask.DoAsync(async () => result2 += 69);
+        result2.Should().Be(69);
+    }
+
+    [Test]
     public void Task_Linq()
     {
         Option<int> num1 = 1;
