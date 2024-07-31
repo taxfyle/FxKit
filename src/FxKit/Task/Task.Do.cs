@@ -100,4 +100,30 @@ public static partial class TaskExtensions
         await callback(result);
         return result;
     }
+
+    /// <summary>
+    ///     Calls the <see cref="callback" /> when the task completes.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="callback"></param>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task DoAsync(this Task source, Func<Task> callback)
+    {
+        await source;
+        await callback();
+    }
+
+    /// <summary>
+    ///     Calls the <see cref="callback" /> when the task completes.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="callback"></param>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task DoAsync(this ValueTask source, Func<Task> callback)
+    {
+        await source;
+        await callback();
+    }
 }
