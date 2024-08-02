@@ -144,9 +144,22 @@ public static partial class Validation
         where T1 : notnull
         where TInvalid : notnull => source.Map(f => f.CurryFirst()).Apply(arg);
 
+    /// <summary>
+    ///     Partially applies the given argument to the inner function.
+    /// </summary>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static Validation<Func<T2, T3, T4, T5, T6, T7, T8, T9, T10, R>, TInvalid>
+        Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R, TInvalid>(
+            this Validation<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>, TInvalid> source,
+            Validation<T1, TInvalid> arg)
+        where T1 : notnull
+        where TInvalid : notnull => source.Map(f => f.CurryFirst()).Apply(arg);
+
     // Summary: You don't need to worry about these. They were added to solve specific type inference
     // edge cases and everything should just work.
-    //  
+    //
     // These `Apply` methods are accessible on the `Validation.Valid<T>` variant and are used for type
     // inference purposes.
     //
@@ -413,6 +426,35 @@ public static partial class Validation
             Valid<T1> arg)
         where T1 : notnull
         => source.Map(f => f.CurryFirst()).Apply(arg);
+
+    /// <summary>
+    ///     Partially applies the given argument to the inner function.
+    /// </summary>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<Func<T2, T3, T4, T5, T6, T7, T8, T9, T10, R>, TInvalid>
+        Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R, TInvalid>(
+            this Valid<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> source,
+            Validation<T1, TInvalid> arg)
+        where T1 : notnull
+        where TInvalid : notnull => BakeErr<TInvalid>.Valid(source.Value).Apply(arg);
+
+    /// <summary>
+    ///     Partially applies the given argument to the inner function.
+    /// </summary>
+    /// ///
+    /// <remarks>
+    ///     Can aid type inference in some instances when passing a default valid value.
+    /// </remarks>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Valid<Func<T2, T3, T4, T5, T6, T7, T8, T9, T10, R>>
+        Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>(
+            this Valid<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> source,
+            Valid<T1> arg)
+        where T1 : notnull
+        => source.Map(f => f.CurryFirst()).Apply(arg);
+
 
     #endregion
 }

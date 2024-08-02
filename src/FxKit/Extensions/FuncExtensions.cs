@@ -77,6 +77,13 @@ public static class FuncExtensions
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> source,
         T1 t1) => (t2, t3, t4, t5, t6, t7, t8, t9) => source(t1, t2, t3, t4, t5, t6, t7, t8, t9);
 
+    /// <summary>
+    ///     Partially applies <c>T1</c> onto <c>source</c>.
+    /// </summary>
+    public static Func<T2, T3, T4, T5, T6, T7, T8, T9, T10, R> Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> source,
+        T1 t1) => (t2, t3, t4, t5, t6, t7, t8, t9, t10) => source(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+
     // @formatter:on
 
     #endregion
@@ -86,7 +93,7 @@ public static class FuncExtensions
     // @formatter:off
 
     #region General Currying
-    
+
     /// <summary>
     ///     Curries the function.
     /// </summary>
@@ -103,7 +110,7 @@ public static class FuncExtensions
     ///     Curries the function.
     /// </summary>
     public static Func<T1, Func<T2, Func<T3, Func<T4, R>>>> Curry<T1, T2, T3, T4, R>(
-        this Func<T1, T2, T3, T4, R> source) 
+        this Func<T1, T2, T3, T4, R> source)
         => t1 => t2 => t3 => t4 => source(t1, t2, t3, t4);
 
     /// <summary>
@@ -135,11 +142,17 @@ public static class FuncExtensions
     /// </summary>
     public static Func<T1, Func<T2, Func<T3, Func<T4, Func<T5, Func<T6, Func<T7, Func<T8, Func<T9, R>>>>>>>>> Curry<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
         (this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> source) => t1 => t2 => t3 => t4 => t5 => t6 => t7 => t8 => t9 => source(t1, t2, t3, t4, t5, t6, t7, t8, t9);
-    
+
+    /// <summary>
+    ///     Curries the function.
+    /// </summary>
+    public static Func<T1, Func<T2, Func<T3, Func<T4, Func<T5, Func<T6, Func<T7, Func<T8, Func<T9, Func<T10, R> >>>>>>>>> Curry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>
+        (this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> source) => t1 => t2 => t3 => t4 => t5 => t6 => t7 => t8 => t9 => t10 => source(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+
     #endregion
 
     #region Lazy Currying
-    
+
     /// <summary>
     ///     Curries the first function, such that a binary function is the result.
     /// </summary>
@@ -181,9 +194,15 @@ public static class FuncExtensions
     /// </summary>
     public static Func<T1, Func<T2, T3, T4, T5, T6, T7, T8, T9, R>> CurryFirst<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
      (this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> source) => t1 => (t2, t3, t4, t5, t6, t7, t8, t9) => source(t1, t2, t3, t4, t5, t6, t7, t8, t9);
-    
+
+    /// <summary>
+    ///     Curries the first function, such that a 9-ary function is the result.
+    /// </summary>
+    public static Func<T1, Func<T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> CurryFirst<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>
+     (this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> source) => t1 => (t2, t3, t4, t5, t6, t7, t8, t9, t10) => source(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+
     #endregion
-    
+
     //@formatter:on
 
     #endregion
