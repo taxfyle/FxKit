@@ -10,20 +10,20 @@ public class EnumMatchGeneratorTests
     public async Task GeneratesMatchExtensionClass()
     {
         var generated = Generate(
-            @"
-using System;
-using FxKit.CompilerServices;
+            """
+            using System;
+            using FxKit.CompilerServices;
 
-namespace EnumTest.PrettyCool;
+            namespace EnumTest.PrettyCool;
 
-[EnumMatch]
-public enum MyEnum
-{{
-    One,
-    Two,
-    Three
-}}
-");
+            [EnumMatch]
+            public enum MyEnum
+            {
+                One,
+                Two,
+                Three
+            }
+            """);
 
         await generated.VerifyGeneratedCode();
     }
@@ -32,15 +32,15 @@ public enum MyEnum
     public void DoesNotGenerateForNonEnumTypes()
     {
         var generated = Generate(
-            @"
-using System;
-using FxKit.CompilerServices;
+            """
+            using System;
+            using FxKit.CompilerServices;
 
-namespace EnumTest.PrettyCool;
+            namespace EnumTest.PrettyCool;
 
-[EnumMatch]
-public record NotAnEnum;
-");
+            [EnumMatch]
+            public record NotAnEnum;
+            """);
 
         generated.Should().BeEmpty();
     }
@@ -49,23 +49,59 @@ public record NotAnEnum;
     public async Task SupportsNestedTypes()
     {
         var generated = Generate(
-            @"
-using System;
-using FxKit.CompilerServices;
+            """
+            using System;
+            using FxKit.CompilerServices;
 
-namespace EnumTest.PrettyCool;
+            namespace EnumTest.PrettyCool;
 
-public class SuperNested<T>
-{{
-    [EnumMatch]
-    public enum MyEnum
-    {{
-        One,
-        Two,
-        Three
-    }}
-}}
-");
+            public class SuperNested<T>
+            {
+                [EnumMatch]
+                public enum MyEnum
+                {
+                    One,
+                    Two,
+                    Three
+                }
+            }
+            """);
+
+        await generated.VerifyGeneratedCode();
+    }
+
+    [Test]
+    public async Task EnumsWithSameNameInDifferentTypes()
+    {
+        var generated = Generate(
+            """
+            using System;
+            using FxKit.CompilerServices;
+
+            namespace EnumTest.PrettyCool;
+
+            public class One
+            {
+                [EnumMatch]
+                public enum MyEnum
+                {
+                    One,
+                    Two,
+                    Three
+                }
+            }
+
+            public class Two
+            {
+                [EnumMatch]
+                public enum MyEnum
+                {
+                    One,
+                    Two,
+                    Three
+                }
+            }
+            """);
 
         await generated.VerifyGeneratedCode();
     }

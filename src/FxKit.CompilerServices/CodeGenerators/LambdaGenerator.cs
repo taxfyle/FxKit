@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
+using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -248,7 +249,7 @@ public class LambdaGenerator : IIncrementalGenerator
         }
 
         context.AddSource(
-            $"{declaration.Identifier.Text}.Generated.cs",
+            $"{originalSymbol.GetFullyQualifiedMetadataName()}.g.cs",
             source: sb.ToString());
     }
 
@@ -379,7 +380,7 @@ public class LambdaGenerator : IIncrementalGenerator
         }
 
         context.AddSource(
-            $"{typeDeclaration.Identifier.Text}.{methodDeclaration.Identifier.Text}.Generated.cs",
+            $"{typeDeclarationSymbol.GetFullyQualifiedMetadataName()}.{methodDeclaration.Identifier.Text}.g.cs",
             source: sb.ToString());
     }
 }

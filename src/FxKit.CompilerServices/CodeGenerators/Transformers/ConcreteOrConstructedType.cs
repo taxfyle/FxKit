@@ -11,7 +11,7 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 internal abstract record ConcreteOrConstructedType
 {
     /// <summary>
-    ///     A constructed generic return type (e.g <c>Option&lt;int&gt;</c>).
+    ///     A constructed generic return type (e.g. <c>Option&lt;int&gt;</c>).
     /// </summary>
     internal sealed record Constructed(ConstructedType ConstructedType) : ConcreteOrConstructedType
     {
@@ -85,6 +85,12 @@ internal record ConstructedType
     public string Name { get; }
 
     /// <summary>
+    ///     The fully qualified metadata name of the functor.
+    ///     For example, for `Option&lt;T&gt;` the full metadata name would be `FxKit.Option`1`.
+    /// </summary>
+    public string FullyQualifiedMetadataName { get; }
+
+    /// <summary>
     ///     The fully qualified name of the constructed type.
     /// </summary>
     public string FullyQualifiedName => Helpers.FullyQualifiedName(ContainingNamespace, Name);
@@ -102,10 +108,12 @@ internal record ConstructedType
 
     private ConstructedType(
         string name,
+        string fullyQualifiedMetadataName,
         EquatableArray<ConcreteOrConstructedType> typeArguments,
         string containingNamespace)
     {
         Name = name;
+        FullyQualifiedMetadataName = fullyQualifiedMetadataName;
         TypeArguments = typeArguments;
         ContainingNamespace = containingNamespace;
     }
@@ -116,11 +124,13 @@ internal record ConstructedType
     ///     then the resulting constructed type would be `IReadOnlyList&lt;string&gt;`.
     /// </summary>
     /// <param name="name"></param>
+    /// <param name="fullyQualifiedMetadataName"></param>
     /// <param name="containingNamespace"></param>
     /// <returns></returns>
-    public ConstructedType ReplaceReference(string name, string containingNamespace) =>
+    public ConstructedType ReplaceReference(string name, string fullyQualifiedMetadataName, string containingNamespace) =>
         new(
             name: name,
+            fullyQualifiedMetadataName: fullyQualifiedMetadataName,
             typeArguments: TypeArguments,
             containingNamespace: containingNamespace);
 
@@ -145,6 +155,7 @@ internal record ConstructedType
         INamedTypeSymbol symbol) =>
         new(
             name: symbol.Name,
+            fullyQualifiedMetadataName: symbol.GetFullyQualifiedMetadataName(),
             containingNamespace: symbol.ContainingNamespace.ToDisplayString(),
             typeArguments: symbol.TypeArguments.Select(ConcreteOrConstructedType.FromTypeSymbol)
                 .ToEquatableArray());

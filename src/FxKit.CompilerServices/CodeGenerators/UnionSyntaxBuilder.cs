@@ -37,8 +37,10 @@ internal static class UnionSyntaxBuilder
             .Append(" abstract partial record ")
             .Append(union.UnionName)
             .Append(
-                @"
-{");
+                """
+
+                {
+                """);
 
         // Print the Union members.
         foreach (var constructor in union.Constructors)
@@ -55,7 +57,7 @@ internal static class UnionSyntaxBuilder
         // End of the outer record
         sb.Append('}').AppendLine();
 
-        return (Hint: $"{union.UnionName}_Union.Generated.cs", Source: sb.ToString());
+        return (Hint: $"{union.HintName}.g.cs", Source: sb.ToString());
     }
 
     /// <summary>

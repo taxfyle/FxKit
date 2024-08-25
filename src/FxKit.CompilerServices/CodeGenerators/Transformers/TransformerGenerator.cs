@@ -232,7 +232,9 @@ public class TransformerGenerator : IIncrementalGenerator
                     // Methods grouped by their functor.
                     var methodsByFunctor = functorMethods
                         .GroupBy(
-                            static m => (Functor: m.Functor.Name,
+                            static m => (
+                                Functor: m.Functor.Name,
+                                FullFunctorMetadataName: m.Functor.FullyQualifiedMetadataName,
                                 Namespace: m.Functor.ContainingNamespace))
                         .ToImmutableList();
 
@@ -243,6 +245,7 @@ public class TransformerGenerator : IIncrementalGenerator
                         var transformerSet = TransformerSet.Create(
                             allOuterContainers: allOuterFunctors,
                             functorName: methodGroup.Key.Functor,
+                            fullFunctorMetadataName: methodGroup.Key.FullFunctorMetadataName,
                             functorNamespace: methodGroup.Key.Namespace,
                             methods: methodGroup.ToImmutableList(),
                             cancellationToken: ct);
@@ -338,7 +341,7 @@ public class TransformerGenerator : IIncrementalGenerator
             TransformerClassBuilder.CreateTransformerFile(transformerSet, ctx.CancellationToken);
 
         ctx.AddSource(
-            generated.Name + ".Generated.cs",
+            transformerSet.HintName + ".g.cs",
             generated.Unit.NormalizeWhitespace().ToFullString());
     }
 }
