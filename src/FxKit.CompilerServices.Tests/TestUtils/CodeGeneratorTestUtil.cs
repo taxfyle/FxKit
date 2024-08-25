@@ -69,9 +69,7 @@ public static class CodeGeneratorTestUtil
                 out var outputCompilation,
                 out var diagnostics);
 
-        diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)
-            .Should()
-            .BeEmpty();
+        diagnostics.Should().BeEmpty();
 
         return OutputToString(outputCompilation);
     }

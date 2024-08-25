@@ -115,7 +115,7 @@ public readonly struct Option<T>
         IsSome && _value is U cast ? Option<U>.Some(cast) : Option<U>.None;
 
     /// <summary>
-    ///     Returns an <see cref="Option{T}" /> in the Some variant, holding a value.
+    ///     Returns an <see cref="Option{T}" /> in the `Some` variant, holding a value.
     /// </summary>
     /// <param name="value"></param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -237,6 +237,7 @@ public static partial class Option
     /// </summary>
     [DebuggerStepThrough]
     public readonly struct None
+        : IEquatable<None>
     {
         /// <summary>
         ///     Used for generating a hash code.
@@ -278,5 +279,8 @@ public static partial class Option
         /// <param name="right"></param>
         /// <returns></returns>
         public static bool operator !=(None left, None right) => false;
+
+        /// <inheritdoc />
+        public bool Equals(None other) => true;
     }
 }

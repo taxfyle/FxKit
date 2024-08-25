@@ -8,7 +8,7 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 /// <summary>
 ///     A set of transformer methods to be put into a single generated class.
 /// </summary>
-/// <param name="GeneratedClassName">The class name.</param>
+/// <param name="HintName">Part of the name for the generated file.</param>
 /// <param name="FunctorNamespace">The namespace the generated class will reside in.</param>
 /// <param name="RequiredNamespaces">Namespaces to include.</param>
 /// <param name="MethodsWithCollidingTypeParameters">
@@ -16,6 +16,7 @@ namespace FxKit.CompilerServices.CodeGenerators.Transformers;
 /// </param>
 /// <param name="TransformerMethods">Transformer methods.</param>
 internal sealed record TransformerSet(
+    string HintName,
     string GeneratedClassName,
     string FunctorNamespace,
     EquatableArray<string> RequiredNamespaces,
@@ -27,6 +28,7 @@ internal sealed record TransformerSet(
     ///     all the outer functors
     /// </summary>
     /// <param name="allOuterContainers">All known outer functor types.</param>
+    /// <param name="fullFunctorMetadataName">Full metadata name of the functor that appears "on the inside".</param>
     /// <param name="functorName">The name of the functor that appears "on the inside".</param>
     /// <param name="functorNamespace">The namespace of the inner functor.</param>
     /// <param name="methods">The methods associated with the inner functor.</param>
@@ -34,6 +36,7 @@ internal sealed record TransformerSet(
     /// <returns>A set of transformer methods.</returns>
     public static TransformerSet Create(
         IReadOnlyList<Functor> allOuterContainers,
+        string fullFunctorMetadataName,
         string functorName,
         string functorNamespace,
         IReadOnlyList<FunctorMethodDescriptor> methods,
@@ -97,6 +100,7 @@ internal sealed record TransformerSet(
                         var synthesized = method.ReplaceFunctor(
                             method.Functor.ReplaceReference(
                                 name: "IReadOnlyList",
+                                fullyQualifiedMetadataName: "System.Collections.Generic.IReadOnlyList`1",
                                 containingNamespace: "System.Collections.Generic"));
                         transformerMethods.Add(
                             FunctorTransformerMethodDescriptor.From(
@@ -137,6 +141,7 @@ internal sealed record TransformerSet(
         namespaceList.Remove(functorNamespace);
 
         return new TransformerSet(
+            HintName: fullFunctorMetadataName,
             GeneratedClassName: $"{functorName}T",
             FunctorNamespace: functorNamespace,
             RequiredNamespaces: namespaceList.OrderBy(static x => x).ToEquatableArray(),

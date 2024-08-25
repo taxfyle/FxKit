@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.CodeAnalysis;
 
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -43,7 +44,26 @@ internal static class TypeSymbolHelper
     /// <returns></returns>
     public static string GetFullyQualifiedMetadataName(this ISymbol symbol)
     {
-        return $"{symbol.ContainingNamespace.ToDisplayString()}.{symbol.MetadataName}";
+        var ns = symbol.ContainingNamespace.ToDisplayString();
+        if (symbol.ContainingType is null)
+        {
+            // Fast path - the symbol is not contained in another type.
+            return $"{ns}.{symbol.MetadataName}";
+        }
+
+        // Check ancestry.
+        var sb = new StringBuilder();
+        sb.Append($"{symbol.MetadataName}");
+
+        var parent = symbol.ContainingType;
+        do
+        {
+            sb.Insert(index: 0, $"{parent.MetadataName}.");
+            parent = parent.ContainingType;
+        } while (parent != null);
+
+        sb.Insert(index: 0, $"{ns}.");
+        return sb.ToString();
     }
 
     /// <summary>

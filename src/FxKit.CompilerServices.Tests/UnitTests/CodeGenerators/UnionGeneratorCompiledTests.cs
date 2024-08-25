@@ -31,7 +31,7 @@ public class UnionGeneratorCompiledTests
 public partial record Sandwich
 {
     /// <summary>
-    ///     Self explanatory (at least to persons of average or higher intellect).
+    ///     Self-explanatory (at least to persons of average or higher intellect).
     ///     Life gets better when you just accept the facts.
     /// </summary>
     partial record Hotdog;

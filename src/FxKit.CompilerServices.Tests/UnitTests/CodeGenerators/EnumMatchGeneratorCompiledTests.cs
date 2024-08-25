@@ -36,5 +36,5 @@ public enum SuperDuperEnum
 {
     One = 1,
     Two,
-    Three
+    Three,
 }

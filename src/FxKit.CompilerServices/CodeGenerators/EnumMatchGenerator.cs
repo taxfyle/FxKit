@@ -85,7 +85,7 @@ public class EnumMatchGenerator : IIncrementalGenerator
         {
             ct.ThrowIfCancellationRequested();
             result.Add(
-                ($"{enumToGenerate.Identifier}_MatchExtensions.Generated.cs",
+                ($"{enumToGenerate.HintName}.g.cs",
                     GenerateMatchExtensionClass(enumToGenerate)));
         }
 
@@ -122,6 +122,9 @@ public class EnumMatchGenerator : IIncrementalGenerator
             // Get the full type name, including any outer type declaration.
             var enumName = enumSymbol.ToDisplayString();
 
+            // Hint name is used for the generated file, and must be unique.
+            var hintName = enumSymbol.GetFullyQualifiedMetadataName();
+
             // Get the enum fields.
             var enumMembers = enumSymbol.GetMembers();
             var members = new List<string>(enumMembers.Length);
@@ -137,6 +140,7 @@ public class EnumMatchGenerator : IIncrementalGenerator
             enumsToGenerate.Add(
                 new EnumToGenerate(
                     name: enumName,
+                    hintName: hintName,
                     identifier: enumDecl.Identifier.Text,
                     containingNamespace: enumSymbol.ContainingNamespace.ToDisplayString(),
                     members: members));
@@ -204,7 +208,7 @@ public static partial class ")
         }
 
         sb.Append(
-            @"            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+                @"            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
 
     /// <summary>
@@ -259,11 +263,13 @@ public static partial class ")
     /// </summary>
     private readonly struct EnumToGenerate(
         string name,
+        string hintName,
         string identifier,
         string containingNamespace,
         IReadOnlyList<string> members)
     {
         public readonly string                Name                = name;
+        public readonly string                HintName            = hintName;
         public readonly string                Identifier          = identifier;
         public readonly string                ContainingNamespace = containingNamespace;
         public readonly IReadOnlyList<string> Members             = members;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -182,6 +183,7 @@ public class UnionGenerator : IIncrementalGenerator
                     accessibility: SyntaxFacts.GetText(recordSymbol.DeclaredAccessibility),
                     unionName: recordSymbol.Name,
                     unionNamespace: recordSymbol.ContainingNamespace.ToDisplayString(),
+                    hintName: recordSymbol.GetFullyQualifiedMetadataName(),
                     namespacesToInclude: namespacesToInclude,
                     constructors: unionConstructors));
         }
@@ -264,6 +266,7 @@ internal readonly struct UnionToGenerate(
     string accessibility,
     string unionName,
     string unionNamespace,
+    string hintName,
     ImmutableSortedSet<string> namespacesToInclude,
     ImmutableArray<UnionConstructor> constructors)
 {
@@ -278,6 +281,7 @@ internal readonly struct UnionToGenerate(
 
     public readonly string Accessibility  = accessibility;
     public readonly string UnionName      = unionName;
+    public readonly string HintName      = hintName;
     public readonly string UnionNamespace = unionNamespace;
 
     public readonly ImmutableSortedSet<string> NamespacesToInclude =
