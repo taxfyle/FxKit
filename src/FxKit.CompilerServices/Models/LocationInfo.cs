@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace FxKit.CompilerServices.Utilities;
+namespace FxKit.CompilerServices.Models;
 
 /// <summary>
 ///     Slimmed down location information with equality semantics.
