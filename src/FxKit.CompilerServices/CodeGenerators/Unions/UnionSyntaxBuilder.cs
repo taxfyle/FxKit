@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using FxKit.CompilerServices.Utilities;
 
-namespace FxKit.CompilerServices.CodeGenerators;
+namespace FxKit.CompilerServices.CodeGenerators.Unions;
 
 /// <summary>
 ///     All the ugly syntax building stuff for the union generator.

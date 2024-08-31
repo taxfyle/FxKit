@@ -1,4 +1,4 @@
-﻿namespace FxKit.CompilerServices.CodeGenerators;
+﻿namespace FxKit.CompilerServices.Utilities;
 
 public static class HashSetExtensions
 {

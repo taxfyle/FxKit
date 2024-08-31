@@ -4,7 +4,7 @@ using Monads;
 
 // ReSharper disable UnusedTypeParameter
 
-namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators
+namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators.Transformers
 {
     public class TransformerGeneratorCompiledTests
     {

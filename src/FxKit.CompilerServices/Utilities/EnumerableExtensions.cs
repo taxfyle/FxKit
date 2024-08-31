@@ -1,5 +1,6 @@
 ﻿// ReSharper disable LoopCanBeConvertedToQuery
-namespace FxKit.CompilerServices.CodeGenerators;
+
+namespace FxKit.CompilerServices.Utilities;
 
 /// <summary>
 ///     Enumerable extensions.

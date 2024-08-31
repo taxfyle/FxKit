@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 
-namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators;
+namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators.EnumMatch;
 
 public class EnumMatchGeneratorCompiledTests
 {
@@ -36,5 +36,5 @@ public enum SuperDuperEnum
 {
     One = 1,
     Two,
-    Three,
+    Three
 }

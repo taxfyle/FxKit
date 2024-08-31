@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 
-namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators;
+namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators.Lambdas;
 
 public partial record Parent
 {
-    [Lambda] // this will generate a static func λ that news up the record. 
+    [Lambda] // this will generate a static func λ that news up the record.
     public partial record RecordWithPrimaryCtor(int SoCool) : Parent;
 
     [Lambda]

@@ -1,7 +1,7 @@
 ﻿using FxKit.CompilerServices.CodeGenerators.Lambdas;
 using FxKit.CompilerServices.Tests.TestUtils;
 
-namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators;
+namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators.Lambdas;
 
 public class LambdaGeneratorMethodLambdaTests
 {

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 
-namespace FxKit.CompilerServices.CodeGenerators;
+namespace FxKit.CompilerServices.CodeGenerators.EnumMatch;
 
 /// <summary>
 ///     Generates a Match extension for the enum.

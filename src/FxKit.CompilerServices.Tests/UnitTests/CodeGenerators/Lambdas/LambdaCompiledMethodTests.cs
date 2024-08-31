@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 
-namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators;
+namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators.Lambdas;
 
 public partial class LambdaCompiledMethodTests
 {

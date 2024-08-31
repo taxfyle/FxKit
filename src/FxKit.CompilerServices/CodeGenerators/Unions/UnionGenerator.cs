@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FxKit.CompilerServices.CodeGenerators;
+namespace FxKit.CompilerServices.CodeGenerators.Unions;
 
 /// <summary>
 ///     Generates a Discriminated Union using nested records inside of a partial record tagged
@@ -281,7 +281,7 @@ internal readonly struct UnionToGenerate(
 
     public readonly string Accessibility  = accessibility;
     public readonly string UnionName      = unionName;
-    public readonly string HintName      = hintName;
+    public readonly string HintName       = hintName;
     public readonly string UnionNamespace = unionNamespace;
 
     public readonly ImmutableSortedSet<string> NamespacesToInclude =

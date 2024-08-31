@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
-using FxKit.CompilerServices.CodeGenerators;
+using FxKit.CompilerServices.CodeGenerators.EnumMatch;
 using FxKit.CompilerServices.Tests.TestUtils;
 
-namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators;
+namespace FxKit.CompilerServices.Tests.UnitTests.CodeGenerators.EnumMatch;
 
 public class EnumMatchGeneratorTests
 {
