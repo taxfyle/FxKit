@@ -25,7 +25,8 @@ public class LambdaGenerator : IIncrementalGenerator
             context.SyntaxProvider.ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: LambdaAttrName,
                 predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
-                transform: static (ctx, _) => TransformLambdaMethodDescriptor(ctx));
+                transform: static (ctx, _) => TransformLambdaMethodDescriptor(ctx))
+                .WithTrackingName("MethodDescriptors");
 
         // Group them by their containing type's metadata name.
         var groupedByType = methodDescriptors
@@ -34,7 +35,8 @@ public class LambdaGenerator : IIncrementalGenerator
                 (methods, _) => methods
                     .SelectNotNull(static method => method)
                     .GroupBy(static method => method.FullyQualifiedContainingTypeMetadataName)
-                    .Select(static g => new LambdaGenerationFile(g.Key, g.ToEquatableArray())));
+                    .Select(static g => new LambdaGenerationFile(g.Key, g.ToEquatableArray())))
+            .WithTrackingName("Grouped");
 
         // Generate.
         context.RegisterSourceOutput(
