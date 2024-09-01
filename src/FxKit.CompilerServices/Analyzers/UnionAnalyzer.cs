@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using FxKit.CompilerServices.CodeGenerators;
+using FxKit.CompilerServices.CodeGenerators.Unions;
 using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

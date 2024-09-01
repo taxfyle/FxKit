@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Basic.Reference.Assemblies.Net80" Version="1.7.7" />
+    <PackageReference Include="Basic.Reference.Assemblies.Net80" Version="1.7.8" />
     <PackageReference Include="FluentAssertions" Version="6.12.0"/>
     <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
@@ -22,10 +22,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
-    <PackageReference Include="NUnit" Version="4.2.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0"/>
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0"/>
     <PackageReference Include="NUnit.Analyzers" Version="4.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,8 +34,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Verify" Version="26.2.0" />
-    <PackageReference Include="Verify.NUnit" Version="26.2.0" />
+    <PackageReference Include="Verify" Version="26.3.0" />
+    <PackageReference Include="Verify.NUnit" Version="26.3.0" />
     <PackageReference Remove="MinVer"/>
   </ItemGroup>
 
@@ -45,11 +45,65 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="UnitTests\CodeGenerators\TransformerGeneratorReferencedAssembliesTests.IncludesFunctorsAndBehaviorFromReferencedAssemblies.verified.txt">
-      <DependentUpon>TransformerGeneratorReferencedAssembliesTests.cs</DependentUpon>
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorConstructorLambdaTest.GeneratesTheLambdaMethod.verified.txt">
+      <ParentFile>LambdaGeneratorConstructorLambdaTest</ParentFile>
+      <DependentUpon>LambdaGeneratorConstructorLambdaTest.cs</DependentUpon>
     </None>
-    <None Update="UnitTests\CodeGenerators\TransformerGeneratorTests.PreservesParameterDefault.verified.txt">
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorConstructorLambdaTest.SupportsClasses.verified.txt">
+      <ParentFile>LambdaGeneratorConstructorLambdaTest</ParentFile>
+      <DependentUpon>LambdaGeneratorConstructorLambdaTest.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorConstructorLambdaTest.SupportsClassesWithPrimaryConstructor.verified.txt">
+      <ParentFile>LambdaGeneratorConstructorLambdaTest</ParentFile>
+      <DependentUpon>LambdaGeneratorConstructorLambdaTest.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorConstructorLambdaTest.SupportsGenericTypes.verified.txt">
+      <ParentFile>LambdaGeneratorConstructorLambdaTest</ParentFile>
+      <DependentUpon>LambdaGeneratorConstructorLambdaTest.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorConstructorLambdaTest.SupportsNestedTypes.verified.txt">
+      <ParentFile>LambdaGeneratorConstructorLambdaTest</ParentFile>
+      <DependentUpon>LambdaGeneratorConstructorLambdaTest.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorConstructorLambdaTest.SupportsStructsWithPrimaryConstructor.verified.txt">
+      <ParentFile>LambdaGeneratorConstructorLambdaTest</ParentFile>
+      <DependentUpon>LambdaGeneratorConstructorLambdaTest.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Lambdas\LambdaGeneratorMethodLambdaTests.GeneratesTheLambdaMethod.verified.txt">
+      <ParentFile>LambdaGeneratorMethodLambdaTests</ParentFile>
+      <DependentUpon>LambdaGeneratorMethodLambdaTests.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\EnumMatch\EnumMatchGeneratorTests.EnumsWithSameNameInDifferentTypes.verified.txt">
+      <ParentFile>EnumMatchGeneratorTests</ParentFile>
+      <DependentUpon>EnumMatchGeneratorTests.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\EnumMatch\EnumMatchGeneratorTests.GeneratesMatchExtensionClass.verified.txt">
+      <ParentFile>EnumMatchGeneratorTests</ParentFile>
+      <DependentUpon>EnumMatchGeneratorTests.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\EnumMatch\EnumMatchGeneratorTests.SupportsNestedTypes.verified.txt">
+      <ParentFile>EnumMatchGeneratorTests</ParentFile>
+      <DependentUpon>EnumMatchGeneratorTests.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Transformers\TransformerGeneratorReferencedAssembliesTests.IncludesFunctorsAndBehaviorFromReferencedAssemblies.verified.txt">
+      <DependentUpon>TransformerGeneratorReferencedAssembliesTests.cs</DependentUpon>
+      <ParentFile>TransformerGeneratorReferencedAssembliesTests</ParentFile>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Transformers\TransformerGeneratorTests.GeneratesTransformers.verified.txt">
+      <ParentFile>TransformerGeneratorTests</ParentFile>
       <DependentUpon>TransformerGeneratorTests.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Transformers\TransformerGeneratorTests.PreservesParameterDefault.verified.txt">
+      <DependentUpon>TransformerGeneratorTests.cs</DependentUpon>
+      <ParentFile>TransformerGeneratorTests</ParentFile>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Transformers\TransformerGeneratorTests.RespectsTypeConstraints.verified.txt">
+      <ParentFile>TransformerGeneratorTests</ParentFile>
+      <DependentUpon>TransformerGeneratorTests.cs</DependentUpon>
+    </None>
+    <None Update="UnitTests\CodeGenerators\Unions\UnionGeneratorTests.GeneratesUnion.verified.txt">
+      <ParentFile>UnionGeneratorTests</ParentFile>
+      <DependentUpon>UnionGeneratorTests.cs</DependentUpon>
     </None>
   </ItemGroup>
 

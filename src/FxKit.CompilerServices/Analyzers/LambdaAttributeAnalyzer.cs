@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using FxKit.CompilerServices.CodeGenerators;
+using FxKit.CompilerServices.CodeGenerators.Lambdas;
 using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -16,7 +16,7 @@ public class LambdaAttributeAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(DiagnosticsDescriptors.LambdaAttributeCannotBeUsedOnNonStaticMethods);
+        [DiagnosticsDescriptors.LambdaAttributeCannotBeUsedOnNonStaticMethods];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)

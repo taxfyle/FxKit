@@ -1,0 +1,14 @@
+﻿using System;
+
+namespace Woah.SoCool.HellaNamespace;
+
+public partial class Container
+{
+    public partial class MyClass<T>
+    {
+        /// <summary>
+        ///     The Create method as a Func.
+        /// </summary>
+        public static readonly Func<global::System.Collections.Generic.List<R>, int, string, MyClass<T>> Createλ = (arg1, arg2, arg3) => Create(arg1, arg2, arg3);
+    }
+}
