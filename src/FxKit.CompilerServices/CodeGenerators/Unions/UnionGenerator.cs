@@ -60,7 +60,7 @@ public class UnionGenerator : IIncrementalGenerator
             }
         }
 
-        using var constructors = new ImmutableArrayBuilder<UnionConstructor>();
+        using var constructors = new ImmutableArrayBuilder<UnionMember>();
 
         foreach (var nestedRecordDecl in recordDeclaration.Members.OfType<RecordDeclarationSyntax>())
         {
@@ -78,17 +78,23 @@ public class UnionGenerator : IIncrementalGenerator
                     cancellationToken);
 
             constructors.Add(
-                new UnionConstructor(
+                new UnionMember(
                     MemberName: nestedRecordDecl.Identifier.ValueText,
+                    MemberNameWithSignature: TypeHierarchyHelper.GetIdentifierWithSignature(
+                        nestedRecordDecl),
                     Parameters: constructorParameters));
         }
+
+        var ancestorTypeHierarchy = TypeHierarchyHelper.GetTypeHierarchy(recordDeclaration);
 
         return new UnionGeneration(
             Accessibility: SyntaxFacts.GetText(recordSymbol.DeclaredAccessibility),
             UnionName: recordSymbol.Name,
+            UnionNameWithSignature: TypeHierarchyHelper.GetIdentifierWithSignature(recordDeclaration),
             HintName: recordSymbol.GetFullyQualifiedMetadataName(),
             UnionNamespace: recordSymbol.ContainingNamespace.ToDisplayString(),
-            Constructors: new EquatableArray<UnionConstructor>(constructors.ToArray()));
+            AncestorTypeHierarchy: ancestorTypeHierarchy,
+            Members: new EquatableArray<UnionMember>(constructors.ToArray()));
     }
 
     /// <summary>
@@ -177,16 +183,40 @@ public class UnionGenerator : IIncrementalGenerator
 /// <summary>
 ///     A union to generate.
 /// </summary>
+/// <param name="Accessibility">
+///     Declared accessibility of the union.
+/// </param>
+/// <param name="UnionName">
+///     The name of the union type.
+/// </param>
+/// <param name="UnionNameWithSignature">
+///     The name of the union type, including any type parameters.
+/// </param>
+/// <param name="UnionNamespace">
+///     The containing namespace of the union.
+/// </param>
+/// <param name="HintName">
+///     A hint name used for the generated file.
+/// </param>
+/// <param name="AncestorTypeHierarchy">
+///     The type hierarchy of the union, excluding the union itself.
+/// </param>
+/// <param name="Members">
+///     The union member constructors.
+/// </param>
 internal record UnionGeneration(
     string Accessibility,
     string UnionName,
+    string UnionNameWithSignature,
     string UnionNamespace,
     string HintName,
-    EquatableArray<UnionConstructor> Constructors);
+    EquatableArray<TypeHierarchyNode> AncestorTypeHierarchy,
+    EquatableArray<UnionMember> Members);
 
 /// <summary>
 ///     A union member.
 /// </summary>
-internal record UnionConstructor(
+internal record UnionMember(
     string MemberName,
+    string MemberNameWithSignature,
     EquatableArray<BasicParameter> Parameters);

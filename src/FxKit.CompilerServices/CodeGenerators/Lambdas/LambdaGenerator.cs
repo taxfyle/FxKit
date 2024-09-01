@@ -103,7 +103,9 @@ public class LambdaGenerator : IIncrementalGenerator
 
             var parameters = constructor.Parameters.Select(BasicParameter.FromSymbol).ToEquatableArray();
 
-            var hierarchy = TypeHierarchyHelper.GetTypeHierarchy(typeDeclarationSyntax);
+            var hierarchy = TypeHierarchyHelper.GetTypeHierarchy(
+                typeDeclarationSyntax,
+                includeSelf: true);
             var returnType = typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 
             return new LambdaMethodDescriptor(

@@ -28,21 +28,26 @@ internal static class UnionSyntaxBuilder
         sb.WriteLine();
         sb.WriteLine($"namespace {union.UnionNamespace};\n");
 
-        // Add the outer record.
-        sb.Write($"{union.Accessibility} abstract partial record {union.UnionName}\n");
-
-        // Print the Union members.
-        using (sb.WriteBlock())
+        // Write the type hierarchy.
+        using (TypeHierarchyWriter.WriteTypeHierarchy(sb, union.AncestorTypeHierarchy))
         {
-            foreach (var constructor in union.Constructors)
-            {
-                PrintUnionConstructor(sb, union, constructor);
-                sb.WriteLine();
-            }
+            // Add the outer record.
+            sb.Write($"{union.Accessibility} abstract partial record {union.UnionNameWithSignature}\n");
 
-            // Print the Match method.
-            PrintUnionMatchMethod(sb, union);
+            // Print the Union members.
+            using (sb.WriteBlock())
+            {
+                foreach (var constructor in union.Members)
+                {
+                    PrintUnionConstructor(sb, union, constructor);
+                    sb.WriteLine();
+                }
+
+                // Print the Match method.
+                PrintUnionMatchMethod(sb, union);
+            }
         }
+
 
         return sb.ToString();
     }
@@ -52,19 +57,20 @@ internal static class UnionSyntaxBuilder
     /// </summary>
     /// <param name="sb"></param>
     /// <param name="union"></param>
-    /// <param name="constructor"></param>
+    /// <param name="member"></param>
     private static void PrintUnionConstructor(
         IndentedTextWriter sb,
         UnionGeneration union,
-        UnionConstructor constructor)
+        UnionMember member)
     {
-        sb.WriteLine($"public sealed partial record {constructor.MemberName} : {union.UnionName}");
+        sb.WriteLine(
+            $"public sealed partial record {member.MemberNameWithSignature} : {union.UnionNameWithSignature}");
         using (sb.WriteBlock())
         {
-            PrintUnionConstructorOf(sb, union, constructor);
+            PrintUnionConstructorOf(sb, union, member);
             sb.WriteLine();
             sb.WriteLine();
-            PrintUnionConstructorLambda(sb, union, constructor);
+            PrintUnionConstructorLambda(sb, union, member);
             sb.WriteLine();
         }
     }
@@ -74,39 +80,39 @@ internal static class UnionSyntaxBuilder
     /// </summary>
     /// <param name="sb"></param>
     /// <param name="union"></param>
-    /// <param name="constructor"></param>
+    /// <param name="member"></param>
     private static void PrintUnionConstructorOf(
         IndentedTextWriter sb,
         UnionGeneration union,
-        UnionConstructor constructor)
+        UnionMember member)
     {
         sb.Write(
             $"""
              /// <summary>
-             ///     The same as "new {constructor.MemberName}" but the return type is that of the base type.
+             ///     The same as "new {member.MemberName}" but the return type is that of the base type.
              /// </summary>
              [MethodImpl(MethodImplOptions.AggressiveInlining)]
              [ExcludeFromCodeCoverage]
              [DebuggerHidden]
-             public static {union.UnionName} Of(
+             public static {union.UnionNameWithSignature} Of(
              """,
             isMultiline: true);
 
         sb.IncreaseIndent();
-        for (var i = 0; i < constructor.Parameters.Length; i++)
+        for (var i = 0; i < member.Parameters.Length; i++)
         {
             sb.WriteLine();
-            var param = constructor.Parameters[i];
+            var param = member.Parameters[i];
             sb.Write($"{param.FullyQualifiedTypeName} {param.Identifier}");
-            sb.WriteIf(i < constructor.Parameters.Length - 1, ",");
+            sb.WriteIf(i < member.Parameters.Length - 1, ",");
         }
 
         sb.DecreaseIndent();
         sb.WriteLine(") =>");
         sb.IncreaseIndent();
-        sb.Write($"new {constructor.MemberName}(");
+        sb.Write($"new {member.MemberNameWithSignature}(");
         sb.IncreaseIndent();
-        sb.WriteParameterNames(constructor.Parameters, newlineSeparated: true);
+        sb.WriteParameterNames(member.Parameters, newlineSeparated: true);
         sb.DecreaseIndent();
         sb.DecreaseIndent();
         sb.Write(");");
@@ -117,32 +123,32 @@ internal static class UnionSyntaxBuilder
     /// </summary>
     /// <param name="sb"></param>
     /// <param name="union"></param>
-    /// <param name="constructor"></param>
+    /// <param name="member"></param>
     private static void PrintUnionConstructorLambda(
         IndentedTextWriter sb,
         UnionGeneration union,
-        UnionConstructor constructor)
+        UnionMember member)
     {
         sb.Write(
-            $"""
-             /// <summary>
-             ///     A Func variant for 'Of'
-             /// </summary>
-             public static readonly Func<
-             """,
+            content: """
+                     /// <summary>
+                     ///     A Func variant for 'Of'
+                     /// </summary>
+                     public static readonly Func<
+                     """,
             isMultiline: true);
 
-        sb.WriteParameterTypes(constructor.Parameters);
+        sb.WriteParameterTypes(member.Parameters);
 
         // If we have printed a type name for the parameters, then we need to
         // add another comma since it would currently have written only "Func<TypeName".
-        if (constructor.Parameters.Length > 0)
+        if (member.Parameters.Length > 0)
         {
             sb.Write(", ");
         }
 
         // Alias the lambda to `Of`.
-        sb.Write($"{union.UnionName}> λ = Of;");
+        sb.Write($"{union.UnionNameWithSignature}> λ = Of;");
     }
 
     /// <summary>
@@ -164,13 +170,13 @@ internal static class UnionSyntaxBuilder
         // Print the parameter names, they will be the names of the constituents.
         var needsComma = false;
         sb.IncreaseIndent();
-        foreach (var constructor in union.Constructors)
+        foreach (var constructor in union.Members)
         {
             sb.WriteIf(needsComma, ",");
 
             sb.WriteLine();
 
-            sb.Write($"Func<{constructor.MemberName}, TResult> {constructor.MemberName}");
+            sb.Write($"Func<{constructor.MemberNameWithSignature}, TResult> {constructor.MemberName}");
             needsComma = true;
         }
 
@@ -181,10 +187,10 @@ internal static class UnionSyntaxBuilder
         sb.IncreaseIndent();
 
         // Print the switch arms per union constituent.
-        foreach (var constructor in union.Constructors)
+        foreach (var constructor in union.Members)
         {
             sb.WriteLine(
-                $"{union.UnionName}.{constructor.MemberName} x => {constructor.MemberName}(x),");
+                $"{union.UnionNameWithSignature}.{constructor.MemberNameWithSignature} x => {constructor.MemberName}(x),");
         }
 
         // Default arm

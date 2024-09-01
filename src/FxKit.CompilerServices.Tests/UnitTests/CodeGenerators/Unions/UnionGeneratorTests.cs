@@ -29,6 +29,59 @@ public class UnionGeneratorTests
     }
 
     [Test]
+    public async Task SupportsNestedTypes()
+    {
+        var output = Generate(
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
+
+            namespace Super.Duper.Unions;
+
+            public partial class One
+            {
+                [Union]
+                public partial record Problem
+                {
+                    partial record Invalid;
+                    partial record Denied;
+                }
+            }
+
+            public partial class Two
+            {
+                [Union]
+                public partial record Problem
+                {
+                    partial record Invalid;
+                    partial record Denied;
+                }
+            }
+            """);
+        await output.VerifyGeneratedCode();
+    }
+
+    [Test]
+    public async Task SupportsGenerics()
+    {
+        var output = Generate(
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
+
+            namespace Super.Duper.Unions;
+
+            [Union]
+            public partial record Option<T>
+            {
+                partial record Some(T Value);
+                partial record None;
+            }
+            """);
+        await output.VerifyGeneratedCode();
+    }
+
+    [Test]
     public void DoesNotGenerateWhenConditionsAreNotMet()
     {
         var output = Generate(
