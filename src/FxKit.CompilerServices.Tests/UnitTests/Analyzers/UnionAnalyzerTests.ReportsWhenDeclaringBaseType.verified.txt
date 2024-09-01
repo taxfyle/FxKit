@@ -1,4 +1,4 @@
 ﻿[
-  (15,58): error FXKIT0007: 'HaseBaseTypeButItDoesntEvenCompile' is marked as a union and therefore is not allowed to inherit from other types,
-  (9,36): error FXKIT0007: 'HaseBaseType' is marked as a union and therefore is not allowed to inherit from other types
+  (14,58): error FXKIT0007: 'HaseBaseTypeButItDoesntEvenCompile' is marked as a union and therefore is not allowed to inherit from other types,
+  (8,36): error FXKIT0007: 'HaseBaseType' is marked as a union and therefore is not allowed to inherit from other types
 ]

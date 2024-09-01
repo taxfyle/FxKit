@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using FxKit.CompilerServices.CodeGenerators.Lambdas;
 using FxKit.CompilerServices.CodeGenerators.Unions;
 using FxKit.CompilerServices.Utilities;
@@ -46,15 +47,9 @@ public class MustBePartialAnalyzer : DiagnosticAnalyzer
     ///     as a partial type.
     /// </summary>
     /// <param name="ctx"></param>
-    private void AnalyzeNode(SyntaxNodeAnalysisContext ctx)
+    private static void AnalyzeNode(SyntaxNodeAnalysisContext ctx)
     {
-        var typeDecl = (TypeDeclarationSyntax)ctx.Node;
-
-        // The type is a partial, so we can exit now.
-        if (typeDecl.Modifiers.Any(SyntaxKind.PartialKeyword))
-        {
-            return;
-        }
+        var typeDecl = Unsafe.As<TypeDeclarationSyntax>(ctx.Node);
 
         // No attributes, so no reason to analyze.
         if (typeDecl.AttributeLists.Count == 0)
@@ -63,19 +58,38 @@ public class MustBePartialAnalyzer : DiagnosticAnalyzer
         }
 
         var semanticModel = ctx.SemanticModel;
-        if (SemanticModelHelper.ContainsAnyAttribute(
+        if (!SemanticModelHelper.ContainsAnyAttribute(
                 typeDecl.AttributeLists,
                 semanticModel,
                 attrsThatRequirePartial,
-                out var foundAttribute))
+                out var foundAttribute,
+                ctx.CancellationToken))
         {
-            // It contains an attribute that requires partials, and
-            // the type was not declared as a partial; report it.
+            return;
+        }
+
+        var nodesMissingPartial =
+            typeDecl.AncestorsAndSelf()
+                .OfType<TypeDeclarationSyntax>()
+                .Where(static t => t.Modifiers.Any(SyntaxKind.PartialKeyword) == false)
+                .ToArray();
+
+        // The type and it's ancestry is partial, so we can exit now.
+        if (nodesMissingPartial.Length == 0)
+        {
+            return;
+        }
+
+        // It contains an attribute that requires partials, and
+        // a type was not declared as a partial; report it.
+        foreach (var missingPartial in nodesMissingPartial)
+        {
+            ctx.CancellationToken.ThrowIfCancellationRequested();
             ctx.ReportDiagnostic(
                 Diagnostic.Create(
                     DiagnosticsDescriptors.MustBePartial,
-                    typeDecl.Identifier.GetLocation(),
-                    typeDecl.Identifier.Text,
+                    missingPartial.Identifier.GetLocation(),
+                    missingPartial.Identifier.Text,
                     // Dammit-operator here because the project can't use NRT analysis attributes.
                     foundAttribute!.Name.ToString()));
         }

@@ -1,0 +1,4 @@
+﻿[
+  (6,14): error FXKIT0001: The type 'Super' must be partial in order to use it with 'Union',
+  (8,18): error FXKIT0001: The type 'Duper' must be partial in order to use it with 'Union'
+]

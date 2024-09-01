@@ -10,17 +10,18 @@ public class MustBePartialAnalyzerTests
     [Test]
     public async Task DoesNotReportWhenPartial()
     {
-        const string Source = @"
-using FxKit.CompilerServices;
+        const string Source =
+            """
+            using FxKit.CompilerServices;
 
-namespace Super.Duper.Unions;
+            namespace Super.Duper.Unions;
 
-[Union]
-public partial record ForgotToAddPartial
-{
-    partial record Woah;
-}
-";
+            [Union]
+            public partial record ForgotToAddPartial
+            {
+                partial record Woah;
+            }
+            """;
         var diagnostics = await Analyze(Source);
         diagnostics.Should().BeEmpty();
     }
@@ -28,17 +29,45 @@ public partial record ForgotToAddPartial
     [Test]
     public async Task ReportsDiagnostics()
     {
-        const string Source = @"
-using FxKit.CompilerServices;
+        const string Source =
+            """
+            using FxKit.CompilerServices;
 
-namespace Super.Duper.Unions;
+            namespace Super.Duper.Unions;
 
-[Union]
-public record ForgotToAddPartial
-{
-    partial record Woah;
-}
-";
+            [Union]
+            public record ForgotToAddPartial
+            {
+                partial record Woah;
+            }
+            """;
+        var diagnostics = await Analyze(Source);
+        await diagnostics.VerifyDiagnostics();
+    }
+
+    [Test]
+    public async Task ReportsWhenTypeHierarchyIsMissingPartial()
+    {
+        const string Source =
+            """
+            using FxKit.CompilerServices;
+
+            namespace Super.Duper.Unions;
+
+            // missing partials
+            public class Super
+            {
+                public class Duper
+                {
+                    [Union]
+                    public partial record Nested
+                    {
+                      partial record Incorrect;
+                    }
+                }
+            }
+            """;
+
         var diagnostics = await Analyze(Source);
         await diagnostics.VerifyDiagnostics();
     }
