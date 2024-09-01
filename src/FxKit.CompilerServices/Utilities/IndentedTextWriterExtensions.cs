@@ -13,14 +13,41 @@ internal static class IndentedTextWriterExtensions
     /// </summary>
     /// <param name="writer"></param>
     /// <param name="parameters"></param>
+    /// <param name="newlineSeparated"></param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteParameterNames(
+        this IndentedTextWriter writer,
+        EquatableArray<BasicParameter> parameters,
+        bool newlineSeparated = false)
+    {
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            if (newlineSeparated)
+            {
+                writer.WriteLine();
+            }
+
+            writer.Write(parameters[i].Identifier);
+            if (i < parameters.Length - 1)
+            {
+                writer.Write(newlineSeparated ? "," : ", ");
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Writes the types of the parameters with comma separation.
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="parameters"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteParameterTypes(
         this IndentedTextWriter writer,
         EquatableArray<BasicParameter> parameters)
     {
         for (var i = 0; i < parameters.Length; i++)
         {
-            writer.Write(parameters[i].Identifier);
+            writer.Write(parameters[i].FullyQualifiedTypeName);
             if (i < parameters.Length - 1)
             {
                 writer.Write(", ");

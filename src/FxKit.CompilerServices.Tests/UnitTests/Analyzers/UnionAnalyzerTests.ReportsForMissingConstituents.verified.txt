@@ -1,3 +1,3 @@
 ﻿[
-  (7,23): warning FXKIT0002: The type 'MissingConstituents' is marked as [Union] and should declare at least one nested 'partial record'
+  (6,23): warning FXKIT0002: The type 'MissingConstituents' is marked as [Union] and should declare at least one nested 'partial record'
 ]

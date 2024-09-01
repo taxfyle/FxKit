@@ -15,20 +15,25 @@ internal static class TypeHierarchyHelper
     /// <param name="node">
     ///     The syntax node to get the type hierarchy for.
     /// </param>
+    /// <param name="includeSelf">
+    ///     Whether to consider the provided node as part of the returned hierarchy.
+    /// </param>
     /// <returns>
-    ///     The type hierarchy for the given syntax node. The outer-most type
+    ///     The type hierarchy for the given syntax node. The outermost type
     ///     appears first.
     /// </returns>
-    public static EquatableArray<TypeHierarchyNode> GetTypeHierarchy(SyntaxNode node) =>
-        node.AncestorsAndSelf()
-            .OfType<TypeDeclarationSyntax>()
-            .Select(
-                static n => new TypeHierarchyNode(
-                    Modifiers: n.Modifiers.ToString(),
-                    Keyword: n.Keyword.ValueText,
-                    IdentifierWithSignature: GetIdentifierWithSignature(n)))
-            .Reverse()
-            .ToEquatableArray();
+    public static EquatableArray<TypeHierarchyNode> GetTypeHierarchy(
+        SyntaxNode node,
+        bool includeSelf = false) =>
+        (includeSelf ? node.AncestorsAndSelf() : node.Ancestors())
+        .OfType<TypeDeclarationSyntax>()
+        .Select(
+            static n => new TypeHierarchyNode(
+                Modifiers: n.Modifiers.ToString(),
+                Keyword: n.Keyword.ValueText,
+                IdentifierWithSignature: GetIdentifierWithSignature(n)))
+        .Reverse()
+        .ToEquatableArray();
 
     /// <summary>
     ///     Gets the identifier name including any generic parameters.
@@ -39,7 +44,7 @@ internal static class TypeHierarchyHelper
     /// <returns>
     ///     The identifier name including any generic parameters.
     /// </returns>
-    private static string GetIdentifierWithSignature(TypeDeclarationSyntax typeDeclarationSyntax)
+    public static string GetIdentifierWithSignature(TypeDeclarationSyntax typeDeclarationSyntax)
     {
         if (typeDeclarationSyntax.TypeParameterList is not { Parameters.Count: > 0 })
         {

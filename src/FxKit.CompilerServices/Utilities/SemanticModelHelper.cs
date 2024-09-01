@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FxKit.CompilerServices.Utilities;
 
-internal  static class SemanticModelHelper
+internal static class SemanticModelHelper
 {
     /// <summary>
     ///     Whether the attribute list contains the exact attribute we are looking for.
@@ -43,12 +43,14 @@ internal  static class SemanticModelHelper
     /// <param name="attrFullyQualifiedNames"></param>
     /// <param name="semanticModel"></param>
     /// <param name="foundAttribute">The attribute syntax, if found.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static bool ContainsAnyAttribute(
         SyntaxList<AttributeListSyntax> attrListSyntax,
         SemanticModel semanticModel,
         IReadOnlyCollection<string> attrFullyQualifiedNames,
-        out AttributeSyntax? foundAttribute)
+        out AttributeSyntax? foundAttribute,
+        CancellationToken cancellationToken = default)
     {
         // We use plain foreach here because perf.
         foreach (var attrList in attrListSyntax)
@@ -57,7 +59,11 @@ internal  static class SemanticModelHelper
             {
                 foreach (var attrFullyQualifiedName in attrFullyQualifiedNames)
                 {
-                    if (!IsExactAttribute(semanticModel, attr, attrFullyQualifiedName))
+                    if (!IsExactAttribute(
+                            semanticModel,
+                            attr,
+                            attrFullyQualifiedName,
+                            cancellationToken))
                     {
                         continue;
                     }
@@ -84,13 +90,15 @@ internal  static class SemanticModelHelper
     /// <param name="semanticModel"></param>
     /// <param name="attr"></param>
     /// <param name="attrFullyQualifiedName"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public static bool IsExactAttribute(
         SemanticModel semanticModel,
         AttributeSyntax attr,
-        string attrFullyQualifiedName)
+        string attrFullyQualifiedName,
+        CancellationToken cancellationToken = default)
     {
-        var attrSymbol = semanticModel.GetSymbolInfo(attr).Symbol;
+        var attrSymbol = semanticModel.GetSymbolInfo(attr, cancellationToken).Symbol;
         if (attrSymbol is null)
         {
             return false;

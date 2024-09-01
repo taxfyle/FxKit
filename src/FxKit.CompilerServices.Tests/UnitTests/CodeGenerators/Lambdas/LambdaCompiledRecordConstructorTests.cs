@@ -46,7 +46,7 @@ public class LambdaCompiledConstructorTests
     public void ClassHasLambdaConstructor() =>
         Enumerable.Range(start: 0, count: 2)
             .Select(Parent.ClassWithPrimaryCtor.λ)
-            .Select<Parent.ClassWithPrimaryCtor, int>(c => c.SoCool)
+            .Select(c => c.SoCool)
             .Should()
             .Equal(0, 1);
 }
