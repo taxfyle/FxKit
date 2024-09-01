@@ -23,9 +23,9 @@ public class LambdaGenerator : IIncrementalGenerator
         // Generate lambda method descriptors based on type declaration and method declaration syntax.
         var methodDescriptors =
             context.SyntaxProvider.ForAttributeWithMetadataName(
-                fullyQualifiedMetadataName: LambdaAttrName,
-                predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
-                transform: static (ctx, _) => TransformLambdaMethodDescriptor(ctx))
+                    fullyQualifiedMetadataName: LambdaAttrName,
+                    predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
+                    transform: static (ctx, _) => TransformLambdaMethodDescriptor(ctx))
                 .WithTrackingName("MethodDescriptors");
 
         // Group them by their containing type's metadata name.
@@ -68,10 +68,12 @@ public class LambdaGenerator : IIncrementalGenerator
             var methodSyntax = Unsafe.As<MethodDeclarationSyntax>(ctx.TargetNode);
             var hierarchy = TypeHierarchyHelper.GetTypeHierarchy(methodSyntax);
 
-            var returnType = methodSymbol.ReturnType.MetadataName !=
-                             methodSymbol.ContainingType.MetadataName
-                ? methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                : methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+            // If the return type is the containing type, we don't need to use the FQN.
+            var returnType = SymbolEqualityComparer.Default.Equals(
+                x: methodSymbol.ReturnType,
+                y: methodSymbol.ContainingType)
+                ? methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+                : methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             return new LambdaMethodDescriptor(
                 FullyQualifiedContainingTypeMetadataName: fullyQualifiedContainingTypeMetadataName,
