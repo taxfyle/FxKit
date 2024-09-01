@@ -1,9 +1,7 @@
-﻿using System.Collections.Immutable;
+﻿using System.Runtime.CompilerServices;
 using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 
 namespace FxKit.CompilerServices.CodeGenerators.EnumMatch;
 
@@ -16,20 +14,40 @@ public class EnumMatchGenerator : IIncrementalGenerator
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Filter for enums.
-        var enumDeclarations =
+        // Transform enums to generate.
+        var enumGenerations =
             context.SyntaxProvider.ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: "FxKit.CompilerServices.EnumMatchAttribute",
                 predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
-                transform: static (ctx, _) => (EnumDeclarationSyntax)ctx.TargetNode);
+                transform: static (ctx, _) => TransformEnumGeneration(ctx));
 
-        // Combine the selected enums with the Compilation.
-        var compilationAndEnums = context.CompilationProvider.Combine(enumDeclarations.Collect());
-
-        // Generate the source using the compilation and enums.
+        // Generate source.
         context.RegisterSourceOutput(
-            compilationAndEnums,
-            static (spc, source) => Execute(source.Left, source.Right, spc));
+            enumGenerations,
+            static (spc, enumGeneration) => Execute(spc, enumGeneration));
+    }
+
+    /// <summary>
+    ///     Creates an enum generation model based on the context provided.
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
+    private static EnumGeneration? TransformEnumGeneration(
+        GeneratorAttributeSyntaxContext ctx)
+    {
+        var enumSymbol = Unsafe.As<INamedTypeSymbol>(ctx.TargetSymbol);
+        var members = enumSymbol.MemberNames.ToEquatableArray();
+        if (members.Length == 0)
+        {
+            return null;
+        }
+
+        return new EnumGeneration(
+            FullyQualifiedName: enumSymbol.ToDisplayString(),
+            Name: enumSymbol.Name,
+            HintName: enumSymbol.GetFullyQualifiedMetadataName(),
+            ContainingNamespace: enumSymbol.ContainingNamespace.ToDisplayString(),
+            Members: members);
     }
 
     /// <summary>
@@ -43,125 +61,27 @@ public class EnumMatchGenerator : IIncrementalGenerator
     /// <summary>
     ///     Generates the code.
     /// </summary>
-    /// <param name="compilation"></param>
-    /// <param name="enumDeclarations"></param>
     /// <param name="ctx"></param>
-    private static void Execute(
-        Compilation compilation,
-        ImmutableArray<EnumDeclarationSyntax> enumDeclarations,
-        SourceProductionContext ctx)
+    /// <param name="enumGeneration"></param>
+    private static void Execute(SourceProductionContext ctx, EnumGeneration? enumGeneration)
     {
-        if (enumDeclarations.IsDefaultOrEmpty)
+        if (enumGeneration is null)
         {
             return;
         }
 
-        var enumsToGenerate = GetTypesToGenerate(compilation, enumDeclarations, ctx.CancellationToken);
-        if (enumsToGenerate.Count == 0)
-        {
-            return;
-        }
-
-        var result = GenerateMatchExtensionClasses(enumsToGenerate, ctx.CancellationToken);
-        foreach (var (fileHint, source) in result)
-        {
-            ctx.AddSource(fileHint, source);
-        }
-    }
-
-    /// <summary>
-    ///     Generates the extension classes.
-    /// </summary>
-    /// <param name="enumsToGenerate"></param>
-    /// <param name="ct"></param>
-    /// <returns></returns>
-    private static IReadOnlyList<(string FileHint, string Source)> GenerateMatchExtensionClasses(
-        IReadOnlyList<EnumToGenerate> enumsToGenerate,
-        CancellationToken ct)
-    {
-        var result = new List<(string, string)>(enumsToGenerate.Count);
-        foreach (var enumToGenerate in enumsToGenerate)
-        {
-            ct.ThrowIfCancellationRequested();
-            result.Add(
-                ($"{enumToGenerate.HintName}.g.cs",
-                    EnumMatchSyntaxBuilder.GenerateMatchExtensionClass(enumToGenerate)));
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    ///     Transforms the enum declarations to a simple structure.
-    /// </summary>
-    /// <param name="compilation"></param>
-    /// <param name="enums"></param>
-    /// <param name="ct"></param>
-    /// <returns></returns>
-    private static IReadOnlyList<EnumToGenerate> GetTypesToGenerate(
-        Compilation compilation,
-        IEnumerable<EnumDeclarationSyntax?> enums,
-        CancellationToken ct)
-    {
-        var enumsToGenerate = new List<EnumToGenerate>();
-        foreach (var enumDecl in enums)
-        {
-            ct.ThrowIfCancellationRequested();
-            if (enumDecl is null)
-            {
-                continue;
-            }
-
-            var semanticModel = compilation.GetSemanticModel(enumDecl.SyntaxTree);
-            if (semanticModel.GetDeclaredSymbol(enumDecl, ct) is not INamedTypeSymbol enumSymbol)
-            {
-                continue;
-            }
-
-            // Get the full type name, including any outer type declaration.
-            var enumName = enumSymbol.ToDisplayString();
-
-            // Hint name is used for the generated file, and must be unique.
-            var hintName = enumSymbol.GetFullyQualifiedMetadataName();
-
-            // Get the enum fields.
-            var enumMembers = enumSymbol.GetMembers();
-            var members = new List<string>(enumMembers.Length);
-
-            foreach (var member in enumMembers)
-            {
-                if (member is IFieldSymbol)
-                {
-                    members.Add(member.Name);
-                }
-            }
-
-            enumsToGenerate.Add(
-                new EnumToGenerate(
-                    name: enumName,
-                    hintName: hintName,
-                    identifier: enumDecl.Identifier.Text,
-                    containingNamespace: enumSymbol.ContainingNamespace.ToDisplayString(),
-                    members: members));
-        }
-
-        return enumsToGenerate;
+        ctx.AddSource(
+            $"{enumGeneration.HintName}.g.cs",
+            EnumMatchSyntaxBuilder.GenerateMatchExtensionClass(enumGeneration));
     }
 }
 
 /// <summary>
 ///     An enum to generate a Match for.
 /// </summary>
-public readonly struct EnumToGenerate(
-    string name,
-    string hintName,
-    string identifier,
-    string containingNamespace,
-    IReadOnlyList<string> members)
-{
-    public readonly string                Name                = name;
-    public readonly string                HintName            = hintName;
-    public readonly string                Identifier          = identifier;
-    public readonly string                ContainingNamespace = containingNamespace;
-    public readonly IReadOnlyList<string> Members             = members;
-}
+internal sealed record EnumGeneration(
+    string FullyQualifiedName,
+    string Name,
+    string HintName,
+    string ContainingNamespace,
+    EquatableArray<string> Members);
