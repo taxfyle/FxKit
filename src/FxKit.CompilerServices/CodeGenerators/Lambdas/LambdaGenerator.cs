@@ -5,8 +5,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-// ReSharper disable InvertIf
-// ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 namespace FxKit.CompilerServices.CodeGenerators.Lambdas;
 
 /// <summary>
@@ -102,11 +100,10 @@ public class LambdaGenerator : IIncrementalGenerator
             }
 
             var parameters = constructor.Parameters.Select(BasicParameter.FromSymbol).ToEquatableArray();
-
-            var hierarchy = TypeHierarchyHelper.GetTypeHierarchy(
-                typeDeclarationSyntax,
-                includeSelf: true);
             var returnType = typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+            var hierarchy = TypeHierarchyHelper.GetTypeHierarchy(
+                node: typeDeclarationSyntax,
+                includeSelf: true);
 
             return new LambdaMethodDescriptor(
                 FullyQualifiedContainingTypeMetadataName: fullyQualifiedContainingTypeMetadataName,
@@ -125,80 +122,13 @@ public class LambdaGenerator : IIncrementalGenerator
     ///     Generates the source code for the lambda methods.
     /// </summary>
     /// <param name="ctx"></param>
-    /// <param name="source"></param>
-    private static void Execute(SourceProductionContext ctx, LambdaGenerationFile source)
+    /// <param name="lambdaGeneration"></param>
+    private static void Execute(SourceProductionContext ctx, LambdaGenerationFile lambdaGeneration)
     {
-        using var writer = new IndentedTextWriter();
-        writer.WriteLine("using System;\n");
-        writer.WriteLine($"namespace {source.Namespace};\n");
-
-        using (TypeHierarchyWriter.WriteTypeHierarchy(writer, source.TypeHierarchy))
-        {
-            // At this point we're inside the generated type, with correct indentation.
-            for (var index = 0; index < source.Methods.Length; index++)
-            {
-                var descriptor = source.Methods[index];
-                if (index > 0)
-                {
-                    writer.WriteLine();
-                }
-
-                switch (descriptor.Target)
-                {
-                    case LambdaTarget.Constructor:
-                        writer.WriteLine(
-                            $"""
-                             /// <summary>
-                             ///     The {descriptor.TypeOrMethodName} constructor as a Func.
-                             /// </summary>
-                             """,
-                            isMultiline: true);
-                        break;
-                    case LambdaTarget.Method:
-                        writer.WriteLine(
-                            $"""
-                             /// <summary>
-                             ///     The {descriptor.TypeOrMethodName} method as a Func.
-                             /// </summary>
-                             """,
-                            isMultiline: true);
-                        break;
-                }
-
-                writer.Write("public static readonly Func<");
-                foreach (var param in descriptor.Parameters)
-                {
-                    writer.Write($"{param.FullyQualifiedTypeName}, ");
-                }
-
-                writer.Write($"{descriptor.ReturnType}> ");
-                if (descriptor.Target == LambdaTarget.Method)
-                {
-                    writer.Write(descriptor.TypeOrMethodName);
-                }
-
-                writer.Write("λ = (");
-                writer.WriteParameterNames(descriptor.Parameters);
-                writer.Write(") => ");
-
-                switch (descriptor.Target)
-                {
-                    case LambdaTarget.Constructor:
-                        writer.Write("new(");
-                        break;
-                    case LambdaTarget.Method:
-                        writer.Write($"{descriptor.TypeOrMethodName}(");
-                        break;
-                }
-
-                writer.WriteParameterNames(descriptor.Parameters);
-                writer.Write(");");
-            }
-        }
-
+        var source = LambdaSyntaxBuilder.Generate(lambdaGeneration);
         ctx.AddSource(
-            $"{source.FullyQualifiedContainingTypeMetadataName}.g.cs",
-            writer.ToString());
+            hintName: $"{lambdaGeneration.FullyQualifiedContainingTypeMetadataName}.g.cs",
+            source: source);
     }
 
     /// <summary>
