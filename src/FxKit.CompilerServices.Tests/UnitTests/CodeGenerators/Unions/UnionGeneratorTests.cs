@@ -10,21 +10,21 @@ public class UnionGeneratorTests
     public async Task GeneratesUnion()
     {
         var output = Generate(
-            @"
-using System.Collections.Generic;
-using FxKit.CompilerServices;
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
 
-namespace Super.Duper.Unions;
+            namespace Super.Duper.Unions;
 
-[Union]
-public partial record CSharpLanguageIssues
-{
-    partial record TerribleLambdaInference;
-    partial record NoExhaustiveMatch(List<string> PotentialSolutions);
-    partial record NoHigherKindedTypes(List<string> PotentialSolutions, bool CanBeDebated);
-    partial record NoDiscriminatedUnions();
-}
-");
+            [Union]
+            public partial record CSharpLanguageIssues
+            {
+                partial record TerribleLambdaInference;
+                partial record NoExhaustiveMatch(List<string> PotentialSolutions);
+                partial record NoHigherKindedTypes(List<string> PotentialSolutions, bool CanBeDebated);
+                partial record NoDiscriminatedUnions();
+            }
+            """);
         await output.VerifyGeneratedCode();
     }
 
@@ -32,38 +32,38 @@ public partial record CSharpLanguageIssues
     public void DoesNotGenerateWhenConditionsAreNotMet()
     {
         var output = Generate(
-            @"
-using System.Collections.Generic;
-using FxKit.CompilerServices;
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
 
-namespace Super.Duper.Unions;
+            namespace Super.Duper.Unions;
 
-[Union]
-public record MissingPartial
-{
-    partial record Oops;
-}
+            [Union]
+            public record MissingPartial
+            {
+                partial record Oops;
+            }
 
-[Union]
-public sealed record DeclaredAsSealed
-{
-    partial record Oops;
-}
+            [Union]
+            public sealed record DeclaredAsSealed
+            {
+                partial record Oops;
+            }
 
-[Union]
-public partial record HasPrimaryCtor(string NotAllowed)
-{
-    partial record Oops;
-}
+            [Union]
+            public partial record HasPrimaryCtor(string NotAllowed)
+            {
+                partial record Oops;
+            }
 
-public record TheBaseType;
+            public record TheBaseType;
 
-[Union]
-public partial record InheritsFromAnotherType : TheBaseType
-{
-    partial record Oops;
-}
-");
+            [Union]
+            public partial record InheritsFromAnotherType : TheBaseType
+            {
+                partial record Oops;
+            }
+            """);
         output.Should().BeEmpty();
     }
 
@@ -71,18 +71,18 @@ public partial record InheritsFromAnotherType : TheBaseType
     public void DoesNotThrowOnBadlyFormattedCode()
     {
         var output = Generate(
-            @"
-using System.Collections.Generic;
-using FxKit.CompilerServices;
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
 
-namespace Super.Duper.Unions;
+            namespace Super.Duper.Unions;
 
-[Union]
-public record BadFormatting(st
-{
-    partial record Oops;
-}
-");
+            [Union]
+            public record BadFormatting(st
+            {
+                partial record Oops;
+            }
+            """);
         output.Should().BeEmpty();
     }
 
