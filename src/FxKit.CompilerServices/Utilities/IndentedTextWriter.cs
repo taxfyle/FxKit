@@ -190,6 +190,7 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <param name="condition">The condition to use to decide whether to write content.</param>
     /// <param name="content">The content to write.</param>
     /// <param name="isMultiline">Whether the input content is multiline.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteIf(bool condition, string content, bool isMultiline = false)
     {
         if (condition)
@@ -204,6 +205,7 @@ internal sealed class IndentedTextWriter : IDisposable
     /// <param name="condition">The condition to use to decide whether to write content.</param>
     /// <param name="content">The content to write.</param>
     /// <param name="isMultiline">Whether the input content is multiline.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteIf(bool condition, ReadOnlySpan<char> content, bool isMultiline = false)
     {
         if (condition)
