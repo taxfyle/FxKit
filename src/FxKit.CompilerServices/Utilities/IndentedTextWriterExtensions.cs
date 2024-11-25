@@ -47,7 +47,13 @@ internal static class IndentedTextWriterExtensions
     {
         for (var i = 0; i < parameters.Length; i++)
         {
-            writer.Write(parameters[i].FullyQualifiedTypeName);
+            var parameter = parameters[i];
+            writer.Write(parameter.FullyQualifiedTypeName);
+            if (parameter.HasNullableAnnotation)
+            {
+                writer.Write("?");
+            }
+
             if (i < parameters.Length - 1)
             {
                 writer.Write(", ");

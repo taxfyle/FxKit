@@ -11,9 +11,13 @@ namespace FxKit.CompilerServices.Models;
 /// <param name="Identifier">
 ///     The name of the parameter.
 /// </param>
+/// <param name="HasNullableAnnotation">
+///     Whether the parameter has a nullable annotation.
+/// </param>
 internal sealed record BasicParameter(
     string FullyQualifiedTypeName,
-    string Identifier)
+    string Identifier,
+    bool HasNullableAnnotation)
 {
     /// <summary>
     ///     Converts a <see cref="IParameterSymbol" /> to a <see cref="BasicParameter" />.
@@ -22,5 +26,6 @@ internal sealed record BasicParameter(
     /// <returns></returns>
     internal static BasicParameter FromSymbol(IParameterSymbol symbol) => new(
         FullyQualifiedTypeName: symbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-        Identifier: symbol.Name);
+        Identifier: symbol.Name,
+        HasNullableAnnotation: symbol.NullableAnnotation is NullableAnnotation.Annotated);
 }

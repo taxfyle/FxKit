@@ -136,6 +136,29 @@ public class LambdaGeneratorConstructorLambdaTest
         await generated.VerifyGeneratedCode();
     }
 
+    [Test]
+    public async Task SupportsNullableAnnotations()
+    {
+        const string InputSource =
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
+
+            namespace Woah.SoCool;
+
+            public static partial class Nested
+            {
+                [Lambda]
+                public partial record MyRecord(
+                    string? Param1
+                );
+            }
+            """;
+
+        var generated = Generate(InputSource);
+        await generated.VerifyGeneratedCode();
+    }
+
     private static string Generate(string source) =>
         CodeGeneratorTestUtil.GetGeneratedOutput(new LambdaGenerator(), source);
 }
