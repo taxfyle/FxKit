@@ -58,7 +58,12 @@ internal static class LambdaSyntaxBuilder
                 writer.Write("public static readonly Func<");
                 foreach (var param in descriptor.Parameters)
                 {
-                    writer.Write($"{param.FullyQualifiedTypeName}, ");
+                    writer.Write(param.FullyQualifiedTypeName);
+                    if (param.HasNullableAnnotation)
+                    {
+                        writer.Write("?");
+                    }
+                    writer.Write(", ");
                 }
 
                 writer.Write($"{descriptor.ReturnType}> ");

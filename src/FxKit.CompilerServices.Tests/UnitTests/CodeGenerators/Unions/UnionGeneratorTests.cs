@@ -82,6 +82,26 @@ public class UnionGeneratorTests
     }
 
     [Test]
+    public async Task SupportsNullableAnnotations()
+    {
+        var output = Generate(
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
+
+            namespace Super.Duper.Unions;
+
+            [Union]
+            public partial record TerribleOption<T>
+            {
+                partial record Probably(T? Value);
+                partial record None;
+            }
+            """);
+        await output.VerifyGeneratedCode();
+    }
+
+    [Test]
     public void DoesNotGenerateWhenConditionsAreNotMet()
     {
         var output = Generate(

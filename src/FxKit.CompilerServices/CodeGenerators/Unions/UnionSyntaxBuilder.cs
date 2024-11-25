@@ -103,7 +103,12 @@ internal static class UnionSyntaxBuilder
         {
             sb.WriteLine();
             var param = member.Parameters[i];
-            sb.Write($"{param.FullyQualifiedTypeName} {param.Identifier}");
+            sb.Write(param.FullyQualifiedTypeName);
+            if (param.HasNullableAnnotation)
+            {
+                sb.Write("?");
+            }
+            sb.Write($" {param.Identifier}");
             sb.WriteIf(i < member.Parameters.Length - 1, ",");
         }
 
