@@ -12,4 +12,8 @@
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Update="MinVer" Version="6.0.0" />
+  </ItemGroup>
+
 </Project>
