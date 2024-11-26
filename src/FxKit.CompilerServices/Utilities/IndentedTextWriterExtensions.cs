@@ -49,7 +49,7 @@ internal static class IndentedTextWriterExtensions
         {
             var parameter = parameters[i];
             writer.Write(parameter.FullyQualifiedTypeName);
-            if (parameter.HasNullableAnnotation)
+            if (parameter.RequiresAdditionalNullableAnnotation)
             {
                 writer.Write("?");
             }

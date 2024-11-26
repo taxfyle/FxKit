@@ -92,6 +92,26 @@ public class UnionGeneratorTests
             namespace Super.Duper.Unions;
 
             [Union]
+            public partial record Foo
+            {
+                partial record Probably(int? Number, string? Text);
+                partial record None;
+            }
+            """);
+        await output.VerifyGeneratedCode();
+    }
+
+    [Test]
+    public async Task SupportsNullableAnnotationsOnGenerics()
+    {
+        var output = Generate(
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
+
+            namespace Super.Duper.Unions;
+
+            [Union]
             public partial record TerribleOption<T>
             {
                 partial record Probably(T? Value);
