@@ -104,7 +104,7 @@ internal static class UnionSyntaxBuilder
             sb.WriteLine();
             var param = member.Parameters[i];
             sb.Write(param.FullyQualifiedTypeName);
-            if (param.HasNullableAnnotation)
+            if (param.RequiresAdditionalNullableAnnotation)
             {
                 sb.Write("?");
             }

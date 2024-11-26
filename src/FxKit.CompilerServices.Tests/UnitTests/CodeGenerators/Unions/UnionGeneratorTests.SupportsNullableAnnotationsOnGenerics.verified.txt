@@ -9,9 +9,9 @@ using System.Runtime.CompilerServices;
 
 namespace Super.Duper.Unions;
 
-public abstract partial record Foo
+public abstract partial record TerribleOption<T>
 {
-    public sealed partial record Probably : Foo
+    public sealed partial record Probably : TerribleOption<T>
     {
         /// <summary>
         ///     The same as "new Probably" but the return type is that of the base type.
@@ -19,20 +19,18 @@ public abstract partial record Foo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [ExcludeFromCodeCoverage]
         [DebuggerHidden]
-        public static Foo Of(
-            int? Number,
-            string? Text) =>
+        public static TerribleOption<T> Of(
+            T? Value) =>
             new Probably(
-                Number,
-                Text);
+                Value);
 
         /// <summary>
         ///     A Func variant for 'Of'
         /// </summary>
-        public static readonly Func<int?, string?, Foo> λ = Of;
+        public static readonly Func<T?, TerribleOption<T>> λ = Of;
     }
 
-    public sealed partial record None : Foo
+    public sealed partial record None : TerribleOption<T>
     {
         /// <summary>
         ///     The same as "new None" but the return type is that of the base type.
@@ -40,13 +38,13 @@ public abstract partial record Foo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [ExcludeFromCodeCoverage]
         [DebuggerHidden]
-        public static Foo Of() =>
+        public static TerribleOption<T> Of() =>
             new None();
 
         /// <summary>
         ///     A Func variant for 'Of'
         /// </summary>
-        public static readonly Func<Foo> λ = Of;
+        public static readonly Func<TerribleOption<T>> λ = Of;
     }
 
     /// <summary>
@@ -56,8 +54,8 @@ public abstract partial record Foo
         Func<Probably, TResult> Probably,
         Func<None, TResult> None) => this switch
     {
-        Foo.Probably x => Probably(x),
-        Foo.None x => None(x),
-        _ => throw new ArgumentOutOfRangeException(message: $"The type '{this.GetType()}' is not a known variant of Foo", innerException: null)
+        TerribleOption<T>.Probably x => Probably(x),
+        TerribleOption<T>.None x => None(x),
+        _ => throw new ArgumentOutOfRangeException(message: $"The type '{this.GetType()}' is not a known variant of TerribleOption", innerException: null)
     };
 }

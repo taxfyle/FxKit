@@ -59,7 +59,7 @@ internal static class LambdaSyntaxBuilder
                 foreach (var param in descriptor.Parameters)
                 {
                     writer.Write(param.FullyQualifiedTypeName);
-                    if (param.HasNullableAnnotation)
+                    if (param.RequiresAdditionalNullableAnnotation)
                     {
                         writer.Write("?");
                     }
