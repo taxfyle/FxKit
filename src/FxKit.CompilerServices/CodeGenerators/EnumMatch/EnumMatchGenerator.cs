@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using FxKit.CompilerServices.Utilities;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FxKit.CompilerServices.CodeGenerators.EnumMatch;
@@ -47,6 +48,7 @@ public class EnumMatchGenerator : IIncrementalGenerator
             Name: enumSymbol.Name,
             HintName: enumSymbol.GetFullyQualifiedMetadataName(),
             ContainingNamespace: enumSymbol.ContainingNamespace.ToDisplayString(),
+            Accessibility: SyntaxFacts.GetText(enumSymbol.DeclaredAccessibility),
             Members: members);
     }
 
@@ -84,4 +86,5 @@ internal sealed record EnumGeneration(
     string Name,
     string HintName,
     string ContainingNamespace,
+    string Accessibility,
     EquatableArray<string> Members);
