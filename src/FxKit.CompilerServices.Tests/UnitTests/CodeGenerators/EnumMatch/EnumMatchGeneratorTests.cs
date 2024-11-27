@@ -106,6 +106,28 @@ public class EnumMatchGeneratorTests
         await generated.VerifyGeneratedCode();
     }
 
+    [Test]
+    public async Task RespectsAccessibility()
+    {
+        var generated = Generate(
+            """
+            using System;
+            using FxKit.CompilerServices;
+
+            namespace EnumTest.PrettyCool;
+
+            [EnumMatch]
+            internal enum MyEnum
+            {
+                One,
+                Two,
+                Three
+            }
+            """);
+
+        await generated.VerifyGeneratedCode();
+    }
+
     private static string Generate(string source) =>
         CodeGeneratorTestUtil.GetGeneratedOutput(new EnumMatchGenerator(), source);
 }

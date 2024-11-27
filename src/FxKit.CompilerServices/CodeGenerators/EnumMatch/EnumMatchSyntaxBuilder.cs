@@ -20,7 +20,7 @@ internal static class EnumMatchSyntaxBuilder
         writer.WriteLine("using System;");
         writer.WriteLine();
         writer.WriteLine($"namespace {enumGeneration.ContainingNamespace};\n");
-        writer.WriteLine($"public static partial class {enumGeneration.Name}MatchExtension");
+        writer.WriteLine($"{enumGeneration.Accessibility} static partial class {enumGeneration.Name}MatchExtension");
         using (writer.WriteBlock())
         {
             WriteMatchFunction(writer, enumGeneration, func: true);
