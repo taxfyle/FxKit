@@ -301,7 +301,7 @@ public Task<Result<int, ReadAndParseError>> ReadAndParseAsync(string path) =>
     from parsed in ParseInt(contents)
         // Map the inner error to the shape we want.
         .MapErr(e => e.Match(
-            NotANumber: ReadAndParseError.FileDidNotContainNumber.Of),
+            NotANumber: ReadAndParseError.FileDidNotContainNumber.Of,
             Overflow: ReadAndParseError.NumberOverflow.Of))
         .AsTask() // The `AsTask` is needed to align the types
 
