@@ -1,4 +1,5 @@
 ﻿using FxKit.CompilerServices;
+using JetBrains.Annotations;
 
 namespace FxKit;
 
@@ -19,7 +20,7 @@ public static partial class Option
     [GenerateTransformer]
     public static Validation<Option<TValid>, TInvalid> Traverse<T, TValid, TInvalid>(
         this Option<T> source,
-        Func<T, Validation<TValid, TInvalid>> selector)
+        [InstantHandle] Func<T, Validation<TValid, TInvalid>> selector)
         where T : notnull
         where TValid : notnull
         where TInvalid : notnull =>
@@ -73,7 +74,7 @@ public static partial class Option
     [GenerateTransformer]
     public static Option<IReadOnlyList<R>> Traverse<T, R>(
         this IEnumerable<T> source,
-        Func<T, Option<R>> selector)
+        [InstantHandle] Func<T, Option<R>> selector)
         where T : notnull
         where R : notnull
     {
@@ -106,6 +107,50 @@ public static partial class Option
         this IEnumerable<Option<T>> source)
         where T : notnull => source.Traverse(Identity);
 
+    /// <summary>
+    /// Attempts to aggregate a sequence of values using a specified function
+    /// that may return an optional result, starting with an initial seed value.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the source sequence.</typeparam>
+    /// <typeparam name="TAccumulate">The type of the accumulator value.</typeparam>
+    /// <param name="source">The sequence of elements to aggregate.</param>
+    /// <param name="seed">The initial value for the accumulator.</param>
+    /// <param name="func">
+    /// A function that takes the current accumulator value and an element from
+    /// the sequence, returning an <see cref="Option{T}"/> containing either
+    /// the new accumulator value or no value.
+    /// </param>
+    /// <returns>
+    /// An <see cref="Option{T}"/> containing the final accumulated value if the operation succeeds
+    /// for all elements, or <see cref="Option.None"/> if the aggregation fails at any step.
+    /// </returns>
+    /// <remarks>
+    /// This method iteratively applies the specified function to the accumulator and each
+    /// element of the source sequence. If the function returns <see cref="Option.None"/>
+    /// at any step, the aggregation stops and the method returns <see cref="Option.None"/>.
+    /// </remarks>
+    [GenerateTransformer]
+    public static Option<TAccumulate> TryAggregate<T, TAccumulate>(
+        this IEnumerable<T> source,
+        TAccumulate seed,
+        [InstantHandle] Func<TAccumulate, T, Option<TAccumulate>> func)
+        where TAccumulate : notnull
+    {
+        var result = Some(seed);
+
+        foreach (var item in source)
+        {
+            if (!result.TryGet(out var value))
+            {
+                return Option<TAccumulate>.None;
+            }
+
+            result = func(value, item);
+        }
+
+        return result;
+    }
+
     #endregion
 
     #region Result traversal
@@ -135,7 +180,7 @@ public static partial class Option
     [GenerateTransformer]
     public static Result<Option<TOk>, TErr> Traverse<T, TOk, TErr>(
         this Option<T> source,
-        Func<T, Result<TOk, TErr>> selector)
+        [InstantHandle] Func<T, Result<TOk, TErr>> selector)
         where T : notnull
         where TOk : notnull
         where TErr : notnull =>

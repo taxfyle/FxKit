@@ -1,4 +1,5 @@
 ﻿using FxKit.CompilerServices;
+using JetBrains.Annotations;
 
 namespace FxKit;
 
@@ -26,7 +27,7 @@ public static partial class Result
     [GenerateTransformer]
     public static Result<IReadOnlyList<TOk>, TErr> Traverse<T, TOk, TErr>(
         this IEnumerable<T> source,
-        Func<T, Result<TOk, TErr>> selector)
+        [InstantHandle] Func<T, Result<TOk, TErr>> selector)
         where T : notnull
         where TOk : notnull
         where TErr : notnull
@@ -63,6 +64,47 @@ public static partial class Result
         where TOk : notnull
         where TErr : notnull
         => source.Traverse(Identity);
+
+    /// <summary>
+    /// Attempts to aggregate a sequence of values using a specified function that can fail, returning the result or an error.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+    /// <typeparam name="TAccumulate">The type of the accumulated value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="source">The sequence of elements to aggregate.</param>
+    /// <param name="seed">The initial accumulator value.</param>
+    /// <param name="func">A function to apply to each element and the current accumulator value, which returns a result or an error.</param>
+    /// <returns>
+    /// A <see cref="Result{TAccumulate, TError}"/> containing the final accumulated value if the aggregation succeeds,
+    /// or an error if the aggregation fails at any step.
+    /// </returns>
+    /// <remarks>
+    /// This method iterates over the <paramref name="source"/> sequence and applies the <paramref name="func"/> delegate
+    /// to each element along with the current accumulator value. If any step in the aggregation process returns an error,
+    /// the method stops processing and returns the error.
+    /// </remarks>
+    [GenerateTransformer]
+    public static Result<TAccumulate, TError> TryAggregate<TSource, TAccumulate, TError>(
+        this IEnumerable<TSource> source,
+        TAccumulate seed,
+        [InstantHandle] Func<TAccumulate, TSource, Result<TAccumulate, TError>> func)
+        where TAccumulate : notnull
+        where TError : notnull
+    {
+        var result = Ok<TAccumulate, TError>(seed);
+
+        foreach (var item in source)
+        {
+            if (!result.TryGet(out var value, out var error))
+            {
+                return error;
+            }
+
+            result = func(value, item);
+        }
+
+        return result;
+    }
 
     #endregion
 }

@@ -241,6 +241,25 @@ Option<IReadOnlyList<int>> sequenced =
     list.Sequence();
 ```
 
+### TryAggregate
+
+Use `TryAggregate` to attempt an aggregation of a sequence with a custom function that can short-circuit if any step fails.
+
+```csharp
+var numbers = new[] { 1, 2, 3, 4 };
+var result = numbers.TryAggregate(
+    seed: 0,
+    func: (acc, item) => item > 0 ? Some(acc + item) : None
+);
+// Some(10)
+
+var invalidResult = numbers.TryAggregate(
+    seed: 0,
+    func: (acc, item) => item < 2 ? Some(acc + item) : None
+);
+// None
+```
+
 ## Prelude
 
 The `Prelude` class provides the following functions for `Option`:
