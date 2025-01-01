@@ -76,4 +76,37 @@ public class OptionTraverseTests
         Some(Err<int, string>("error")).Sequence().Should().BeErr("error");
         Option<Result<int, string>>.None.Sequence().Should().BeOk(None);
     }
+
+    [Test]
+    public void TryAggregate_ShouldAggregateValuesCorrectly()
+    {
+        ListOf.Many(1, 2, 3, 4)
+            .TryAggregate(
+                seed: 0,
+                func: (acc, item) => Some(acc + item))
+            .Should()
+            .BeSome(10);
+    }
+
+    [Test]
+    public void TryAggregate_ShouldReturnError_WhenConditionFails()
+    {
+        ListOf.Many(1, -1, 3)
+            .TryAggregate(
+                seed: 0,
+                func: (acc, item) => item >= 0 ? Some(acc + item) : None)
+            .Should()
+            .BeNone();
+    }
+
+    [Test]
+    public void TryAggregate_ShouldHandleEmptySequence()
+    {
+        Array.Empty<int>()
+            .TryAggregate(
+                seed: 0,
+                func: (acc, item) => Some(acc + item))
+            .Should()
+            .BeSome(0);
+    }
 }

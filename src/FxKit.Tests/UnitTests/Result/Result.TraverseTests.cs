@@ -45,4 +45,40 @@ public class ResultTraverseTests
         Result<int, string> Ok(int x) => x;
         Result<int, string> Err(string x) => x;
     }
+
+    [Test]
+    public void TryAggregate_ShouldAggregateValuesCorrectly()
+    {
+        ListOf.Many(1, 2, 3, 4)
+            .TryAggregate(
+                seed: 0,
+                func: (acc, item) => Ok<int, string>(acc + item))
+            .Should()
+            .BeOk(10);
+    }
+
+    [Test]
+    public void TryAggregate_ShouldReturnError_WhenConditionFails()
+    {
+        ListOf.Many(1, -1, 3)
+            .TryAggregate(
+                seed: 0,
+                func: (acc, item) =>
+                    item >= 0
+                        ? Ok<int, string>(acc + item)
+                        : Err<int, string>("Negative number encountered"))
+            .Should()
+            .BeErr("Negative number encountered");
+    }
+
+    [Test]
+    public void TryAggregate_ShouldHandleEmptySequence()
+    {
+        Array.Empty<int>()
+            .TryAggregate(
+                seed: 0,
+                func: (acc, item) => Ok<int, string>(acc + item))
+            .Should()
+            .BeOk(0);
+    }
 }

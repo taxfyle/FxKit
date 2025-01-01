@@ -233,6 +233,21 @@ Result<IReadOnlyList<int>, string> sequenced =
     list.Sequence();
 ```
 
+### TryAggregate
+
+Use `TryAggregate` to attempt an aggregation of a sequence with a custom function that can short-circuit if any step
+fails, returning either the final accumulated value or an error.
+
+```csharp
+IReadOnlyList<int> numbers = [1, 2, 3, 4];
+Result<int, string> sumResult = numbers.TryAggregate(
+    seed: 0,
+    func: (acc, item) => item > 0
+        ? Ok<int, string>(acc + item)
+        : Err<int, string>("Negative number encountered")
+);
+```
+
 ## Prelude
 
 The `Prelude` class provides the following functions for `Result`:
