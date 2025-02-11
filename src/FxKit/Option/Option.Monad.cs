@@ -50,6 +50,43 @@ public static partial class Option
             ? selector(value)
             : Task.FromResult(Option<U>.None);
 
+    /// <summary>
+    ///     Returns the source's Option if it contains a value, otherwise <paramref name="other" /> is returned.
+    /// </summary>
+    /// <remarks>
+    ///     <paramref name="other" /> is eagerly evaluated; if the result of a function is being passed,
+    ///     use <see cref="OrElse{T}" />.
+    /// </remarks>
+    /// <param name="source"></param>
+    /// <param name="other"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static Option<T> Or<T>(
+        this Option<T> source,
+        Option<T> other)
+        where T : notnull =>
+        source.TryGet(out _) ? source : other;
+
+    /// <summary>
+    ///     Returns the source's Option if it contains a value, otherwise calls <paramref name="fallback" />
+    ///     and returns the result.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="fallback"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [GenerateTransformer]
+    public static Option<T> OrElse<T>(
+        this Option<T> source,
+        Func<Option<T>> fallback)
+        where T : notnull =>
+        source.TryGet(out _) ? source : fallback();
+
     #region LINQ
 
     /// <inheritdoc cref="FlatMap{T,U}" />

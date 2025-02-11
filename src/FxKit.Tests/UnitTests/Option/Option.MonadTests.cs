@@ -95,6 +95,17 @@ public class OptionMonadTests
 
     #endregion
 
+    [Test]
+    public void Or_ShouldBeReturned()
+    {
+        var l = Option<int>.None;
+        var r = l.Or(1);
+        var rElse = l.OrElse(() => 2);
+
+        r.Should().BeSome(1);
+        rElse.Should().BeSome(2);
+    }
+
     #region LINQ
 
     [Test]
