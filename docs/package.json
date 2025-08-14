@@ -1,7 +1,10 @@
 {
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
-    "prettier": "^3.3.2",
-    "vitepress": "^1.2.3"
+    "prettier": "^3.6.2",
+    "vitepress": "^1.6.4"
   },
   "scripts": {
     "docs:dev": "vitepress dev",
