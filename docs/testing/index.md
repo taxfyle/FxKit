@@ -43,20 +43,20 @@ public static Result<int, string> Divide(int dividend, int divisor)
 }
 
 // Validation-returning function
-public static Validation<Person, string> ValidatePerson(string name, int age)
+public static Validation<string, string> ValidateName(string input)
 {
     var errors = new List<string>();
-    
-    if (string.IsNullOrEmpty(name))
-        errors.Add("Name must not be empty");
-    
-    if (age < 18)
-        errors.Add("You must be at least 18 years of age");
-    
+
+    if (string.IsNullOrWhiteSpace(input))
+        errors.Add("Name cannot be empty");
+
+    if (input?.Length < 2)
+        errors.Add("Name must be at least 2 characters long");
+
     if (errors.Any())
-        return Invalid<Person, string>(errors);
-    
-    return Valid(new Person { Name = new Name(name), Age = new Age(age) });
+        return Invalid<string, string>(errors);
+
+    return Valid(input);
 }
 
 // Async versions for Task-based testing
@@ -133,35 +133,32 @@ public void Divide_WithZeroDivisor_ReturnsErr()
 
 ```csharp
 [Test]
-public void ValidatePerson_WithValidData_ReturnsValid()
+public void ValidateName_WithValidName_ReturnsValid()
 {
     // Arrange
-    var name = "John Doe";
-    var age = 25;
+    var input = "John Doe";
 
     // Act
-    var result = ValidatePerson(name, age);
+    var result = ValidateName(input);
 
     // Assert
-    var person = result.Should().BeValid();
-    person.Name.Value.Should().Be("John Doe");
-    person.Age.Value.Should().Be(25);
+    var name = result.Should().BeValid();
+    name.Should().Be("John Doe");
 }
 
 [Test]
-public void ValidatePerson_WithInvalidData_ReturnsInvalid()
+public void ValidateName_WithEmptyName_ReturnsInvalid()
 {
     // Arrange
-    var name = "";
-    var age = 17;
+    var input = "";
 
     // Act
-    var result = ValidatePerson(name, age);
+    var result = ValidateName(input);
 
     // Assert
     var errors = result.Should().BeInvalid();
-    errors.Should().Contain("Name must not be empty");
-    errors.Should().Contain("You must be at least 18 years of age");
+    errors.Should().Contain("Name cannot be empty");
+    errors.Should().Contain("Name must be at least 2 characters long");
 }
 ```
 
