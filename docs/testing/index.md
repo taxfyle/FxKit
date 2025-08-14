@@ -21,6 +21,56 @@ Add the FxKit.Testing package to your test project:
 
 The package depends on FluentAssertions and extends it with FxKit-specific assertion methods.
 
+## Example Functions
+
+Here are the example functions used throughout this documentation:
+
+```csharp
+// Option-returning function
+public static Option<int> ParseAge(string input)
+{
+    if (int.TryParse(input, out var age) && age >= 0 && age <= 120)
+        return Some(age);
+    return None;
+}
+
+// Result-returning function
+public static Result<int, string> Divide(int dividend, int divisor)
+{
+    if (divisor == 0)
+        return Err<int, string>("Cannot divide by zero");
+    return Ok<int, string>(dividend / divisor);
+}
+
+// Validation-returning function
+public static Validation<Person, string> ValidatePerson(string name, int age)
+{
+    var errors = new List<string>();
+    
+    if (string.IsNullOrEmpty(name))
+        errors.Add("Name must not be empty");
+    
+    if (age < 18)
+        errors.Add("You must be at least 18 years of age");
+    
+    if (errors.Any())
+        return Invalid<Person, string>(errors);
+    
+    return Valid(new Person { Name = new Name(name), Age = new Age(age) });
+}
+
+// Async versions for Task-based testing
+public static Task<Option<int>> ParseAgeAsync(string input)
+{
+    return Task.FromResult(ParseAge(input));
+}
+
+public static Task<Result<int, string>> DivideAsync(int dividend, int divisor)
+{
+    return Task.FromResult(Divide(dividend, divisor));
+}
+```
+
 ## Quick Start
 
 ### Testing Option Types
@@ -119,27 +169,51 @@ public void ValidatePerson_WithInvalidData_ReturnsInvalid()
 
 ```csharp
 [Test]
-public async Task FetchUser_WithValidId_ReturnsOk()
+public async Task DivideAsync_WithNonZeroDivisor_ReturnsOk()
 {
-    // Arrange
-    var userId = "123";
-
     // Act
-    var taskResult = FetchUserAsync(userId);
+    var taskResult = DivideAsync(10, 2);
 
     // Assert
-    var user = await taskResult.Should().BeOk();
-    user.Id.Should().Be("123");
+    var quotient = await taskResult.Should().BeOk();
+    quotient.Should().Be(5);
 }
 
 [Test]
-public async Task FetchOptionalData_WhenExists_ReturnsSome()
+public async Task DivideAsync_WithZeroDivisor_ReturnsErr()
 {
     // Act
-    var taskOption = FetchOptionalDataAsync("key");
+    var taskResult = DivideAsync(10, 0);
 
     // Assert
-    await taskOption.Should().BeSome("expected value");
+    await taskResult.Should().BeErr("Cannot divide by zero");
+}
+
+[Test]
+public async Task ParseAgeAsync_WithValidAge_ReturnsSome()
+{
+    // Arrange
+    var input = "25";
+
+    // Act
+    var taskOption = ParseAgeAsync(input);
+
+    // Assert
+    var age = await taskOption.Should().BeSome();
+    age.Should().Be(25);
+}
+
+[Test]
+public async Task ParseAgeAsync_WithInvalidAge_ReturnsNone()
+{
+    // Arrange
+    var input = "invalid";
+
+    // Act
+    var taskOption = ParseAgeAsync(input);
+
+    // Assert
+    await taskOption.Should().BeNone();
 }
 ```
 
