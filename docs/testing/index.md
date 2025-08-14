@@ -33,10 +33,10 @@ public void ParseAge_WithValidAge_ReturnsSome()
 {
     // Arrange
     var input = "25";
-    
+
     // Act
     var result = ParseAge(input);
-    
+
     // Assert
     result.Should().BeSome(25);
 }
@@ -46,10 +46,10 @@ public void ParseAge_WithInvalidAge_ReturnsNone()
 {
     // Arrange
     var input = "invalid";
-    
+
     // Act
     var result = ParseAge(input);
-    
+
     // Assert
     result.Should().BeNone();
 }
@@ -63,7 +63,7 @@ public void Divide_WithNonZeroDivisor_ReturnsOk()
 {
     // Act
     var result = Divide(10, 2);
-    
+
     // Assert
     result.Should().BeOk(5);
 }
@@ -73,7 +73,7 @@ public void Divide_WithZeroDivisor_ReturnsErr()
 {
     // Act
     var result = Divide(10, 0);
-    
+
     // Assert
     result.Should().BeErr("Cannot divide by zero");
 }
@@ -88,12 +88,11 @@ public void ValidatePerson_WithValidData_ReturnsValid()
     // Arrange
     var name = "John Doe";
     var age = 25;
-    
+
     // Act
     var result = ValidatePerson(name, age);
-    
+
     // Assert
-    result.Should().BeValid();
     var person = result.Should().BeValid();
     person.Name.Value.Should().Be("John Doe");
     person.Age.Value.Should().Be(25);
@@ -105,12 +104,11 @@ public void ValidatePerson_WithInvalidData_ReturnsInvalid()
     // Arrange
     var name = "";
     var age = 17;
-    
+
     // Act
     var result = ValidatePerson(name, age);
-    
+
     // Assert
-    result.Should().BeInvalid();
     var errors = result.Should().BeInvalid();
     errors.Should().Contain("Name must not be empty");
     errors.Should().Contain("You must be at least 18 years of age");
@@ -125,13 +123,12 @@ public async Task FetchUser_WithValidId_ReturnsOk()
 {
     // Arrange
     var userId = "123";
-    
+
     // Act
-    var result = await FetchUserAsync(userId);
-    
+    var taskResult = FetchUserAsync(userId);
+
     // Assert
-    await result.Should().BeOk();
-    var user = await result.Should().BeOk();
+    var user = await taskResult.Should().BeOk();
     user.Id.Should().Be("123");
 }
 
@@ -139,10 +136,10 @@ public async Task FetchUser_WithValidId_ReturnsOk()
 public async Task FetchOptionalData_WhenExists_ReturnsSome()
 {
     // Act
-    var result = await FetchOptionalDataAsync("key");
-    
+    var taskOption = FetchOptionalDataAsync("key");
+
     // Assert
-    await result.Should().BeSome("expected value");
+    await taskOption.Should().BeSome("expected value");
 }
 ```
 
@@ -181,6 +178,4 @@ All the above assertions are also available for their async counterparts:
 
 ## Further Reading
 
-- [FluentAssertions Extensions](fluent-assertions) - Detailed documentation of all assertion methods
-- [Testing Patterns](testing-patterns) - Common patterns for testing functional code
 - [Core Types](/core/) - Understanding the types you're testing

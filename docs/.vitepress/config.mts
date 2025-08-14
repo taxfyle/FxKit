@@ -99,11 +99,7 @@ export default defineConfig({
       },
       {
         text: "Testing",
-        items: [
-          { text: "Overview", link: "/testing/" },
-          { text: "Fluent Assertions", link: "/testing/fluent-assertions" },
-          { text: "Testing Patterns", link: "/testing/testing-patterns" },
-        ],
+        items: [{ text: "Overview", link: "/testing/" }],
       },
     ],
 
