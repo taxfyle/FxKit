@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,13 +6,10 @@
     <Title>FxKit Compiler Services Annotations</Title>
     <Description>Annotations (attributes) used by the FxKit Roslyn components.</Description>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Update="MinVer" Version="6.0.0" />
+    <PackageReference Update="MinVer" />
   </ItemGroup>
-
 </Project>

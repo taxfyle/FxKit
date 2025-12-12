@@ -118,10 +118,10 @@ public class TransformerGeneratorReferencedAssembliesTests
                         {
                             using System;
                             using FxKit.CompilerServices;
-                        
+
                             [Functor]
                             public struct NewFunctor<T>;
-                        
+
                             public static class NewFunctor
                             {
                                 [GenerateTransformer]
@@ -189,10 +189,10 @@ public class TransformerGeneratorReferencedAssembliesTests
                         using System;
                         using System.Collections.Generic;
                         using FxKit.CompilerServices;
-                    
+
                         [Functor]
                         public record Filtered<T>(IReadOnlyList<T> Items);
-                    
+
                         public static class FilteredExtensions
                         {
                             [GenerateTransformer]
@@ -200,12 +200,12 @@ public class TransformerGeneratorReferencedAssembliesTests
                                 this Filtered<T> source,
                                 Func<T, U> selector) => new Filtered<U>(source.Items.Select(selector).ToList())
                         }
-                    
+
                         namespace Inner
                         {
                             [Functor]
                             public record Paged<T>(IReadOnlyList<T> Items);
-                    
+
                             public static class PagedExtensions
                             {
                                 [GenerateTransformer]
@@ -222,7 +222,7 @@ public class TransformerGeneratorReferencedAssembliesTests
 
     private static IReadOnlyList<MetadataReference> CreateCoreReferences()
     {
-        var references = Basic.Reference.Assemblies.Net80.References.All
+        var references = Basic.Reference.Assemblies.Net100.References.All
             .CastArray<MetadataReference>()
             // Add a reference to the `Annotations` assembly.
             .Add(
@@ -244,14 +244,14 @@ public class TransformerGeneratorReferencedAssembliesTests
                         using System;
                         using System.Threading.Tasks;
                         using System.Collections.Generic;
-                    
+
                         public static partial class TaskExtensions
                         {
                             public static async Task<U> Map<T, U>(
                                 this Task<T> source,
                                 Func<T, U> selector) => selector(await source);
                         }
-                    
+
                         namespace Collections
                         {
                             public static partial class EnumerableAndListExtensions
@@ -259,7 +259,7 @@ public class TransformerGeneratorReferencedAssembliesTests
                                 public static IEnumerable<U> Map<T, U>(
                                     this IEnumerable<T> source,
                                     Func<T, U> selector) => source.Select(selector);
-                    
+
                                 public static IReadOnlyList<U> Map<T, U>(
                                     this IReadOnlyList<T> source,
                                     Func<T, U> selector) => source.Select(selector).ToList();
@@ -286,10 +286,10 @@ public class TransformerGeneratorReferencedAssembliesTests
                     {
                         using System;
                         using FxKit.CompilerServices;
-                    
+
                         [Functor]
                         public struct Option<T> where T : notnull {}
-                    
+
                         public static partial class Option
                         {
                             [GenerateTransformer]

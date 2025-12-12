@@ -140,9 +140,9 @@ public class LambdaGeneratorIncrementalTests
             syntaxTrees: sources,
             references:
             [
-                Basic.Reference.Assemblies.Net80.References.mscorlib,
-                Basic.Reference.Assemblies.Net80.References.System,
-                Basic.Reference.Assemblies.Net80.References.SystemCollections,
+                Basic.Reference.Assemblies.Net100.References.mscorlib,
+                Basic.Reference.Assemblies.Net100.References.System,
+                Basic.Reference.Assemblies.Net100.References.SystemCollections,
                 MetadataReference.CreateFromFile(typeof(LambdaAttribute).Assembly.Location)
             ],
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
