@@ -13,7 +13,7 @@ public static class CompilationUtil
     public static CSharpCompilation CreateCompilation(string sourceCode)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode);
-        var references = Basic.Reference.Assemblies.Net80.References.All
+        var references = Basic.Reference.Assemblies.Net100.References.All
             .CastArray<MetadataReference>()
             // Add a reference to the `Annotations` assembly.
             .Add(
