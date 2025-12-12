@@ -1,22 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Title>FxKit</Title>
   </PropertyGroup>
-
   <PropertyGroup>
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\FxKit.CompilerServices.Annotations\FxKit.CompilerServices.Annotations.csproj"/>
-    <ProjectReference Include="..\FxKit.CompilerServices\FxKit.CompilerServices.csproj" OutputItemType="Analyzer" PrivateAssets="All"/>
+    <ProjectReference Include="..\FxKit.CompilerServices.Annotations\FxKit.CompilerServices.Annotations.csproj" />
+    <ProjectReference Include="..\FxKit.CompilerServices\FxKit.CompilerServices.csproj" OutputItemType="Analyzer" PrivateAssets="All" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-    <PackageReference Update="MinVer" Version="6.0.0" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Update="MinVer" />
   </ItemGroup>
-
 </Project>
