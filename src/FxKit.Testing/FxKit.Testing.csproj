@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Title>FxKit Testing</Title>
     <Description>Test utilities for asserting on FxKit data types.</Description>
@@ -9,6 +10,5 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
-    <PackageReference Update="MinVer" />
   </ItemGroup>
 </Project>

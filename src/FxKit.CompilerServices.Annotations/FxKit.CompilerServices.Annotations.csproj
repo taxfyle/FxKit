@@ -9,7 +9,4 @@
   <PropertyGroup>
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Update="MinVer" />
-  </ItemGroup>
 </Project>

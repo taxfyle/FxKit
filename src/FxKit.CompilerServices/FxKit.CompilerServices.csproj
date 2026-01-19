@@ -23,7 +23,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Update="MinVer" />
   </ItemGroup>
   <!-- Add the built DLL and PDB to the analyzers folder to make it available as an analyzer via NuGet. -->
   <ItemGroup>

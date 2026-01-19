@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Title>FxKit</Title>
   </PropertyGroup>
@@ -8,10 +9,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\FxKit.CompilerServices.Annotations\FxKit.CompilerServices.Annotations.csproj" />
-    <ProjectReference Include="..\FxKit.CompilerServices\FxKit.CompilerServices.csproj" OutputItemType="Analyzer" PrivateAssets="All" />
+    <ProjectReference Include="..\FxKit.CompilerServices\FxKit.CompilerServices.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" />
-    <PackageReference Update="MinVer" />
   </ItemGroup>
 </Project>
