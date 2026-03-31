@@ -37,14 +37,23 @@ internal static class UnionSyntaxBuilder
             // Print the Union members.
             using (sb.WriteBlock())
             {
+                var needsNewline = false;
                 foreach (var constructor in union.Members)
                 {
+                    if (needsNewline)
+                    {
+                        sb.WriteLine();
+                    }
+                    needsNewline = true;
                     PrintUnionConstructor(sb, union, constructor);
-                    sb.WriteLine();
                 }
 
-                // Print the Match method.
-                PrintUnionMatchMethod(sb, union);
+                // Print the Match method if there are no generic union members.
+                if (!union.HasGenericMembers)
+                {
+                    sb.WriteLine();
+                    PrintUnionMatchMethod(sb, union);
+                }
             }
         }
 

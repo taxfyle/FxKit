@@ -161,6 +161,26 @@ public class UnionGeneratorTests
     }
 
     [Test]
+    public async Task DoesNotGenerateMatchWhenMemberHasGeneric()
+    {
+        var output = Generate(
+            """
+            using System.Collections.Generic;
+            using FxKit.CompilerServices;
+
+            namespace Super.Duper.Unions;
+
+            [Union]
+            public partial record WithGeneric
+            {
+                partial record Ok;
+                partial record Nope<T>;
+            }
+            """);
+        await output.VerifyGeneratedCode();
+    }
+
+    [Test]
     public void DoesNotThrowOnBadlyFormattedCode()
     {
         var output = Generate(
