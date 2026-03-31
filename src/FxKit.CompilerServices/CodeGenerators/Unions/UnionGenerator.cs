@@ -62,6 +62,7 @@ public class UnionGenerator : IIncrementalGenerator
 
         using var constructors = new ImmutableArrayBuilder<UnionMember>();
 
+        var hasGenericMembers = false;
         foreach (var nestedRecordDecl in recordDeclaration.Members.OfType<RecordDeclarationSyntax>())
         {
             // Only include if partial.
@@ -76,6 +77,12 @@ public class UnionGenerator : IIncrementalGenerator
                     nestedRecordDecl,
                     ctx.SemanticModel,
                     cancellationToken);
+
+            // Check if we have generic members.
+            if (!hasGenericMembers)
+            {
+                hasGenericMembers = nestedRecordDecl.TypeParameterList is { Parameters.Count: > 0 };
+            }
 
             constructors.Add(
                 new UnionMember(
@@ -92,6 +99,7 @@ public class UnionGenerator : IIncrementalGenerator
             UnionName: recordSymbol.Name,
             UnionNameWithSignature: TypeHierarchyHelper.GetIdentifierWithSignature(recordDeclaration),
             HintName: recordSymbol.GetFullyQualifiedMetadataName(),
+            HasGenericMembers: hasGenericMembers,
             UnionNamespace: recordSymbol.ContainingNamespace.ToDisplayString(),
             AncestorTypeHierarchy: ancestorTypeHierarchy,
             Members: new EquatableArray<UnionMember>(constructors.ToArray()));
@@ -198,6 +206,10 @@ public class UnionGenerator : IIncrementalGenerator
 /// <param name="HintName">
 ///     A hint name used for the generated file.
 /// </param>
+/// <param name="HasGenericMembers">
+///     Whether the union has any members that are generic.
+///     This information is needed so we can skip generating the `Match` method.
+/// </param>
 /// <param name="AncestorTypeHierarchy">
 ///     The type hierarchy of the union, excluding the union itself.
 /// </param>
@@ -210,6 +222,7 @@ internal record UnionGeneration(
     string UnionNameWithSignature,
     string UnionNamespace,
     string HintName,
+    bool HasGenericMembers,
     EquatableArray<TypeHierarchyNode> AncestorTypeHierarchy,
     EquatableArray<UnionMember> Members);
 
